@@ -14,21 +14,6 @@ validate both legacy-numeric and new-alphanumeric CNPJs (a digit's value equals 
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING
-
-
-if TYPE_CHECKING:
-    from typing import TypeVar
-
-    _F = TypeVar("_F")
-
-    def type_checker(fn: _F) -> _F:
-        """Type-only stub — see src/utils/CLAUDE.md."""
-else:
-    try:
-        from pure_docs_br._internal.utils.typing import type_checker
-    except ModuleNotFoundError:
-        from pure_docs_br._internal.utils.typing import type_checker
 
 
 _INT_MODULUS = 11
@@ -46,7 +31,6 @@ _RE_NON_ALNUM: re.Pattern[str] = re.compile(r"[^0-9A-Za-z]")
 _RE_NON_DIGIT: re.Pattern[str] = re.compile(r"\D")
 
 
-@type_checker
 def _strip_float_artifact(str_value: str) -> str:
     """Drop a trailing ``.0`` left by a float→str coercion; otherwise trim whitespace.
 
@@ -67,7 +51,6 @@ def _strip_float_artifact(str_value: str) -> str:
     return str_value.strip()
 
 
-@type_checker
 def unmask_cnpj(str_value: str) -> str:
     """Normalise a CNPJ to its bare 14-character form (alphanumeric-aware).
 
@@ -90,7 +73,6 @@ def unmask_cnpj(str_value: str) -> str:
     return str_clean
 
 
-@type_checker
 def mask_cnpj(str_value: str) -> str:
     """Format a CNPJ as ``XX.XXX.XXX/XXXX-XX``.
 
@@ -111,7 +93,6 @@ def mask_cnpj(str_value: str) -> str:
     return f"{str_clean[:2]}.{str_clean[2:5]}.{str_clean[5:8]}/{str_clean[8:12]}-{str_clean[12:]}"
 
 
-@type_checker
 def _cnpj_check_digit(str_base: str, *, tuple_weights: tuple[int, ...]) -> int:
     """Compute one CNPJ check digit via ASCII-48 mod-11 weighting.
 
@@ -135,7 +116,6 @@ def _cnpj_check_digit(str_base: str, *, tuple_weights: tuple[int, ...]) -> int:
     return 0 if int_rest < _INT_MIN_REMAINDER else _INT_MODULUS - int_rest
 
 
-@type_checker
 def is_valid_cnpj(str_value: str) -> bool:
     """Validate a CNPJ's two check digits (legacy numeric or 2026 alphanumeric).
 
@@ -160,7 +140,6 @@ def is_valid_cnpj(str_value: str) -> bool:
     )
 
 
-@type_checker
 def _cnpj_check_digits(str_base: str) -> str:
     """Return the two check digits for a 12-character CNPJ base.
 
@@ -179,7 +158,6 @@ def _cnpj_check_digits(str_base: str) -> str:
     return f"{int_dv1}{int_dv2}"
 
 
-@type_checker
 def unmask_cpf(str_value: str) -> str:
     """Normalise a CPF to its bare 11-digit form.
 
@@ -200,7 +178,6 @@ def unmask_cpf(str_value: str) -> str:
     return str_clean
 
 
-@type_checker
 def mask_cpf(str_value: str) -> str:
     """Format a CPF as ``XXX.XXX.XXX-XX``.
 
@@ -221,7 +198,6 @@ def mask_cpf(str_value: str) -> str:
     return f"{str_clean[:3]}.{str_clean[3:6]}.{str_clean[6:9]}-{str_clean[9:]}"
 
 
-@type_checker
 def _cpf_check_digit(str_base: str, *, int_start_weight: int) -> int:
     """Compute one CPF check digit via descending mod-11 weighting.
 
@@ -244,7 +220,6 @@ def _cpf_check_digit(str_base: str, *, int_start_weight: int) -> int:
     return 0 if int_rest < _INT_MIN_REMAINDER else _INT_MODULUS - int_rest
 
 
-@type_checker
 def is_valid_cpf(str_value: str) -> bool:
     """Validate a CPF's two check digits.
 
@@ -268,7 +243,6 @@ def is_valid_cpf(str_value: str) -> bool:
     )
 
 
-@type_checker
 def _cpf_check_digits(str_clean: str) -> str:
     """Return the two check digits for an 11-digit CPF.
 
