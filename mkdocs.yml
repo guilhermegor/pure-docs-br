@@ -1,0 +1,70 @@
+site_name: pure-docs-br
+site_description: "Validate, mask and unmask Brazilian document numbers (CPF, alphanumeric CNPJ)"
+repo_url: https://github.com/guilhermegor/pure-docs-br
+nav:
+  - Início: index.md
+  - Guia:
+      - Uso: usage.md
+      - Exemplos: examples.md
+  - Referência da API:
+      - Visão geral: api/index.md
+      - Referência: api/reference.md
+  - Projeto:
+      - FAQ: faq.md
+      - Contribuindo: contributing.md
+      - Lançando a 1.0.0: releasing-1-0-0.md
+      - Histórico de mudanças: changelog.md
+      - Incidentes: incidents.md
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+  language: pt-BR
+  logo: assets/logo.png
+  favicon: assets/logo.png
+  palette:
+    - scheme: default
+      primary: custom
+      toggle:
+        icon: material/weather-night
+        name: Alternar para o modo escuro
+    - scheme: slate
+      primary: custom
+      toggle:
+        icon: material/white-balance-sunny
+        name: Alternar para o modo claro
+extra_css:
+  - stylesheets/brand.css
+extra:
+  version:
+    provider: mike
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - tables
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.snippets:
+      base_path:
+        - .
+
+exclude_docs: |
+  superpowers/
+  CLAUDE.md
+  AGENTS.md
+  blueprintx-lessons.md
+  dotfiles-dev-lessons.md
+  checkpoints.md
+  blueprintx-lessons.md
+
+validation:
+  nav:
+    omitted_files: warn
