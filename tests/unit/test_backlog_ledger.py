@@ -575,6 +575,7 @@ def test_justification_reason_reads_the_pr_body(
             "pull_request": {"body": "Removes a duplicate hook.\n\ngate-change-ok: dup"}
         },
     )
+    monkeypatch.delenv("GATE_CHANGE_OK", raising=False)
     monkeypatch.setenv("GITHUB_EVENT_PATH", str_event)
     monkeypatch.setattr(gate_integrity, "_git", lambda _args: "")
 
