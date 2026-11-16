@@ -8,7 +8,7 @@ from pure_docs_br._internal.utils.typing import type_checker
 
 @pytest.mark.parametrize("fn_target", [mask_cpf, unmask_cnpj])
 @pytest.mark.parametrize("value", [None, 1, 1.5, b"52998224725"])
-def test_public_function_non_str_argument_raises_type_error(fn_target, value) -> None:  # noqa: ANN001
+def test_public_function_non_str_argument_raises_type_error(*, fn_target, value) -> None:  # noqa: ANN001
     """A non-``str`` argument is rejected with ``TypeError``, as the original checker did."""
     with pytest.raises(TypeError):
         fn_target(value)
