@@ -1,5 +1,5 @@
 site_name: pure-docs-br
-site_description: "Validate, mask and unmask Brazilian document numbers (CPF, alphanumeric CNPJ)"
+site_description: "Valida, aplica e remove a máscara de documentos brasileiros"
 repo_url: https://github.com/guilhermegor/pure-docs-br
 nav:
   - Início: index.md

@@ -18,7 +18,7 @@
 <!-- slug: overview -->
 ## Visão geral
 
-Validate, mask and unmask Brazilian document numbers (CPF, alphanumeric CNPJ)
+Valida, aplica e remove a máscara de documentos brasileiros
 
 <!-- optional section: delete it when the project has no feature list -->
 <!-- slug: features -->
