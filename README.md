@@ -144,6 +144,18 @@ poetry run poe integration_tests
 Quando o deploy da documentação do primeiro release tiver criado a branch `gh-pages`, rode
 `poetry run poe enable_pages` uma vez: até que essa branch exista, o `init` deixa o Pages intocado.
 
+### `poetry run poe` ou `bash bin/poe_exec.sh`?
+
+Os dois rodam a mesma tarefa do mesmo `poe` do venv. Use `poetry run poe`, o comando que a
+comunidade conhece; o `bin/poe_exec.sh` cobre os casos em que ele não basta:
+
+| Situação | `poetry run poe` | `bash bin/poe_exec.sh` |
+|---|---|---|
+| Máquina comum, `poetry` no `PATH` | funciona | funciona |
+| `poetry` fora do `PATH` (ex.: recém-instalado com `--user`) | falha: `poetry: command not found` | funciona: acha `.venv/bin/poe` (ou `.venv/Scripts/poe.exe` no Windows) sem o `poetry` |
+| Rede corporativa com inspeção TLS (`bin/corporate_ca.pem` presente) | tarefas que baixam algo podem falhar com erro de certificado | funciona: monta o bundle de CAs e o exporta antes de rodar a tarefa |
+| `poe` não instalado | erro genérico do Poetry | lista as formas de instalar (`bin/venv.sh`, `pipx`, plugin do Poetry) |
+
 <!-- slug: public-api -->
 ## API pública
 
