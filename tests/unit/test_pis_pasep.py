@@ -29,6 +29,16 @@ def test_is_valid_pis_pasep_invalid_returns_false(str_value: str) -> None:
     assert is_valid_pis_pasep(str_value) is False
 
 
+def test_is_valid_pis_pasep_unicode_zeros_returns_false() -> None:
+    """Arabic-Indic zeros are not digits, so they cannot dodge the repeated-digit guard."""
+    assert is_valid_pis_pasep("٠" * 10 + "0") is False
+
+
+def test_unmask_pis_pasep_drops_non_ascii_digits() -> None:
+    """Only ASCII 0-9 survive unmasking; other Unicode decimals are stripped."""
+    assert unmask_pis_pasep("١٢" + "3") == "00000000003"
+
+
 def test_is_valid_pis_pasep_dv_ten_becomes_zero() -> None:
     """A weighted sum with remainder 1 gives 10, which folds to 0."""
     assert is_valid_pis_pasep("40000000000") is True

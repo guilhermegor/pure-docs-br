@@ -21,7 +21,7 @@ from pure_docs_br.br_identifiers import _strip_float_artifact
 _LEN_PIS: int = 11
 _TUPLE_WEIGHTS: tuple[int, ...] = (3, 2, 9, 8, 7, 6, 5, 4, 3, 2)
 
-_RE_NON_DIGIT: re.Pattern[str] = re.compile(r"\D")
+_RE_NON_DIGIT: re.Pattern[str] = re.compile(r"\D", re.ASCII)
 
 
 @type_checker
