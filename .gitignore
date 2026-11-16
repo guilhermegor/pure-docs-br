@@ -54,3 +54,5 @@ docs/dotfiles-dev-lessons.md
 .env.production
 
 data/app.db
+
+.specs/_lessons/
