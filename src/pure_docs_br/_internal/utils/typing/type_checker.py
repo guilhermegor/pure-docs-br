@@ -17,7 +17,7 @@ _P = ParamSpec("_P")
 _R = TypeVar("_R")
 
 
-def _check_argument(str_name: str, value: object, dict_hints: dict[str, object]) -> None:
+def _check_argument(*, str_name: str, value: object, dict_hints: dict[str, object]) -> None:
     """Raise ``TypeError`` when a value is not an instance of its plain-class annotation.
 
     Parameters
@@ -48,6 +48,7 @@ def _check_argument(str_name: str, value: object, dict_hints: dict[str, object])
 
 
 def _check_arguments(
+    *,
     cls_signature: inspect.Signature,
     dict_hints: dict[str, object],
     args: tuple[object, ...],
@@ -72,7 +73,7 @@ def _check_arguments(
         Nothing; the check either passes or raises ``TypeError``.
     """
     for str_name, value in cls_signature.bind(*args, **kwargs).arguments.items():
-        _check_argument(str_name, value, dict_hints)
+        _check_argument(str_name=str_name, value=value, dict_hints=dict_hints)
 
 
 def type_checker(fn_target: Callable[_P, _R]) -> Callable[_P, _R]:
@@ -94,7 +95,9 @@ def type_checker(fn_target: Callable[_P, _R]) -> Callable[_P, _R]:
     @functools.wraps(fn_target)
     def fn_wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _R:
         """Check the bound arguments, then call the wrapped function."""
-        _check_arguments(cls_signature, dict_hints, args, kwargs)
+        _check_arguments(
+            cls_signature=cls_signature, dict_hints=dict_hints, args=args, kwargs=kwargs
+        )
         return fn_target(*args, **kwargs)
 
     return fn_wrapper
