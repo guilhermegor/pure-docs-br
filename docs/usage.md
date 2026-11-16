@@ -134,3 +134,27 @@ Casos extremos: não existe máscara oficial, então `XXXX XXXX XXXX` é uma con
 biblioteca. Códigos de UF fora de `01`-`28` são inválidos (`000000000000` é `False`). Títulos
 antigos de 13 dígitos (SP/MG) não são suportados: `is_valid_titulo_eleitor` devolve `False` e
 `mask_titulo_eleitor` devolve o valor sem máscara.
+
+## CNS
+
+O CNS (Cartão Nacional de Saúde, ou Cartão SUS) tem 15 dígitos. O primeiro define o tipo: `1` e `2`
+são definitivos (PIS de 11 dígitos, sufixo e dígito verificador); `7`, `8` e `9` são provisórios
+(soma ponderada divisível por 11).
+
+Formatos aceitos: com espaços (`100 0000 0001 0002`), sem máscara (`100000000010002`) e o artefato
+de float (`100000000010002.0`). Sempre uma `str`.
+
+```python
+from pure_docs_br import is_valid_cns, mask_cns, unmask_cns
+
+is_valid_cns("100 0000 0001 0002")  # True
+is_valid_cns("100000000010003")  # False, dígito verificador errado
+mask_cns("100000000010002")  # "100 0000 0001 0002"
+unmask_cns("100000000010002.0")  # "100000000010002"
+```
+
+Casos extremos: não existe máscara oficial, então `XXX XXXX XXXX XXXX` é uma convenção desta
+biblioteca. `unmask_cns` não completa zeros, pois nenhum CNS válido começa com 0. Números que
+começam com `0`, `3`, `4`, `5` ou `6` são inválidos. `mask_cns` devolve o valor sem máscara quando o
+tamanho não fecha em 15 dígitos. A rotina vem de fontes públicas que citam o DATASUS, não do texto
+oficial.

@@ -27,7 +27,8 @@ Valida, aplica e remove a máscara de documentos brasileiros
 - Valida CPF e CNPJ pelos dígitos verificadores, inclusive o CNPJ alfanumérico que passa a existir em 2026.
 - Valida o formato do CEP (8 dígitos; o CEP não tem dígito verificador).
 - Valida o Título de Eleitor (12 dígitos, UF e dois dígitos verificadores).
-- Aplica e remove a máscara (`XXX.XXX.XXX-XX`, `XX.XXX.XXX/XXXX-XX`, `XXXXX-XXX` e `XXXX XXXX XXXX`).
+- Valida o CNS (Cartão Nacional de Saúde, 15 dígitos, definitivo ou provisório, módulo 11).
+- Aplica e remove a máscara (`XXX.XXX.XXX-XX`, `XX.XXX.XXX/XXXX-XX`, `XXXXX-XXX`, `XXXX XXXX XXXX` e `XXX XXXX XXXX XXXX`).
 - Tolera texto sujo: pontuação, zeros à esquerda perdidos e a cauda `.0` de um número que virou `str` (por exemplo `"52998224725.0"`).
 - Funções puras, sem I/O e sem dependências de execução.
 
@@ -69,16 +70,19 @@ Toda função recebe e devolve `str` (ou `bool`) e aceita o documento com ou sem
 from pure_docs_br import (
     is_valid_cep,
     is_valid_cnpj,
+    is_valid_cns,
     is_valid_cpf,
     is_valid_pis_pasep,
     is_valid_titulo_eleitor,
     mask_cep,
     mask_cnpj,
+    mask_cns,
     mask_cpf,
     mask_pis_pasep,
     mask_titulo_eleitor,
     unmask_cep,
     unmask_cnpj,
+    unmask_cns,
     unmask_cpf,
     unmask_pis_pasep,
     unmask_titulo_eleitor,
@@ -110,6 +114,10 @@ is_valid_titulo_eleitor("0043 5687 09 06")  # True
 mask_pis_pasep("12345678900.0")  # "123.45678.90-0"
 unmask_pis_pasep("1234567890")  # "01234567890"
 is_valid_pis_pasep("123.45678.90-0")  # True
+
+mask_cns("100000000010002")  # "100 0000 0001 0002"
+unmask_cns("100000000010002.0")  # "100000000010002"
+is_valid_cns("100 0000 0001 0002")  # True
 ```
 
 ### CEP
@@ -192,10 +200,10 @@ comunidade conhece; o `bin/poe_exec.sh` cobre os casos em que ele não basta:
 ## API pública
 
 A superfície pública é o que o `__init__.py` do pacote lista em `__all__`:
-`__version__`, `is_valid_cep`, `is_valid_cnpj`, `is_valid_cpf`, `is_valid_pis_pasep`,
-`is_valid_titulo_eleitor`, `mask_cep`, `mask_cnpj`, `mask_cpf`, `mask_pis_pasep`,
-`mask_titulo_eleitor`, `unmask_cep`, `unmask_cnpj`, `unmask_cpf`, `unmask_pis_pasep` e
-`unmask_titulo_eleitor`.
+`__version__`, `is_valid_cep`, `is_valid_cnpj`, `is_valid_cns`, `is_valid_cpf`,
+`is_valid_pis_pasep`, `is_valid_titulo_eleitor`, `mask_cep`, `mask_cnpj`, `mask_cns`, `mask_cpf`,
+`mask_pis_pasep`, `mask_titulo_eleitor`, `unmask_cep`, `unmask_cnpj`, `unmask_cns`, `unmask_cpf`,
+`unmask_pis_pasep` e `unmask_titulo_eleitor`.
 
 ### Garantia de API da 1.x
 

@@ -96,6 +96,29 @@ is_valid_pis_pasep("11111111111")  # False, dígito repetido
 
 ---
 
+## Funções de CNS
+
+Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceção para `str`). O CNS
+(Cartão Nacional de Saúde) tem 15 dígitos ASCII e o primeiro define o tipo: `1` e `2` são
+definitivos, `7`, `8` e `9` provisórios; `0`, `3`, `4`, `5` e `6` são inválidos. O módulo 11 vem da
+rotina do DATASUS, conhecida por fontes públicas e não pelo texto oficial. `is_valid_cns` não
+confirma que o cartão foi emitido.
+
+| Função | Retorno | Comportamento |
+|--------|---------|---------------|
+| `unmask_cns(str_value)` | `str` | Mantém só dígitos ASCII e descarta a cauda `.0`. Não completa zeros, pois nenhum CNS válido começa com 0. Entrada sem dígitos devolve `""`. |
+| `mask_cns(str_value)` | `str` | Formata como `XXX XXXX XXXX XXXX` (convenção da biblioteca; o CNS não tem máscara oficial); se o valor sem máscara não tiver 15 dígitos, devolve esse valor sem máscara. |
+| `is_valid_cns(str_value)` | `bool` | `True` quando há 15 dígitos e a regra do tipo fecha: dígito verificador e sufixo (definitivo) ou soma ponderada divisível por 11 (provisório). |
+
+```python
+from pure_docs_br import is_valid_cns, mask_cns
+
+mask_cns("100000000010002")  # "100 0000 0001 0002"
+is_valid_cns("300000000000000")  # False, começa com 3
+```
+
+---
+
 ## Adicionando novos módulos
 
 Coloque os novos módulos em `src/pure_docs_br/`. Exporte os símbolos públicos em `src/pure_docs_br/__init__.py` e liste-os em `__all__`, para que quem usa a biblioteca importe direto da raiz do pacote, como `from pure_docs_br import mask_cpf`.
