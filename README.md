@@ -1,7 +1,7 @@
 <!-- readme-archetype: library -->
 # pure-docs-br
 
-<p align="center"><img src="https://raw.githubusercontent.com/guilhermegor/pure-docs-br/main/assets/logo_lorem_ipsum.png" width="200" alt="pure-docs-br logo"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/guilhermegor/pure-docs-br/main/assets/logo.png" width="200" alt="pure-docs-br logo"></p>
 
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 ![Python Version](https://img.shields.io/badge/python-3.11%2B-blue.svg)
