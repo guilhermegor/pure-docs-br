@@ -617,7 +617,7 @@ def _git_in(path_repo: Path, *args: str) -> str:
     cls_proc = subprocess.run(  # noqa: S603
         ["git", "-C", str(path_repo), *args],  # noqa: S607
         capture_output=True,
-        text=True,
+        encoding="utf-8",
         check=True,
     )
     return cls_proc.stdout.strip()

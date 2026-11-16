@@ -516,7 +516,14 @@ def base_blob(
     dict_env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
     try:
         cls_git = subprocess.run(  # noqa: S603
-            ["git", "-C", str(path_blueprintx_root), "show", f"{str_commit}:{str_src}"],  # noqa: S607
+            [  # noqa: S607
+                "git",
+                "-C",
+                str(path_blueprintx_root),
+                "cat-file",
+                "--filters",
+                f"{str_commit}:{str_src}",
+            ],
             capture_output=True,
             check=False,
             env=dict_env,
