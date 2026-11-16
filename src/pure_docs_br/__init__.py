@@ -2,7 +2,14 @@
 
 from importlib.metadata import PackageNotFoundError, version
 
-from .main import main
+from .br_identifiers import (
+    is_valid_cnpj,
+    is_valid_cpf,
+    mask_cnpj,
+    mask_cpf,
+    unmask_cnpj,
+    unmask_cpf,
+)
 
 
 try:
@@ -13,5 +20,10 @@ except PackageNotFoundError:  # pragma: no cover - source tree without an instal
 
 __all__ = [
     "__version__",
-    "main",
+    "is_valid_cnpj",
+    "is_valid_cpf",
+    "mask_cnpj",
+    "mask_cpf",
+    "unmask_cnpj",
+    "unmask_cpf",
 ]

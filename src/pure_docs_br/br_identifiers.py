@@ -14,21 +14,8 @@ validate both legacy-numeric and new-alphanumeric CNPJs (a digit's value equals 
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING
 
-
-if TYPE_CHECKING:
-    from typing import TypeVar
-
-    _F = TypeVar("_F")
-
-    def type_checker(fn: _F) -> _F:
-        """Type-only stub — see src/utils/CLAUDE.md."""
-else:
-    try:
-        from pure_docs_br._internal.utils.typing import type_checker
-    except ModuleNotFoundError:
-        from pure_docs_br._internal.utils.typing import type_checker
+from pure_docs_br._internal.utils.typing import type_checker
 
 
 _INT_MODULUS = 11

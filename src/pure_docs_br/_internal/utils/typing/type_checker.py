@@ -1,85 +1,100 @@
-"""Metaclass that applies runtime type checking to every method in a class.
+"""Standard-library runtime type checking for plain annotated parameters.
 
-``staticmethod``, ``classmethod`` and ``property`` descriptors are preserved (the
-underlying function is wrapped and re-wrapped in the same descriptor) so a checked
-static method called via an instance no longer receives ``self`` as its first
-argument.
+The package ships with no runtime dependencies, so this decorator replaces a third-party
+checker. It validates every argument whose annotation is a plain class (``str``, ``int``)
+and leaves generic, union and string-forward annotations to mypy.
 """
 
 from __future__ import annotations
 
-from pure_docs_br._internal.utils.typing.validate import create_type_checked_method
+from collections.abc import Callable
+import functools
+import inspect
+from typing import ParamSpec, TypeVar, get_type_hints
 
 
-class TypeChecker(type):
-    """Metaclass for automatic runtime type checking of all public methods.
-
-    Apply as ``metaclass=TypeChecker`` to enforce annotated argument types on
-    every call, including ``__init__``. Dunder methods (except ``__init__``) are
-    left untouched to avoid interfering with Python internals.
-
-    Examples
-    --------
-    >>> class Calculator(metaclass=TypeChecker):
-    ...     def add(self, x: int, y: int) -> int:
-    ...         return x + y
-    >>> Calculator().add(1, "two")  # raises TypeError
-    """
-
-    def __new__(  # complexity-ok: metaclass machinery
-        cls: type[TypeChecker],
-        str_name: str,
-        tuple_bases: tuple[type, ...],
-        dict_attrs: dict[str, object],
-    ) -> TypeChecker:
-        """Wrap public methods with type checking before the class is created.
-
-        Parameters
-        ----------
-        cls : type[TypeChecker]
-            The metaclass.
-        str_name : str
-            Name of the class being created.
-        tuple_bases : tuple[type, ...]
-            Base classes.
-        dict_attrs : dict[str, object]
-            Class namespace dictionary.
-
-        Returns
-        -------
-        TypeChecker
-            New class with type-checked methods.
-        """
-        for str_attr, attr_value in dict_attrs.items():
-            if str_attr.startswith("__"):
-                continue
-            dict_attrs[str_attr] = _wrap_attribute(attr_value)
-        if "__init__" in dict_attrs:
-            dict_attrs["__init__"] = _wrap_attribute(dict_attrs["__init__"])
-        return super().__new__(cls, str_name, tuple_bases, dict_attrs)
+_P = ParamSpec("_P")
+_R = TypeVar("_R")
 
 
-def _wrap_attribute(attr_value: object) -> object:  # complexity-ok: metaclass machinery
-    """Wrap a class attribute with type checking, preserving its descriptor.
+def _check_argument(str_name: str, value: object, dict_hints: dict[str, object]) -> None:
+    """Raise ``TypeError`` when a value is not an instance of its plain-class annotation.
 
     Parameters
     ----------
-    attr_value : object
-        The class-body attribute (function, staticmethod, classmethod, property,
-        or a non-callable).
+    str_name : str
+        Parameter name.
+    value : object
+        Argument bound to that parameter.
+    dict_hints : dict[str, object]
+        Resolved annotations of the decorated function.
 
     Returns
     -------
-    object
-        The wrapped attribute (descriptor preserved), or the attribute unchanged
-        when it is not a checkable callable.
+    None
+        Nothing; the check either passes or raises.
+
+    Raises
+    ------
+    TypeError
+        If the annotation is a plain class and ``value`` is not an instance of it.
     """
-    if isinstance(attr_value, staticmethod):
-        return staticmethod(create_type_checked_method(attr_value.__func__))
-    if isinstance(attr_value, classmethod):
-        return classmethod(create_type_checked_method(attr_value.__func__))
-    if isinstance(attr_value, property):
-        return attr_value
-    if callable(attr_value):
-        return create_type_checked_method(attr_value)
-    return attr_value
+    cls_expected = dict_hints.get(str_name)
+    if isinstance(cls_expected, type) and not isinstance(value, cls_expected):
+        raise TypeError(
+            f"parameter {str_name}={value!r} violates type hint {cls_expected.__name__}, "
+            f"got {type(value).__name__}"
+        )
+
+
+def _check_arguments(
+    cls_signature: inspect.Signature,
+    dict_hints: dict[str, object],
+    args: tuple[object, ...],
+    kwargs: dict[str, object],
+) -> None:
+    """Check every bound argument of one call against the resolved annotations.
+
+    Parameters
+    ----------
+    cls_signature : inspect.Signature
+        Signature of the decorated function.
+    dict_hints : dict[str, object]
+        Resolved annotations of the decorated function.
+    args : tuple[object, ...]
+        Positional arguments of the call.
+    kwargs : dict[str, object]
+        Keyword arguments of the call.
+
+    Returns
+    -------
+    None
+        Nothing; the check either passes or raises ``TypeError``.
+    """
+    for str_name, value in cls_signature.bind(*args, **kwargs).arguments.items():
+        _check_argument(str_name, value, dict_hints)
+
+
+def type_checker(fn_target: Callable[_P, _R]) -> Callable[_P, _R]:
+    """Validate the annotated parameters of ``fn_target`` on every call.
+
+    Parameters
+    ----------
+    fn_target : Callable[_P, _R]
+        Function whose plain-class annotated parameters are checked at call time.
+
+    Returns
+    -------
+    Callable[_P, _R]
+        The wrapped function, with its signature and docstring preserved.
+    """
+    cls_signature = inspect.signature(fn_target)
+    dict_hints = get_type_hints(fn_target)
+
+    @functools.wraps(fn_target)
+    def fn_wrapper(*args: _P.args, **kwargs: _P.kwargs) -> _R:
+        """Check the bound arguments, then call the wrapped function."""
+        _check_arguments(cls_signature, dict_hints, args, kwargs)
+        return fn_target(*args, **kwargs)
+
+    return fn_wrapper

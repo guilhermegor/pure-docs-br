@@ -1,6 +1,6 @@
 # **pure-docs-br** <img src="assets/logo.png" align="right" width="200" style="border-radius: 15px;" alt="pure-docs-br">
 
-Uma biblioteca Python mínima, com empacotamento, testes, CI e lint já configurados.
+Valida, aplica e remove a máscara de CPF e CNPJ, inclusive o CNPJ alfanumérico de 2026. Sem dependências de execução.
 
 ---
 

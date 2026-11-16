@@ -1,1 +1,1 @@
-"""Shared, project-agnostic utility helpers (copied into every Python skeleton)."""
+"""Private helpers shared by the public modules."""

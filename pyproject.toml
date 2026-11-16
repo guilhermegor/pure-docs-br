@@ -1,11 +1,12 @@
 [tool.poetry]
 name = "pure-docs-br"
-version = "0.0.1"
+version = "0.0.0"  # set from the git tag, see docs/contributing.md#releasing
 description = "Validate, mask and unmask Brazilian document numbers (CPF, alphanumeric CNPJ)"
 authors = ["guilhermegor"]
 readme = "README.md"
 license = "MIT"
-homepage = "https://example.com/pure-docs-br"
+homepage = "https://guilhermegor.github.io/pure-docs-br/"
+documentation = "https://guilhermegor.github.io/pure-docs-br/"
 repository = "https://github.com/guilhermegor/pure-docs-br"
 keywords = ["pure-docs-br", "python", "library"]
 packages = [{ include = "pure_docs_br", from = "src" }]
@@ -19,7 +20,7 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "Operating System :: OS Independent",
     "License :: OSI Approved :: MIT License",
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Libraries",
 ]
@@ -27,14 +28,10 @@ classifiers = [
 [tool.poetry.urls]
 "Bug Reports" = "https://github.com/guilhermegor/pure-docs-br/issues"
 "Source" = "https://github.com/guilhermegor/pure-docs-br"
+"Documentation" = "https://guilhermegor.github.io/pure-docs-br/"
 
 [tool.poetry.dependencies]
 python = ">=3.11,<4.0"
-beartype = ">=0.22"
-pandas = ">=2.1.0"
-numpy = ">=1.22"
-openpyxl = ">=3.1.0"
-defusedxml = ">=0.7"
 
 [tool.poetry.group.dev.dependencies]
 poethepoet = ">=0.35"
@@ -64,9 +61,11 @@ mkdocs-material = ">=9.5.0"
 pymdown-extensions = ">=10.0"
 mike = ">=2.1.0"
 
-[tool.deptry.per_rule_ignores]
-DEP002 = ["openpyxl"]
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "pep440"
 
 [build-system]
-requires = ["poetry-core>=1.7.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.7.0", "poetry-dynamic-versioning>=1.4.0,<2.0.0"]
+build-backend = "poetry_dynamic_versioning.backend"

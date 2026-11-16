@@ -9,32 +9,26 @@ Exemplos de instalação e de uso desta biblioteca.
 ## Instalação
 
 ```bash
-pip install <package-name>
+pip install pure-docs-br
 ```
 
 Ou com Poetry:
 
 ```bash
-poetry add <package-name>
+poetry add pure-docs-br
 ```
 
-Com um extra opcional, mantenha os extras idênticos nos dois lados:
-
-```bash
-pip install "<package-name>[<extra>]"
-poetry add "<package-name>[<extra>]"
-```
-
-Toda linha de `pip install` tem um equivalente em Poetry.
+A biblioteca não tem dependências de execução.
 
 ---
 
 ## Uso básico
 
 ```python
-from <package_name>.main import main
+from pure_docs_br import is_valid_cpf, mask_cpf
 
-main()
+is_valid_cpf("529.982.247-25")  # True
+mask_cpf("52998224725")  # "529.982.247-25"
 ```
 
 ---

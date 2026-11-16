@@ -1,30 +1,8 @@
-"""Runtime type-checking helpers (BlueprintX chassis).
+"""Dependency-free runtime type checking."""
 
-Apply :class:`TypeChecker` as a class metaclass to validate every public method's
-annotated argument types at call time, or :func:`type_checker` as a decorator on a
-standalone function. :class:`ABCTypeCheckerMeta` and :class:`ProtocolTypeCheckerMeta`
-combine the same checking with ``abc.ABCMeta`` / ``Protocol``. These complement —
-they do not replace — static checking (mypy + ruff ANN).
-
-Single source of truth: ``templates/python-common/optional/typing/``. The DDD
-skeletons receive it at ``src/chassis/typing/`` (this ``chassis.typing`` import
-prefix); the MVC skeletons receive it at ``src/utils/typing/`` with the prefix
-rewritten to ``utils.typing`` on copy (mirrors the webhook seam).
-"""
-
-from __future__ import annotations
-
-from pure_docs_br._internal.utils.typing.abc_type_checker import ABCTypeCheckerMeta
-from pure_docs_br._internal.utils.typing.decorators import type_checker
-from pure_docs_br._internal.utils.typing.protocol_type_checker import ProtocolTypeCheckerMeta
-from pure_docs_br._internal.utils.typing.type_checker import TypeChecker
-from pure_docs_br._internal.utils.typing.validate import validate_type
+from pure_docs_br._internal.utils.typing.type_checker import type_checker
 
 
 __all__ = [
-    "ABCTypeCheckerMeta",
-    "ProtocolTypeCheckerMeta",
     "type_checker",
-    "TypeChecker",
-    "validate_type",
 ]

@@ -24,7 +24,10 @@ Validate, mask and unmask Brazilian document numbers (CPF, alphanumeric CNPJ)
 <!-- slug: features -->
 ## Funcionalidades
 
-- As capacidades que importam para quem usa, uma por linha.
+- Valida CPF e CNPJ pelos dígitos verificadores, inclusive o CNPJ alfanumérico que passa a existir em 2026.
+- Aplica e remove a máscara (`XXX.XXX.XXX-XX` e `XX.XXX.XXX/XXXX-XX`).
+- Tolera entrada suja: pontuação, zeros à esquerda perdidos e a cauda `.0` de uma coluna lida como `float`.
+- Funções puras, sem I/O e sem dependências de execução.
 
 <!-- slug: documentation -->
 ## Documentação
@@ -52,8 +55,42 @@ O `poe` vive dentro do virtualenv, então o `bin/venv.sh` o cria primeiro; em se
 <!-- slug: usage -->
 ### Uso
 
-Rode o projeto pelos pontos de entrada em `src/`; troque este parágrafo pelos comandos que as
-pessoas usuárias executam primeiro.
+```bash
+pip install pure-docs-br
+```
+
+Toda função recebe e devolve `str` (ou `bool`) e aceita o documento com ou sem máscara.
+
+```python
+from pure_docs_br import (
+    is_valid_cnpj,
+    is_valid_cpf,
+    mask_cnpj,
+    mask_cpf,
+    unmask_cnpj,
+    unmask_cpf,
+)
+
+mask_cpf("52998224725")  # "529.982.247-25"
+unmask_cpf("529.982.247-25")  # "52998224725"
+unmask_cpf("1234567")  # "00001234567", completa com zeros à esquerda
+is_valid_cpf("529.982.247-25")  # True
+is_valid_cpf("11111111111")  # False, dígitos repetidos
+
+mask_cnpj("11222333000181")  # "11.222.333/0001-81"
+mask_cnpj("12ABC34501DE35")  # "12.ABC.345/01DE-35"
+unmask_cnpj("12.abc.345/01de-35")  # "12ABC34501DE35", maiúsculas
+unmask_cnpj("11222333000181.0")  # "11222333000181", descarta a cauda ".0"
+is_valid_cnpj("11.222.333/0001-81")  # True
+is_valid_cnpj("12.ABC.345/01DE-35")  # True, formato alfanumérico
+is_valid_cnpj("11222333000182")  # False, dígito verificador errado
+```
+
+`mask_*` devolve o valor sem máscara quando ele não chega ao tamanho do documento, e `is_valid_*`
+devolve `False` em vez de lançar exceção, então uma linha ruim não interrompe a transformação de
+uma coluna inteira. O dígito verificador do CNPJ segue o cálculo de módulo 11 do
+[Serpro](https://www.serpro.gov.br/menu/noticias/videos/calculodvcnpjalfanaumerico.pdf) e da
+[Receita Federal](https://www.gov.br/receitafederal/pt-br/centrais-de-conteudo/publicacoes/perguntas-e-respostas/cnpj/cnpj-alfanumerico.pdf).
 
 <!-- slug: project-structure -->
 ## Estrutura do projeto
@@ -64,7 +101,7 @@ pure-docs-br/
 ├── .specs/         specs de funcionalidades e trackers de backlog
 ├── bin/            scripts de gate e utilitários
 ├── docs/           documentação publicada
-├── src/            código da aplicação
+├── src/            o pacote `pure_docs_br`
 ├── tests/
 │   ├── unit/
 │   └── integration/
@@ -89,8 +126,8 @@ Quando o deploy da documentação do primeiro release tiver criado a branch `gh-
 <!-- slug: public-api -->
 ## API pública
 
-A superfície pública é o que o `__init__.py` do pacote lista em `__all__`; tudo o que está em
-`_internal/` é privado.
+A superfície pública é o que o `__init__.py` do pacote lista em `__all__`:
+`is_valid_cnpj`, `is_valid_cpf`, `mask_cnpj`, `mask_cpf`, `unmask_cnpj` e `unmask_cpf`.
 
 <!-- slug: publishing -->
 ## Publicação
@@ -113,7 +150,7 @@ Este projeto é licenciado sob MIT; veja [LICENSE](LICENSE).
 <!-- slug: authors -->
 ## Autores
 
-- guilhermegor — [GitHub](https://github.com/guilhermegor) | [LinkedIn](https://www.linkedin.com/in/your-linkedin-handle)
+- guilhermegor — [GitHub](https://github.com/guilhermegor) | [LinkedIn](https://www.linkedin.com/in/guilhermegor)
 
 <!-- slug: useful-links -->
 ## Links úteis
