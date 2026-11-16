@@ -20,8 +20,47 @@ require_gh() {
 	return 0
 }
 
+repo_from_remote() {
+	git remote get-url origin 2>/dev/null |
+		sed -nE 's#^(git@github\.com:|ssh://git@github\.com/|https?://([^@/]+@)?github\.com/)([^/]+/[^/]+)/?$#\3#p' |
+		sed -E 's#\.git$##' || true
+}
+
+report_gh_failure() {
+	local str_err="$1" str_limit int_remaining int_reset str_when
+	str_limit="$(gh api rate_limit --jq '.resources.graphql | "\(.remaining) \(.reset)"' 2>/dev/null || true)"
+	int_remaining="${str_limit%% *}"
+	int_reset="${str_limit##* }"
+	if [ "$int_remaining" = "0" ]; then
+		str_when="$(date -d "@$int_reset" 2>/dev/null || date -r "$int_reset" 2>/dev/null || echo "epoch $int_reset")"
+		print_status "warning" "GitHub GraphQL rate limit exhausted — resets at $str_when; re-run 'poetry run poe enable_pages' then${str_err:+ ($str_err)}" >&2
+		return 0
+	fi
+	print_status "warning" "gh repo view failed: ${str_err:-no output}" >&2
+}
+
 resolve_repo() {
-	gh repo view --json nameWithOwner --jq .nameWithOwner 2>/dev/null || true
+	local str_slug
+	str_slug="$(repo_from_remote)"
+	if [ -n "$str_slug" ]; then
+		echo "$str_slug"
+		return 0
+	fi
+	local path_err
+	path_err="$(mktemp)"
+	str_slug="$(gh repo view --json nameWithOwner --jq .nameWithOwner 2>"$path_err" || true)"
+	if [ -n "$str_slug" ]; then
+		rm -f "$path_err"
+		echo "$str_slug"
+		return 0
+	fi
+	if ! git remote get-url origin >/dev/null 2>&1; then
+		print_status "warning" "No GitHub remote resolved — push the repo to GitHub first" >&2
+	else
+		report_gh_failure "$(cat "$path_err")"
+	fi
+	rm -f "$path_err"
+	return 1
 }
 
 uses_mike() {
@@ -63,9 +102,8 @@ set_pages_source() {
 
 enable_pages() {
 	local str_repo
-	str_repo="$(resolve_repo)"
-	if [ -z "$str_repo" ]; then
-		print_status "warning" "No GitHub remote resolved — skipping Pages enablement (push the repo to GitHub first)"
+	if ! str_repo="$(resolve_repo)" || [ -z "$str_repo" ]; then
+		print_status "warning" "Could not resolve the GitHub repository — skipping Pages enablement (see the message above)"
 		return 0
 	fi
 	set_pages_source "$str_repo"
