@@ -10,6 +10,7 @@ from .br_identifiers import (
     unmask_cnpj,
     unmask_cpf,
 )
+from .cep import is_valid_cep, mask_cep, unmask_cep
 
 
 try:
@@ -20,10 +21,13 @@ except PackageNotFoundError:  # pragma: no cover - source tree without an instal
 
 __all__ = [
     "__version__",
+    "is_valid_cep",
     "is_valid_cnpj",
     "is_valid_cpf",
+    "mask_cep",
     "mask_cnpj",
     "mask_cpf",
+    "unmask_cep",
     "unmask_cnpj",
     "unmask_cpf",
 ]
