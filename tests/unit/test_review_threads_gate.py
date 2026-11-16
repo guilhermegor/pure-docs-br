@@ -3239,7 +3239,7 @@ def _git(path_repo: Path, *list_args: str, bool_check: bool = True) -> str:
     cls_run = subprocess.run(  # noqa: S603
         [*list_cmd, "-C", str(path_repo), *list_args],
         capture_output=True,
-        text=True,
+        encoding="utf-8",
         check=bool_check,
     )
     return cls_run.stdout.strip()
@@ -3312,7 +3312,7 @@ def _patch_id(str_oid: str, *, path_repo: Path) -> str:
         ["git", "patch-id", "--stable"],  # noqa: S607
         input=str_diff + "\n",
         capture_output=True,
-        text=True,
+        encoding="utf-8",
         check=True,
     )
     str_patch_id, _ = cls_run.stdout.split()

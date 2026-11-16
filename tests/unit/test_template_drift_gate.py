@@ -509,10 +509,10 @@ def _drift_output(
             Everything the reporter printed.
     """
     path_root, str_sha = _versioned_checkout(path_tmp)
-    (path_root / _COMMON / "a.txt").write_text(str_theirs, encoding="utf-8")
+    (path_root / _COMMON / "a.txt").write_text(str_theirs, encoding="utf-8", newline="")
     str_commit_line = f"blueprintx_commit: {str_sha}\n" if bool_stamp_commit else ""
     path_project = _project(path_tmp, str_stamp=f"tier: mvc-service-native-db\n{str_commit_line}")
-    (path_project / "a.txt").write_text(str_ours, encoding="utf-8")
+    (path_project / "a.txt").write_text(str_ours, encoding="utf-8", newline="")
     capsys.readouterr()
     gate.main(["--root", str(path_project), "--blueprintx-root", str(path_root)])
     return capsys.readouterr().out
@@ -541,6 +541,15 @@ def test_a_local_edit_the_template_never_touched_is_not_drift(
 ) -> None:
     """A project's own edit, with the template unchanged, must stay silent."""
     str_out = _drift_output(tmp_path, capsys=capsys, str_ours="mine\n", str_theirs="base\n")
+
+    assert "changed" not in str_out
+
+
+def test_a_line_ending_difference_alone_is_not_drift(
+    tmp_path: Path, *, capsys: pytest.CaptureFixture
+) -> None:
+    """An autocrlf template checkout against an LF project and blob is the same text."""
+    str_out = _drift_output(tmp_path, capsys=capsys, str_ours="base\n", str_theirs="base\r\n")
 
     assert "changed" not in str_out
 

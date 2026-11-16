@@ -53,7 +53,7 @@ def _run_ruff_ret505(path_file: Path) -> subprocess.CompletedProcess[str]:
         "concise",
         str(path_file),
     ]
-    return subprocess.run(list_argv, capture_output=True, text=True, check=False)  # noqa: S603
+    return subprocess.run(list_argv, capture_output=True, encoding="utf-8", check=False)  # noqa: S603
 
 
 @pytest.mark.skipif(_STR_RUFF is None, reason="ruff is not on PATH")
