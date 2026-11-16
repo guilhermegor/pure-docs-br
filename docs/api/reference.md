@@ -75,6 +75,27 @@ is_valid_titulo_eleitor("123456782996")  # False, UF 29 não existe
 
 ---
 
+## Funções de PIS/PASEP/NIT/NIS
+
+Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceção para `str`). O módulo
+11 é oficial; os pesos `3,2,9,8,7,6,5,4,3,2` são consenso de implementações públicas.
+`is_valid_pis_pasep` não confirma que o número foi emitido.
+
+| Função | Retorno | Comportamento |
+|--------|---------|---------------|
+| `unmask_pis_pasep(str_value)` | `str` | Mantém só dígitos, descarta a cauda `.0` e completa com zeros à esquerda até 11. Entrada vazia devolve `""`; mais de 11 dígitos é devolvido como está. |
+| `mask_pis_pasep(str_value)` | `str` | Formata como `XXX.XXXXX.XX-X`; se o valor sem máscara não tiver 11 dígitos, devolve esse valor sem máscara. |
+| `is_valid_pis_pasep(str_value)` | `bool` | `True` quando há 11 dígitos, não é um único dígito repetido e o dígito verificador bate. |
+
+```python
+from pure_docs_br import is_valid_pis_pasep, mask_pis_pasep
+
+mask_pis_pasep("12345678900")  # "123.45678.90-0"
+is_valid_pis_pasep("11111111111")  # False, dígito repetido
+```
+
+---
+
 ## Adicionando novos módulos
 
 Coloque os novos módulos em `src/pure_docs_br/`. Exporte os símbolos públicos em `src/pure_docs_br/__init__.py` e liste-os em `__all__`, para que quem usa a biblioteca importe direto da raiz do pacote, como `from pure_docs_br import mask_cpf`.
