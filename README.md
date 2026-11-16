@@ -1,7 +1,7 @@
 <!-- readme-archetype: library -->
 # pure-docs-br
 
-<p align="center"><img src="https://raw.githubusercontent.com/guilhermegor/pure-docs-br/main/assets/logo_lorem_ipsum.png" width="200" alt="pure-docs-br logo"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/guilhermegor/pure-docs-br/main/assets/logo.png" width="200" alt="pure-docs-br logo"></p>
 
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 ![Python Version](https://img.shields.io/badge/python-3.11%2B-blue.svg)
@@ -26,7 +26,7 @@ Validate, mask and unmask Brazilian document numbers (CPF, alphanumeric CNPJ)
 
 - Valida CPF e CNPJ pelos dígitos verificadores, inclusive o CNPJ alfanumérico que passa a existir em 2026.
 - Aplica e remove a máscara (`XXX.XXX.XXX-XX` e `XX.XXX.XXX/XXXX-XX`).
-- Tolera entrada suja: pontuação, zeros à esquerda perdidos e a cauda `.0` de uma coluna lida como `float`.
+- Tolera texto sujo: pontuação, zeros à esquerda perdidos e a cauda `.0` de um número que virou `str` (por exemplo `"52998224725.0"`).
 - Funções puras, sem I/O e sem dependências de execução.
 
 <!-- slug: documentation -->
@@ -86,9 +86,28 @@ is_valid_cnpj("12.ABC.345/01DE-35")  # True, formato alfanumérico
 is_valid_cnpj("11222333000182")  # False, dígito verificador errado
 ```
 
-`mask_*` devolve o valor sem máscara quando ele não chega ao tamanho do documento, e `is_valid_*`
-devolve `False` em vez de lançar exceção, então uma linha ruim não interrompe a transformação de
-uma coluna inteira. O dígito verificador do CNPJ segue o cálculo de módulo 11 do
+### Entrada inválida
+
+- Toda função exige `str`: qualquer outro tipo (`None`, `float`, `int`, inclusive o `NaN` de uma
+  coluna do pandas) lança `TypeError`. Converta antes, por exemplo com `.astype(str)`, ou filtre
+  os nulos.
+- Dado um `str`, nenhuma função lança exceção. `is_valid_*` devolve `False` para texto vazio,
+  com tamanho errado ou com dígito verificador errado, então uma linha ruim não interrompe a
+  transformação de uma coluna inteira.
+- `mask_*` devolve o valor sem máscara (o que `unmask_*` produz) quando ele não tem o tamanho do
+  documento. Isso ocorre com texto vazio, com mais de 11 dígitos (CPF) ou 14 caracteres (CNPJ) e
+  com CNPJ alfanumérico curto; um CPF ou CNPJ só de dígitos nunca é curto, pois `unmask_*` o
+  completa com zeros.
+- Entrada numérica curta é completada com zeros à esquerda (11 para CPF, 14 para CNPJ) antes de
+  os dígitos verificadores serem testados, o mesmo preenchimento que `unmask_*` aplica. É
+  intencional: recupera documentos guardados como número que perderam os zeros (Excel, pandas).
+  Por consequência, `is_valid_cpf("191")` e `is_valid_cnpj("191")` devolvem `True`, pois `"191"`
+  vira `00000000191`. Valores de um só dígito repetido continuam rejeitados: `"0"` vira
+  `00000000000` e `is_valid_cpf("0")` é `False`.
+- A cauda `.0` é descartada por `unmask_cpf` e `unmask_cnpj`. A notação científica
+  (`"1.1222333000181e+13"`) não é tratada: converta o número para texto sem expoente antes.
+
+O dígito verificador do CNPJ segue o cálculo de módulo 11 do
 [Serpro](https://www.serpro.gov.br/menu/noticias/videos/calculodvcnpjalfanaumerico.pdf) e da
 [Receita Federal](https://www.gov.br/receitafederal/pt-br/centrais-de-conteudo/publicacoes/perguntas-e-respostas/cnpj/cnpj-alfanumerico.pdf).
 
@@ -127,14 +146,22 @@ Quando o deploy da documentação do primeiro release tiver criado a branch `gh-
 ## API pública
 
 A superfície pública é o que o `__init__.py` do pacote lista em `__all__`:
-`is_valid_cnpj`, `is_valid_cpf`, `mask_cnpj`, `mask_cpf`, `unmask_cnpj` e `unmask_cpf`.
+`__version__`, `is_valid_cnpj`, `is_valid_cpf`, `mask_cnpj`, `mask_cpf`, `unmask_cnpj` e
+`unmask_cpf`.
+
+### Garantia de API da 1.x
+
+A partir da 1.0.0 vale o semver completo. Dentro da 1.x, esses nomes continuam importáveis da raiz
+do pacote com a mesma assinatura e o mesmo comportamento documentado: remover ou alterar um deles
+exige uma 2.0. Uma versão MINOR só acrescenta, e uma PATCH só corrige defeitos. Tudo sob
+`pure_docs_br._internal` é privado e fica fora da garantia.
 
 <!-- slug: publishing -->
 ## Publicação
 
 Os lançamentos saem dos workflows de release em `.github/workflows/`; a tag do git é a versão.
 
-O caminho da 0.x até a 1.0.0, e o gate de lançamento que o protege, está em
+O caminho até a 1.0.0, e o gate de lançamento que o protege, está em
 [docs/releasing-1-0-0.md](docs/releasing-1-0-0.md).
 
 <!-- slug: contributing -->

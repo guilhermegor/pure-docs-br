@@ -1,8 +1,8 @@
 # Lançando a 1.0.0
 
-A 1.0.0 é o momento em que esta biblioteca promete a sua API pública. Até lá valem as regras da
-0.x: uma mudança incompatível é um aumento de MINOR, e uma funcionalidade ou correção é um
-aumento de PATCH. A partir da 1.0.0, vale o semver completo. Duas coisas precisam ser verdade
+A 1.0.0 é o momento em que esta biblioteca promete a sua API pública. Desde então vale o semver
+completo: uma mudança incompatível é um aumento de MAJOR, uma funcionalidade compatível é um
+aumento de MINOR e uma correção é um aumento de PATCH. A promessa está no README. Duas coisas precisam ser verdade
 nesse momento e são fáceis de errar à mão: o backlog está concluído e a documentação descreve o
 código que de fato é entregue.
 

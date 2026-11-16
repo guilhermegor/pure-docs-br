@@ -5,7 +5,12 @@ own). They are deliberately tolerant on input so they can be mapped over a whole
 ``pandas`` column: ``unmask_*`` strips punctuation, the spurious ``".0"`` left by a
 float→str coercion, and (for CNPJ) handles the **2026 alphanumeric format** by keeping
 ``A-Z``/``0-9`` and only zero-padding when the value is purely numeric. ``is_valid_*``
-return ``bool`` rather than raising, so a bad row never aborts a bulk transformation.
+return ``bool`` rather than raising on any ``str``, so a bad row never aborts a bulk
+transformation. A non-``str`` (``None``, ``float``/``NaN``) raises ``TypeError`` from the
+runtime type checker: stringify or drop nulls first. Short numeric values are zero-padded
+before validation, on purpose, to recover identifiers stored as numbers that lost leading
+zeros: ``is_valid_cpf("191")`` is ``True`` (it becomes ``00000000191``), while ``"0"`` is
+rejected as a repeated-digit value.
 
 The CNPJ check digits use ASCII-48 weighting, which makes a single mod-11 routine
 validate both legacy-numeric and new-alphanumeric CNPJs (a digit's value equals itself).
@@ -66,7 +71,8 @@ def unmask_cnpj(str_value: str) -> str:
     Returns
     -------
     str
-        Uppercased value containing only ``A-Z``/``0-9``. Purely numeric values are
+        Uppercased value containing only ``A-Z``/``0-9``, with a ``.0`` tail dropped
+        (scientific notation such as ``1e+13`` is not handled). Purely numeric values are
         left-zero-padded to 14; alphanumeric values are returned as-is (already 14).
         An empty input yields an empty string.
     """
@@ -90,7 +96,9 @@ def mask_cnpj(str_value: str) -> str:
     -------
     str
         The punctuated CNPJ when it normalises to 14 characters; otherwise the bare
-        unmasked value (so malformed input is surfaced, not silently reformatted).
+        unmasked value (so malformed input is surfaced, not silently reformatted). That
+        covers empty input, short alphanumeric values and values over 14 characters; a
+        purely numeric value is never short, since it is zero-padded to 14.
     """
     str_clean = unmask_cnpj(str_value)
     if len(str_clean) != _LEN_CNPJ:
@@ -200,7 +208,8 @@ def mask_cpf(str_value: str) -> str:
     -------
     str
         The punctuated CPF when it normalises to 11 digits; otherwise the bare
-        unmasked value.
+        unmasked value. That covers empty input and values over 11 digits; a shorter
+        non-empty value is never returned, since it is zero-padded to 11.
     """
     str_clean = unmask_cpf(str_value)
     if len(str_clean) != _LEN_CPF:

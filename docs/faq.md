@@ -10,11 +10,10 @@ entradas específicas do projeto conforme elas surgirem nas issues.
 ## Como instalo?
 
 ```bash
-pip install <project_name>
+pip install pure-docs-br
 ```
 
-Troque pelo nome real da distribuição e pelos extras, se houver (por exemplo,
-`pip install "<project_name>[web]"`).
+A biblioteca não tem extras nem dependências de execução.
 
 ## Como adiciono ou atualizo uma dependência?
 

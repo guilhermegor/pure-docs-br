@@ -1,5 +1,7 @@
 """Unit tests for the Brazilian identifier helpers (CNPJ / CPF)."""
 
+from decimal import Decimal
+
 import pytest
 
 from pure_docs_br import (
@@ -144,3 +146,52 @@ def test_mask_cnpj_alphanumeric_returns_punctuated() -> None:
     Source: https://www.serpro.gov.br/menu/noticias/videos/calculodvcnpjalfanaumerico.pdf
     """
     assert mask_cnpj("12ABC34501DE35") == "12.ABC.345/01DE-35"
+
+
+def test_is_valid_cpf_short_input_is_zero_padded_true() -> None:
+    """``"191"`` pads to ``00000000191``, a CPF with correct check digits (pinned behaviour)."""
+    assert is_valid_cpf("191") is True
+
+
+def test_is_valid_cpf_single_zero_padded_repeated_digits_false() -> None:
+    """``"0"`` pads to ``00000000000``, which is rejected as repeated digits."""
+    assert is_valid_cpf("0") is False
+
+
+def test_is_valid_cnpj_short_input_is_zero_padded_true() -> None:
+    """``"191"`` pads to 14 digits whose check digits happen to be right (pinned behaviour)."""
+    assert is_valid_cnpj("191") is True
+
+
+@pytest.mark.parametrize("fn_call", [is_valid_cpf, is_valid_cnpj, mask_cpf, unmask_cnpj])
+@pytest.mark.parametrize("obj_value", [None, Decimal("1.5"), 52998224725])
+def test_functions_non_str_raise_type_error(fn_call: object, obj_value: object) -> None:
+    """Every function rejects a non-``str`` with ``TypeError``."""
+    with pytest.raises(TypeError):
+        fn_call(obj_value)  # type: ignore[operator]
+
+
+@pytest.mark.parametrize(
+    ("fn_call", "str_value"),
+    [
+        (mask_cpf, ""),
+        (mask_cpf, "123456789012"),
+        (mask_cnpj, ""),
+        (mask_cnpj, "12ABC"),
+        (mask_cnpj, "123456789012345"),
+    ],
+)
+def test_mask_not_document_length_returns_unmasked_value(fn_call: object, str_value: str) -> None:
+    """``mask_*`` returns the unmasked value when it is empty, too long or short alphanumeric."""
+    assert fn_call(str_value) == str_value  # type: ignore[operator]
+
+
+@pytest.mark.parametrize("fn_call", [is_valid_cpf, is_valid_cnpj])
+def test_is_valid_empty_str_false(fn_call: object) -> None:
+    """An empty string is invalid, not an error."""
+    assert fn_call("") is False  # type: ignore[operator]
+
+
+def test_unmask_cnpj_scientific_notation_is_not_handled() -> None:
+    """Scientific notation is not a float artifact: the exponent letter is kept."""
+    assert unmask_cnpj("1.1222333000181e+13") == "11222333000181E13"
