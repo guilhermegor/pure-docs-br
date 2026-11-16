@@ -17,8 +17,8 @@ Valida, aplica e remove a máscara de CPF e CNPJ, inclusive o CNPJ alfanumérico
 
 ```bash
 bash bin/venv.sh   # cria o venv (o poe vive dentro dele, então o bootstrap é em shell)
-bash bin/poe_exec.sh unit_tests    # roda a suíte de testes
-bash bin/poe_exec.sh docs_serve   # serve esta documentação em http://0.0.0.0:8000
+poetry run poe unit_tests    # roda a suíte de testes
+poetry run poe docs_serve   # serve esta documentação em http://0.0.0.0:8000
 ```
 
 ---
