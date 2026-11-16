@@ -26,7 +26,8 @@ Valida, aplica e remove a máscara de documentos brasileiros
 
 - Valida CPF e CNPJ pelos dígitos verificadores, inclusive o CNPJ alfanumérico que passa a existir em 2026.
 - Valida o formato do CEP (8 dígitos; o CEP não tem dígito verificador).
-- Aplica e remove a máscara (`XXX.XXX.XXX-XX`, `XX.XXX.XXX/XXXX-XX` e `XXXXX-XXX`).
+- Valida o Título de Eleitor (12 dígitos, UF e dois dígitos verificadores).
+- Aplica e remove a máscara (`XXX.XXX.XXX-XX`, `XX.XXX.XXX/XXXX-XX`, `XXXXX-XXX` e `XXXX XXXX XXXX`).
 - Tolera texto sujo: pontuação, zeros à esquerda perdidos e a cauda `.0` de um número que virou `str` (por exemplo `"52998224725.0"`).
 - Funções puras, sem I/O e sem dependências de execução.
 
@@ -69,12 +70,15 @@ from pure_docs_br import (
     is_valid_cep,
     is_valid_cnpj,
     is_valid_cpf,
+    is_valid_titulo_eleitor,
     mask_cep,
     mask_cnpj,
     mask_cpf,
+    mask_titulo_eleitor,
     unmask_cep,
     unmask_cnpj,
     unmask_cpf,
+    unmask_titulo_eleitor,
 )
 
 mask_cpf("52998224725")  # "529.982.247-25"
@@ -95,6 +99,10 @@ mask_cep("01001000")  # "01001-000"
 unmask_cep("1001000.0")  # "01001000", restaura o zero à esquerda
 is_valid_cep("01001-000")  # True
 is_valid_cep("123456789")  # False, 9 dígitos
+
+mask_titulo_eleitor("4356870906.0")  # "0043 5687 0906"
+unmask_titulo_eleitor("0043 5687 0906")  # "004356870906"
+is_valid_titulo_eleitor("0043 5687 09 06")  # True
 ```
 
 ### CEP
@@ -177,8 +185,9 @@ comunidade conhece; o `bin/poe_exec.sh` cobre os casos em que ele não basta:
 ## API pública
 
 A superfície pública é o que o `__init__.py` do pacote lista em `__all__`:
-`__version__`, `is_valid_cep`, `is_valid_cnpj`, `is_valid_cpf`, `mask_cep`, `mask_cnpj`,
-`mask_cpf`, `unmask_cep`, `unmask_cnpj` e `unmask_cpf`.
+`__version__`, `is_valid_cep`, `is_valid_cnpj`, `is_valid_cpf`, `is_valid_titulo_eleitor`,
+`mask_cep`, `mask_cnpj`, `mask_cpf`, `mask_titulo_eleitor`, `unmask_cep`, `unmask_cnpj`,
+`unmask_cpf` e `unmask_titulo_eleitor`.
 
 ### Garantia de API da 1.x
 

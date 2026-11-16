@@ -54,6 +54,27 @@ is_valid_cep("123456789")  # False, 9 dígitos
 
 ---
 
+## Funções de Título de Eleitor
+
+Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceção para `str`). O
+algoritmo vem de fonte secundária (Wikipédia); o TSE não publica a fórmula. `is_valid_titulo_eleitor`
+não confirma que o título foi emitido.
+
+| Função | Retorno | Comportamento |
+|--------|---------|---------------|
+| `unmask_titulo_eleitor(str_value)` | `str` | Mantém só dígitos, descarta a cauda `.0` e completa com zeros à esquerda até 12. Entrada vazia devolve `""`; mais de 12 dígitos é devolvido como está. |
+| `mask_titulo_eleitor(str_value)` | `str` | Formata como `XXXX XXXX XXXX` (convenção da biblioteca); se o valor sem máscara não tiver 12 dígitos, devolve esse valor sem máscara. |
+| `is_valid_titulo_eleitor(str_value)` | `bool` | `True` quando há 12 dígitos, UF de `01` a `28` e os dois dígitos verificadores batem. 13 dígitos é `False`. |
+
+```python
+from pure_docs_br import is_valid_titulo_eleitor, mask_titulo_eleitor
+
+mask_titulo_eleitor("004356870906")  # "0043 5687 0906"
+is_valid_titulo_eleitor("123456782996")  # False, UF 29 não existe
+```
+
+---
+
 ## Adicionando novos módulos
 
 Coloque os novos módulos em `src/pure_docs_br/`. Exporte os símbolos públicos em `src/pure_docs_br/__init__.py` e liste-os em `__all__`, para que quem usa a biblioteca importe direto da raiz do pacote, como `from pure_docs_br import mask_cpf`.
