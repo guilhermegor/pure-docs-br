@@ -6,18 +6,22 @@ Interface pública desta biblioteca.
 
 ---
 
-## Módulo: `br_identifiers`
+## Funções de CPF e CNPJ
 
-Funções puras para CPF e CNPJ, importadas da raiz do pacote. Todas recebem `str`; um valor que
-não seja `str` lança `TypeError`.
+Funções puras, importadas da raiz do pacote (`from pure_docs_br import ...`). Todas recebem `str`; um valor que
+não seja `str` (`None`, `float`, `NaN`) lança `TypeError`. Dado um `str`, nenhuma lança exceção.
+Entrada numérica curta é completada com zeros à esquerda antes de os dígitos verificadores serem
+testados (o mesmo preenchimento de `unmask_*`), de propósito, para recuperar documentos guardados
+como número. Assim `is_valid_cpf("191")` é `True` (`"191"` vira `00000000191`), mas
+`is_valid_cpf("0")` é `False`, pois dígitos repetidos são rejeitados.
 
 | Função | Retorno | Comportamento |
 |--------|---------|---------------|
-| `unmask_cpf(str_value)` | `str` | Mantém só dígitos, descarta a cauda `.0` e completa com zeros à esquerda até 11. Entrada vazia devolve `""`. |
-| `mask_cpf(str_value)` | `str` | Formata como `XXX.XXX.XXX-XX`; se não chegar a 11 dígitos, devolve o valor sem máscara. |
+| `unmask_cpf(str_value)` | `str` | Mantém só dígitos, descarta a cauda `.0` e completa com zeros à esquerda até 11. Entrada vazia devolve `""`; mais de 11 dígitos é devolvido como está. |
+| `mask_cpf(str_value)` | `str` | Formata como `XXX.XXX.XXX-XX`; se o valor sem máscara não tiver 11 dígitos (vazio ou mais de 11), devolve esse valor sem máscara. |
 | `is_valid_cpf(str_value)` | `bool` | Confere os dois dígitos verificadores; rejeita dígitos repetidos. |
-| `unmask_cnpj(str_value)` | `str` | Mantém `A-Z` e `0-9` em maiúsculas; completa com zeros até 14 só quando o valor é numérico. |
-| `mask_cnpj(str_value)` | `str` | Formata como `XX.XXX.XXX/XXXX-XX`; se não chegar a 14 caracteres, devolve o valor sem máscara. |
+| `unmask_cnpj(str_value)` | `str` | Descarta a cauda `.0`, mantém `A-Z` e `0-9` em maiúsculas e completa com zeros até 14 só quando o valor é numérico. Notação científica não é tratada. |
+| `mask_cnpj(str_value)` | `str` | Formata como `XX.XXX.XXX/XXXX-XX`; se o valor sem máscara não tiver 14 caracteres (alfanumérico curto, vazio ou mais de 14), devolve esse valor sem máscara. |
 | `is_valid_cnpj(str_value)` | `bool` | Confere os dois dígitos verificadores, numéricos ou alfanuméricos (valor de cada caractere igual ao código ASCII menos 48, módulo 11); rejeita CNPJ numérico de dígitos repetidos. |
 
 ```python
@@ -44,4 +48,4 @@ Siga a convenção de uma classe por arquivo: funções utilitárias sem estado 
 | Type hints | Obrigatórias em todas as funções públicas, inclusive o retorno `-> None` |
 | Docstrings | Estilo NumPy; explique o *porquê*, não o *quê* |
 | Nomes de variáveis | Com prefixo de tipo (`str_`, `list_`, `cls_`, `dict_`, …) |
-| Testes | `unittest`; uma asserção por teste; nome no formato `test_<unit>_<scenario>_<expected>` |
+| Testes | `pytest`; uma asserção por teste; nome no formato `test_<unit>_<scenario>_<expected>` |
