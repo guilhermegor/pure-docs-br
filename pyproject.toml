@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "pure-docs-br"
 version = "0.0.0"  # set from the git tag, see docs/contributing.md#releasing
-description = "Validate, mask and unmask Brazilian document numbers (CPF, alphanumeric CNPJ)"
+description = "Valida, aplica e remove a máscara de documentos brasileiros"
 authors = ["guilhermegor"]
 readme = "README.md"
 license = "MIT"
