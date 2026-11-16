@@ -92,6 +92,27 @@ unmask_cep("01310-100")  # "01310100"
 Caso extremo: o CEP não tem dígito verificador, então `is_valid_cep` só confere o formato.
 `00000-000` é válido nesse sentido (`True`), mesmo sem existir como endereço.
 
+## PIS/PASEP/NIT/NIS
+
+PIS, PASEP, NIT e NIS são o mesmo número de 11 dígitos (10 de base e 1 dígito verificador,
+módulo 11), com nomes diferentes conforme o órgão emissor (CAIXA, Banco do Brasil, INSS).
+
+Formatos aceitos: com máscara (`123.45678.90-0`), sem máscara (`12345678900`), com zeros iniciais
+perdidos (`1234567890`) e o artefato de float (`12345678900.0`). Sempre uma `str`.
+
+```python
+from pure_docs_br import is_valid_pis_pasep, mask_pis_pasep, unmask_pis_pasep
+
+is_valid_pis_pasep("123.45678.90-0")  # True
+is_valid_pis_pasep("12345678901")  # False, dígito verificador errado
+mask_pis_pasep("12345678900.0")  # "123.45678.90-0"
+unmask_pis_pasep("1234567890")  # "01234567890"
+```
+
+Casos extremos: valores de um único dígito repetido (`11111111111`) são inválidos, como no CPF.
+`mask_pis_pasep` devolve o valor sem máscara quando o tamanho não fecha em 11 dígitos. Os pesos
+do módulo 11 vêm de implementações públicas, não de um manual oficial.
+
 ## Título de Eleitor
 
 O Título de Eleitor tem 12 dígitos: 8 de sequencial, 2 da UF (`01` a `28`) e 2 dígitos
