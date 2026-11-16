@@ -40,6 +40,6 @@ def _list_mismatches(
 
 
 @pytest.mark.parametrize(("str_id", "str_block"), _list_blocks())
-def test_doc_python_block_runs_and_matches_comments(str_id: str, str_block: str) -> None:
+def test_doc_python_block_runs_and_matches_comments(*, str_id: str, str_block: str) -> None:
     """The block executes, and each ``call()  # literal`` line evaluates to that literal."""
     assert _list_mismatches(str_block) == [], str_id

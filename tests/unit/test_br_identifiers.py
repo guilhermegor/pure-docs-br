@@ -165,7 +165,7 @@ def test_is_valid_cnpj_short_input_is_zero_padded_true() -> None:
 
 @pytest.mark.parametrize("fn_call", [is_valid_cpf, is_valid_cnpj, mask_cpf, unmask_cnpj])
 @pytest.mark.parametrize("obj_value", [None, Decimal("1.5"), 52998224725])
-def test_functions_non_str_raise_type_error(fn_call: object, obj_value: object) -> None:
+def test_functions_non_str_raise_type_error(*, fn_call: object, obj_value: object) -> None:
     """Every function rejects a non-``str`` with ``TypeError``."""
     with pytest.raises(TypeError):
         fn_call(obj_value)  # type: ignore[operator]
@@ -181,7 +181,9 @@ def test_functions_non_str_raise_type_error(fn_call: object, obj_value: object) 
         (mask_cnpj, "123456789012345"),
     ],
 )
-def test_mask_not_document_length_returns_unmasked_value(fn_call: object, str_value: str) -> None:
+def test_mask_not_document_length_returns_unmasked_value(
+    *, fn_call: object, str_value: str
+) -> None:
     """``mask_*`` returns the unmasked value when it is empty, too long or short alphanumeric."""
     assert fn_call(str_value) == str_value  # type: ignore[operator]
 
