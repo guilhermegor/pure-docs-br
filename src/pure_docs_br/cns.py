@@ -7,10 +7,13 @@ the kind. ``1``/``2`` are definitive: the number is ``PIS(11) + suffix(3) + dv(1
 ``dv = 11 - (sum(d[i] * (15 - i), i=0..10) % 11)`` (11 becomes 0); a ``dv`` of 10 adds 2 to
 the sum, recomputes the ``dv`` and fixes the suffix at ``001`` (otherwise ``000``).
 ``7``/``8``/``9`` are provisional: ``sum(d[i] * (15 - i), i=0..14)`` must be divisible by
-11. A first digit of ``0``, ``3``, ``4``, ``5`` or ``6`` is invalid. Sources: DATASUS PIX/PDQ
-technical specification (15 numeric digits, modulo 11) and public implementations that
-cite the DATASUS routine; none is the official DATASUS text, so confidence is medium. The
-mask ``XXX XXXX XXXX XXXX`` is a proposal (the CNS has no official mask), pending the
+11. A first digit of ``0``, ``3``, ``4``, ``5`` or ``6`` is invalid. Source: the DATASUS
+routines ``validaCns`` and ``validaCnsProv`` as published by the Ministry of Health in the
+e-SUS APS integration layout, "Validar CNS"
+(https://integracao.esusab.ufsc.br/ledi/documentacao/regras/algoritmo_CNS.html); both
+branches above follow them line for line. That page also accepts a provisional number
+starting with ``5``; this module rejects it, as issue #16 specifies, pending the owner's
+decision. The mask ``XXX XXXX XXXX XXXX`` is a proposal (the CNS has no official mask), pending the
 owner's decision. No CNS starts with 0, so ``unmask_cns`` never pads zeros.
 """
 
