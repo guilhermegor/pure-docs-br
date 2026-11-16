@@ -2397,7 +2397,10 @@ _TUPLE_VENV_SH_TOOLS = ("basename", "cat", "cp", "date", "dirname", "grep", "hea
 
 
 def _link_tool(path_dir: Path, *, str_tool: str) -> None:
-    """Symlink one host tool into a directory so a hermetic ``PATH`` can still resolve it.
+    """Wrap one host tool in a directory so a hermetic ``PATH`` can still resolve it.
+
+    A wrapper, not a symlink: on Windows a link named ``dirname`` to ``dirname.EXE`` is not
+    found by bash, and the binary loses the directory its MSYS DLL is loaded from.
 
     Parameters
     ----------
@@ -2410,7 +2413,9 @@ def _link_tool(path_dir: Path, *, str_tool: str) -> None:
     -------
     None
     """
-    (path_dir / str_tool).symlink_to(shutil.which(str_tool) or "/bin/false")
+    str_target = Path(shutil.which(str_tool) or "/bin/false").as_posix()
+    path_link = _write(path_dir / str_tool, str_text=f'#!/bin/bash\nexec "{str_target}" "$@"\n')
+    path_link.chmod(0o755)
 
 
 def _stage_tools_dir(path_root: Path) -> Path:
@@ -2454,7 +2459,7 @@ def _write_stub_python(path_dir: Path, *, int_in_venv: int) -> Path:
     path_log = path_dir / "calls.log"
     path_stub = _write(
         path_dir / "python3",
-        str_text=f'#!{_STR_BASH}\nprintf "%s\\n" "$*" >>"{path_log}"\ncase "$1" in\n'
+        str_text=f'#!/bin/bash\nprintf "%s\\n" "$*" >>"{path_log}"\ncase "$1" in\n'
         f'--version) echo "Python 3.12.2" ;;\n-c) exit {int_in_venv} ;;\n'
         '-m) [ "$2" = venv ] && mkdir -p "$3/bin" || exit 1 ;;\n*) exit 1 ;;\nesac\n',
     )
@@ -2483,7 +2488,7 @@ def _run_venv_sh(
         The completed run.
     """
     dict_env = {
-        "PATH": ":".join(map(str, list_path_dirs)),
+        "PATH": os.pathsep.join(map(str, list_path_dirs)),
         "HOME": str(path_script.parent),
         **dict_extra_env,
     }
@@ -3085,7 +3090,7 @@ def _run_track_mode(
         f'[ "$2 $3" = "close {str_fail_close}" ] && exit 1\n[ "$2" = list ] || exit 0\n'
         f"{'exit 1' if bool_fail_list else ':'}\n"
         'while [ $# -gt 0 ]; do [ "$1" = --jq ] && str_jq="$2"; shift; done\n'
-        f'jq -r "$str_jq" "{path_json}"\n',
+        f'jq -r "$str_jq" "{path_json}" | tr -d "\\r"\n',
         encoding="utf-8",
     )
     (path_bin / "gh").chmod(0o755)
