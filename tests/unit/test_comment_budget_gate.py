@@ -1778,7 +1778,7 @@ def _commit_tree(path_root: Path) -> str:
         ["git", "-C", str(path_root), "rev-parse", "HEAD"],  # noqa: S607
         check=True,
         capture_output=True,
-        text=True,
+        encoding="utf-8",
     ).stdout.strip()
 
 
