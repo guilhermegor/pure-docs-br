@@ -33,6 +33,27 @@ is_valid_cnpj("12ABC34501DE35")  # True
 
 ---
 
+## Funções de CEP
+
+Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceção para `str`). O CEP
+não tem dígito verificador: `is_valid_cep` confere só o formato e **não consulta a base dos
+Correios**, então não confirma que o CEP existe. `00000-000` passa na checagem de formato.
+
+| Função | Retorno | Comportamento |
+|--------|---------|---------------|
+| `unmask_cep(str_value)` | `str` | Mantém só dígitos, descarta a cauda `.0` e completa com zeros à esquerda até 8. Entrada vazia devolve `""`; mais de 8 dígitos é devolvido como está. |
+| `mask_cep(str_value)` | `str` | Formata como `XXXXX-XXX`; se o valor sem máscara não tiver 8 dígitos (vazio ou mais de 8), devolve esse valor sem máscara. |
+| `is_valid_cep(str_value)` | `bool` | `True` quando o valor sem máscara tem 8 dígitos. Entrada de 7 dígitos é válida (zero à esquerda restaurado). |
+
+```python
+from pure_docs_br import is_valid_cep, mask_cep
+
+mask_cep("01001010")  # "01001-010"
+is_valid_cep("123456789")  # False, 9 dígitos
+```
+
+---
+
 ## Adicionando novos módulos
 
 Coloque os novos módulos em `src/pure_docs_br/`. Exporte os símbolos públicos em `src/pure_docs_br/__init__.py` e liste-os em `__all__`, para que quem usa a biblioteca importe direto da raiz do pacote, como `from pure_docs_br import mask_cpf`.

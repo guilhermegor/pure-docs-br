@@ -25,7 +25,8 @@ Valida, aplica e remove a máscara de documentos brasileiros
 ## Funcionalidades
 
 - Valida CPF e CNPJ pelos dígitos verificadores, inclusive o CNPJ alfanumérico que passa a existir em 2026.
-- Aplica e remove a máscara (`XXX.XXX.XXX-XX` e `XX.XXX.XXX/XXXX-XX`).
+- Valida o formato do CEP (8 dígitos; o CEP não tem dígito verificador).
+- Aplica e remove a máscara (`XXX.XXX.XXX-XX`, `XX.XXX.XXX/XXXX-XX` e `XXXXX-XXX`).
 - Tolera texto sujo: pontuação, zeros à esquerda perdidos e a cauda `.0` de um número que virou `str` (por exemplo `"52998224725.0"`).
 - Funções puras, sem I/O e sem dependências de execução.
 
@@ -65,10 +66,13 @@ Toda função recebe e devolve `str` (ou `bool`) e aceita o documento com ou sem
 
 ```python
 from pure_docs_br import (
+    is_valid_cep,
     is_valid_cnpj,
     is_valid_cpf,
+    mask_cep,
     mask_cnpj,
     mask_cpf,
+    unmask_cep,
     unmask_cnpj,
     unmask_cpf,
 )
@@ -86,7 +90,20 @@ unmask_cnpj("11222333000181.0")  # "11222333000181", descarta a cauda ".0"
 is_valid_cnpj("11.222.333/0001-81")  # True
 is_valid_cnpj("12.ABC.345/01DE-35")  # True, formato alfanumérico
 is_valid_cnpj("11222333000182")  # False, dígito verificador errado
+
+mask_cep("01001000")  # "01001-000"
+unmask_cep("1001000.0")  # "01001000", restaura o zero à esquerda
+is_valid_cep("01001-000")  # True
+is_valid_cep("123456789")  # False, 9 dígitos
 ```
+
+### CEP
+
+A validação do CEP é só de formato (8 dígitos, `XXXXX-XXX`): o CEP não tem dígito verificador, e a
+biblioteca **não consulta a base dos Correios**, então não confirma que o CEP existe. Entrada
+numérica curta é completada com zeros à esquerda até 8, por isso `is_valid_cep("1001000")` é
+`True`. O `00000-000` passa na checagem de formato. `mask_cep` devolve o valor sem máscara quando
+ele não tem 8 dígitos.
 
 ### Entrada inválida
 
@@ -160,8 +177,8 @@ comunidade conhece; o `bin/poe_exec.sh` cobre os casos em que ele não basta:
 ## API pública
 
 A superfície pública é o que o `__init__.py` do pacote lista em `__all__`:
-`__version__`, `is_valid_cnpj`, `is_valid_cpf`, `mask_cnpj`, `mask_cpf`, `unmask_cnpj` e
-`unmask_cpf`.
+`__version__`, `is_valid_cep`, `is_valid_cnpj`, `is_valid_cpf`, `mask_cep`, `mask_cnpj`,
+`mask_cpf`, `unmask_cep`, `unmask_cnpj` e `unmask_cpf`.
 
 ### Garantia de API da 1.x
 
