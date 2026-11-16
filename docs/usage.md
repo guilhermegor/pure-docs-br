@@ -91,3 +91,25 @@ unmask_cep("01310-100")  # "01310100"
 
 Caso extremo: o CEP não tem dígito verificador, então `is_valid_cep` só confere o formato.
 `00000-000` é válido nesse sentido (`True`), mesmo sem existir como endereço.
+
+## Título de Eleitor
+
+O Título de Eleitor tem 12 dígitos: 8 de sequencial, 2 da UF (`01` a `28`) e 2 dígitos
+verificadores (módulo 11).
+
+Formatos aceitos: com espaços (`0043 5687 09 06`), sem máscara (`004356870906`), com zeros iniciais
+perdidos (`4356870906`) e o artefato de float (`4356870906.0`). Sempre uma `str`.
+
+```python
+from pure_docs_br import is_valid_titulo_eleitor, mask_titulo_eleitor, unmask_titulo_eleitor
+
+is_valid_titulo_eleitor("0043 5687 09 06")  # True
+is_valid_titulo_eleitor("123456780397")  # False, segundo dígito verificador errado
+mask_titulo_eleitor("4356870906.0")  # "0043 5687 0906"
+unmask_titulo_eleitor("0043 5687 0906")  # "004356870906"
+```
+
+Casos extremos: não existe máscara oficial, então `XXXX XXXX XXXX` é uma convenção desta
+biblioteca. Códigos de UF fora de `01`-`28` são inválidos (`000000000000` é `False`). Títulos
+antigos de 13 dígitos (SP/MG) não são suportados: `is_valid_titulo_eleitor` devolve `False` e
+`mask_titulo_eleitor` devolve o valor sem máscara.

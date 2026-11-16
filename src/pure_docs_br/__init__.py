@@ -11,6 +11,11 @@ from .br_identifiers import (
     unmask_cpf,
 )
 from .cep import is_valid_cep, mask_cep, unmask_cep
+from .titulo_eleitor import (
+    is_valid_titulo_eleitor,
+    mask_titulo_eleitor,
+    unmask_titulo_eleitor,
+)
 
 
 try:
@@ -24,10 +29,13 @@ __all__ = [
     "is_valid_cep",
     "is_valid_cnpj",
     "is_valid_cpf",
+    "is_valid_titulo_eleitor",
     "mask_cep",
     "mask_cnpj",
     "mask_cpf",
+    "mask_titulo_eleitor",
     "unmask_cep",
     "unmask_cnpj",
     "unmask_cpf",
+    "unmask_titulo_eleitor",
 ]
