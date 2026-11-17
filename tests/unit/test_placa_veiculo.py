@@ -20,7 +20,10 @@ def test_is_valid_placa_invalid_format_returns_false(str_value: str) -> None:
     assert is_valid_placa(str_value) is False
 
 
-@pytest.mark.parametrize("str_value", ["ＡＢＣ1234", "ABC１２３４", "ABC1Ｄ23"])
+@pytest.mark.parametrize(
+    "str_value",
+    ["ＡＢＣ1234", "ABC１２３４", "ABC1Ｄ23", "ſBC1234", "ıBC1234"],
+)
 def test_is_valid_placa_full_width_returns_false(str_value: str) -> None:
     """Full-width letters and digits are never accepted."""
     assert is_valid_placa(str_value) is False
@@ -34,6 +37,12 @@ def test_unmask_placa_lower_hyphenated_returns_upper_bare() -> None:
 def test_unmask_placa_full_width_characters_are_dropped() -> None:
     """Full-width letters and digits are filtered out, not kept."""
     assert unmask_placa("ＡＢＣ-１２３４") == ""
+
+
+@pytest.mark.parametrize("str_value", ["ＢＣ１２３４BC1234", "ſBC1234", "ıBC1234"])
+def test_mask_placa_non_ascii_never_passes_through(str_value: str) -> None:
+    """Full-width and case-folding look-alikes (long s, dotless i) are dropped."""
+    assert mask_placa(str_value) == "BC1234"
 
 
 def test_unmask_placa_keeps_no_padding() -> None:

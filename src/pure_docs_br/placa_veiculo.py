@@ -17,7 +17,7 @@ import re
 from pure_docs_br._internal.utils.typing import type_checker
 
 
-_RE_NOT_ALNUM: re.Pattern[str] = re.compile(r"[^A-Z0-9]")
+_RE_NOT_ALNUM: re.Pattern[str] = re.compile(r"[^A-Za-z0-9]")
 _RE_OLD: re.Pattern[str] = re.compile(r"[A-Z]{3}[0-9]{4}")
 _RE_MERCOSUL: re.Pattern[str] = re.compile(r"[A-Z]{3}[0-9][A-Z][0-9]{2}")
 _RE_PLACA: re.Pattern[str] = re.compile(r"[A-Z]{3}(?:[0-9]{4}|[0-9][A-Z][0-9]{2})")
@@ -38,7 +38,7 @@ def unmask_placa(str_value: str) -> str:
         The upper-cased value with everything outside ASCII ``A-Z0-9`` dropped (full-width
         letters and digits included). No zero padding: a plate is not numeric.
     """
-    return _RE_NOT_ALNUM.sub("", str_value.upper())
+    return _RE_NOT_ALNUM.sub("", str_value).upper()
 
 
 @type_checker
