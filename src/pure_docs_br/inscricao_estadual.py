@@ -207,7 +207,7 @@ _VARIANTS_BA: tuple[_Variant, ...] = (
 )
 _VARIANTS_DF: tuple[_Variant, ...] = (
     _variant(
-        r"07\d{11}",
+        r"0[78]\d{11}",
         _Step((4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2), _rule_mod11),
         _Step((5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2), _rule_mod11),
     ),
