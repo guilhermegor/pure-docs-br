@@ -181,3 +181,26 @@ base de veículos. O hífen do padrão antigo é convenção de escrita, não te
 formato próprio (Forças Armadas, diplomáticas, representação, motos de competição) são inválidas.
 `unmask_placa` não completa zeros e descarta letras e dígitos fora de ASCII (largura total).
 `mask_placa` devolve o valor sem máscara quando nenhum formato fecha.
+
+## Número de processo CNJ
+
+O número único de processo judicial (Resolução CNJ 65/2008) tem 20 dígitos no formato
+`NNNNNNN-DD.AAAA.J.TR.OOOO`: sequencial, dígitos verificadores, ano, segmento da Justiça, tribunal e
+unidade de origem.
+
+Formatos aceitos: com máscara (`0000001-84.2020.8.26.0001`) ou só dígitos, inclusive com cauda `.0`
+de conversão float. Sempre uma `str`.
+
+```python
+from pure_docs_br import is_valid_processo_cnj, mask_processo_cnj, unmask_processo_cnj
+
+is_valid_processo_cnj("0000001-84.2020.8.26.0001")  # True
+is_valid_processo_cnj("0000001-85.2020.8.26.0001")  # False, o DD correto é 84
+mask_processo_cnj("00000018420208260001")  # "0000001-84.2020.8.26.0001"
+unmask_processo_cnj("0000001-84.2020.8.26.0001")  # "00000018420208260001"
+```
+
+Casos extremos: os dígitos verificadores seguem ISO 7064 módulo 97-10, e `DD` só vale de 02 a 98.
+Não se confere `J` nem `TR` contra as tabelas oficiais, e a numeração anterior a 2008 não é coberta.
+`unmask_processo_cnj` completa zeros à esquerda até 20 e descarta dígitos fora de ASCII (largura
+total). `mask_processo_cnj` devolve o valor sem máscara quando o tamanho não fecha em 20.
