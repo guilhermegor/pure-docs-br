@@ -127,7 +127,10 @@ def test_is_valid_inscricao_estadual_sp_any_shape_returns_true(str_ie: str) -> N
     assert is_valid_inscricao_estadual(str_ie, str_uf="SP") is True
 
 
-@pytest.mark.parametrize("str_ie", ["ISENTO", "isento", "P-011004249.0/002", "P011004249002"])
+@pytest.mark.parametrize(
+    "str_ie",
+    ["ISENTO", "isento", "P-011004249.0/002", "P011004249002", "110042490114é", "110042490114Ж"],
+)
 def test_is_valid_inscricao_estadual_letters_return_false(str_ie: str) -> None:
     """ISENTO and the SP producer-rural form (a letter) are not validated."""
     assert is_valid_inscricao_estadual(str_ie, str_uf="SP") is False

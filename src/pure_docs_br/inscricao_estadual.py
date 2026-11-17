@@ -68,7 +68,7 @@ _INT_RO_OLD_LEN: int = 9
 _STR_MG_ZERO_AT: str = "0"
 
 _RE_NON_DIGIT: re.Pattern[str] = re.compile(r"[^0-9]", re.ASCII)
-_RE_LETTER: re.Pattern[str] = re.compile(r"[A-Za-z]", re.ASCII)
+_RE_LETTER: re.Pattern[str] = re.compile(r"[^\W\d_]")
 _RE_HASH: re.Pattern[str] = re.compile(r"#")
 
 _W9: tuple[int, ...] = (9, 8, 7, 6, 5, 4, 3, 2)
