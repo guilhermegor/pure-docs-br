@@ -69,3 +69,9 @@ def test_unmask_cep_non_ascii_digits_returns_empty(str_value: str) -> None:
 def test_is_valid_cep_non_ascii_digits_returns_false(str_value: str) -> None:
     """Arabic-Indic and full-width digits are not a valid CEP."""
     assert is_valid_cep(str_value) is False
+
+
+@pytest.mark.parametrize("str_value", ["０1001000", "٠1001000", "01001000"])
+def test_unmask_cep_float_tail_with_non_ascii_digit_matches_plain_form(str_value: str) -> None:
+    """A ``.0`` tail is dropped before non-ASCII digits are, so it never changes the key."""
+    assert unmask_cep(f"{str_value}.0") == unmask_cep(str_value)

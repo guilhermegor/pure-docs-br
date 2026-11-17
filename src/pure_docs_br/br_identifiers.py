@@ -33,7 +33,7 @@ _ASCII_ZERO: int = ord("0")
 _CNPJ_WEIGHTS_DV1: tuple[int, ...] = (5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2)
 _CNPJ_WEIGHTS_DV2: tuple[int, ...] = (6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2)
 
-_RE_FLOAT_ARTIFACT: re.Pattern[str] = re.compile(r"^\s*([0-9]+)\.0+\s*$")
+_RE_FLOAT_ARTIFACT: re.Pattern[str] = re.compile(r"^\s*(\d+)\.0+\s*$")
 _RE_NON_ALNUM: re.Pattern[str] = re.compile(r"[^0-9A-Za-z]")
 _RE_NON_DIGIT: re.Pattern[str] = re.compile(r"\D", re.ASCII)
 
