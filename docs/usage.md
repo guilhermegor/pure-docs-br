@@ -230,3 +230,30 @@ direita para a esquerda; resto 0 ou 1 dá DV 0. `unmask_chave_acesso` mantém d�
 maiúsculas, não completa zeros e descarta dígitos fora de ASCII (largura total). `mask_chave_acesso`
 devolve o valor sem máscara quando o tamanho não fecha em 44. Não se valida o CNPJ embutido, a `cUF`
 nem o `mod`, nem que o documento existe.
+
+## Boleto de cobrança bancária
+
+O boleto de cobrança tem duas representações: o código de barras, com 44 dígitos (banco 3, moeda 1,
+DV geral 1, fator de vencimento 4, valor 10 e campo livre 25), e a linha digitável, com 47 dígitos,
+`AAABC.CCCCX DDDDD.DDDDDY EEEEE.EEEEEZ K UUUUVVVVVVVVVV`. O boleto de arrecadação/convênio (48 dígitos,
+começa com 8) é outro documento e não é coberto aqui.
+
+Formatos aceitos: a linha digitável com ou sem pontos e espaços, ou o código de barras só com dígitos;
+em ambos, com cauda `.0` de conversão float. Sempre uma `str`.
+
+```python
+from pure_docs_br import is_valid_boleto_cobranca, mask_boleto_cobranca, unmask_boleto_cobranca
+
+is_valid_boleto_cobranca("00191999900000123450000000000000000000000001")  # True, código de barras
+is_valid_boleto_cobranca("00190.00009 00000.000000 00000.000018 1 99990000012345")  # True, linha digitável
+is_valid_boleto_cobranca("00192999900000123450000000000000000000000001")  # False, o DV geral correto é 1
+mask_boleto_cobranca("00190000090000000000000000000018199990000012345")  # "00190.00009 00000.000000 00000.000018 1 99990000012345"
+unmask_boleto_cobranca("00190.00009 00000.000000 00000.000018 1 99990000012345")  # "00190000090000000000000000000018199990000012345"
+```
+
+Casos extremos: os campos 1 a 3 da linha têm DV módulo 10 (soma dos algarismos de cada produto) e o
+DV geral é o módulo 11 com pesos 2 a 9 sobre as outras 43 posições; resultado 0, 10 ou 11 vira 1.
+`unmask_boleto_cobranca` não completa zeros e descarta dígitos fora de ASCII (largura total).
+`mask_boleto_cobranca` só formata a linha de 47 dígitos: um código de barras de 44 sai sem máscara,
+assim como qualquer outro tamanho. Não se valida o fator de vencimento, o valor nem a existência do
+banco, e a linha não é convertida em código de barras.

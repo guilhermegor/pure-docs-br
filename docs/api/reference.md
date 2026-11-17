@@ -188,6 +188,30 @@ is_valid_chave_acesso("35231111222333000181550010000000011123456780")  # False, 
 
 ---
 
+## Funções de boleto de cobrança bancária
+
+Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceção para `str`). Aceita o
+código de barras (44 dígitos) ou a linha digitável (47), `AAABC.CCCCX DDDDD.DDDDDY EEEEE.EEEEEZ K
+UUUUVVVVVVVVVV`. Os campos 1 a 3 da linha têm DV módulo 10; o DV geral (posição 5 do código de barras,
+`K` na linha) é o módulo 11 de 2 a 9 sobre as outras 43 posições, e resultado 0, 10 ou 11 vira 1. Esse
+módulo 11 é próprio da cobrança: o boleto de arrecadação (48 dígitos) usa outra regra. Fora do escopo:
+fator de vencimento, valor, existência do banco e conversão de linha em código de barras.
+
+| Função | Retorno | Comportamento |
+|--------|---------|---------------|
+| `unmask_boleto_cobranca(str_value)` | `str` | Mantém só dígitos ASCII e remove a cauda `.0`. Não completa zeros. |
+| `mask_boleto_cobranca(str_value)` | `str` | Formata a linha de 47 dígitos como `AAAAA.AAAAA BBBBB.BBBBBB CCCCC.CCCCCC D EEEEEEEEEEEEEE`; qualquer outro tamanho (inclusive o código de barras de 44) sai sem máscara. |
+| `is_valid_boleto_cobranca(str_value)` | `bool` | `True` quando há 44 dígitos com DV geral correto, ou 47 com os três DV de campo e o DV geral corretos. |
+
+```python
+from pure_docs_br import is_valid_boleto_cobranca, mask_boleto_cobranca
+
+mask_boleto_cobranca("00190000090000000000000000000018199990000012345")  # "00190.00009 00000.000000 00000.000018 1 99990000012345"
+is_valid_boleto_cobranca("00190000090000000000000000000018199990000012346")  # False, o DV geral não confere
+```
+
+---
+
 ## Adicionando novos módulos
 
 Coloque os novos módulos em `src/pure_docs_br/`. Exporte os símbolos públicos em `src/pure_docs_br/__init__.py` e liste-os em `__all__`, para que quem usa a biblioteca importe direto da raiz do pacote, como `from pure_docs_br import mask_cpf`.
