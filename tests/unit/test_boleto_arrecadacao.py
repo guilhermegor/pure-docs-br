@@ -65,7 +65,7 @@ def test_is_valid_boleto_arrecadacao_wrong_block_dv_returns_false(int_idx: int) 
 
 def test_is_valid_boleto_arrecadacao_line_with_wrong_general_dv_returns_false() -> None:
     """Block DVs alone do not make a line valid: the rebuilt barcode must pass too."""
-    str_line = "816900000019234500000000000000000000000000000000"
+    str_line = "816900000018234500000000000000000000000000000000"
     assert is_valid_boleto_arrecadacao(str_line) is False
 
 
