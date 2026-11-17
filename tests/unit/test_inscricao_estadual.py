@@ -385,3 +385,8 @@ def test_is_valid_inscricao_estadual_short_ba_does_not_raise() -> None:
 def test_is_valid_inscricao_estadual_mg_wrong_values_return_false(str_ie: str) -> None:
     """MG: a short value, a wrong DV2 and an altered city code are rejected."""
     assert is_valid_inscricao_estadual(str_ie, str_uf="MG") is False
+
+
+def test_is_valid_inscricao_estadual_am_sum_below_11_uses_11_minus_sum() -> None:
+    """AM: a weighted sum below 11 gives the check digit 11 - sum (here 2 -> 9)."""
+    assert is_valid_inscricao_estadual("000000019", str_uf="AM") is True
