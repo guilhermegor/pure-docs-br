@@ -115,3 +115,15 @@ def test_titulo_eleitor_functions_non_str_raise_type_error(fn_call: object) -> N
     """A non-``str`` input raises ``TypeError`` from the type checker."""
     with pytest.raises(TypeError):
         fn_call(None)  # type: ignore[operator]
+
+
+@pytest.mark.parametrize("str_value", ["٠٠٤٣٥٦٨٧٠٩٠٦", "００４３５６８７０９０６"])
+def test_unmask_titulo_eleitor_non_ascii_digits_returns_empty(str_value: str) -> None:
+    """Arabic-Indic and full-width digits are dropped, never kept."""
+    assert unmask_titulo_eleitor(str_value) == ""
+
+
+@pytest.mark.parametrize("str_value", ["٠٠٤٣٥٦٨٧٠٩٠٦", "００４３５６８７０９０６"])
+def test_is_valid_titulo_eleitor_non_ascii_digits_returns_false(str_value: str) -> None:
+    """Arabic-Indic and full-width digits are not a valid título."""
+    assert is_valid_titulo_eleitor(str_value) is False

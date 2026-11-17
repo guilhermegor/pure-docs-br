@@ -57,3 +57,15 @@ def test_cep_functions_non_str_raise_type_error(fn_call: object) -> None:
     """A non-``str`` input raises ``TypeError`` from the type checker."""
     with pytest.raises(TypeError):
         fn_call(None)  # type: ignore[operator]
+
+
+@pytest.mark.parametrize("str_value", ["٠" * 8, "０１００１０００"])
+def test_unmask_cep_non_ascii_digits_returns_empty(str_value: str) -> None:
+    """Arabic-Indic and full-width digits are dropped, never kept."""
+    assert unmask_cep(str_value) == ""
+
+
+@pytest.mark.parametrize("str_value", ["٠" * 8, "０１００１０００"])
+def test_is_valid_cep_non_ascii_digits_returns_false(str_value: str) -> None:
+    """Arabic-Indic and full-width digits are not a valid CEP."""
+    assert is_valid_cep(str_value) is False
