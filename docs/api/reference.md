@@ -119,6 +119,29 @@ is_valid_cns("300000000000000")  # False, começa com 3
 
 ---
 
+## Funções de placa de veículo
+
+Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceção para `str`). A placa
+não tem dígito verificador: a validação é só de formato, para o padrão antigo `LLLNNNN`
+(Resolução CONTRAN 231/2007) e o Mercosul `LLLNLNN` (Resolução CONTRAN 780/2019). Placas com
+formato próprio (Forças Armadas, diplomáticas, representação, motos de competição) não são
+cobertas. `is_valid_placa` não confirma que a placa foi emitida.
+
+| Função | Retorno | Comportamento |
+|--------|---------|---------------|
+| `unmask_placa(str_value)` | `str` | Converte para maiúsculas e mantém só `A-Z0-9` ASCII. Não completa zeros. |
+| `mask_placa(str_value)` | `str` | Formata o padrão antigo como `ABC-1234` (convenção de escrita); o Mercosul não tem separador; se nenhum formato fechar, devolve o valor sem máscara. |
+| `is_valid_placa(str_value)` | `bool` | `True` quando o valor sem máscara é `LLLNNNN` ou `LLLNLNN`. |
+
+```python
+from pure_docs_br import is_valid_placa, mask_placa
+
+mask_placa("abc1234")  # "ABC-1234"
+is_valid_placa("ABC12D4")  # False, o 5º caractere deve ser letra no Mercosul
+```
+
+---
+
 ## Adicionando novos módulos
 
 Coloque os novos módulos em `src/pure_docs_br/`. Exporte os símbolos públicos em `src/pure_docs_br/__init__.py` e liste-os em `__all__`, para que quem usa a biblioteca importe direto da raiz do pacote, como `from pure_docs_br import mask_cpf`.

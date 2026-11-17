@@ -158,3 +158,26 @@ biblioteca. `unmask_cns` não completa zeros, pois nenhum CNS válido começa co
 começam com `0`, `3`, `4`, `5` ou `6` são inválidos. `mask_cns` devolve o valor sem máscara quando o
 tamanho não fecha em 15 dígitos. A rotina vem de fontes públicas que citam o DATASUS, não do texto
 oficial.
+
+## Placa de veículo
+
+A placa de veículo tem 7 caracteres em dois padrões que coexistem: o antigo `LLLNNNN` (`ABC-1234`) e
+o Mercosul `LLLNLNN` (`ABC1D23`).
+
+Formatos aceitos: maiúsculas ou minúsculas, com hífen (`abc-1234`) ou sem. Sempre uma `str`.
+
+```python
+from pure_docs_br import is_valid_placa, mask_placa, unmask_placa
+
+is_valid_placa("abc-1234")  # True
+is_valid_placa("ABC12D4")  # False, o 5º caractere deve ser letra no Mercosul
+mask_placa("ABC1234")  # "ABC-1234"
+mask_placa("ABC1D23")  # "ABC1D23", o Mercosul não tem separador
+unmask_placa("abc-1234")  # "ABC1234"
+```
+
+Casos extremos: a placa não tem dígito verificador, então só o formato é conferido, sem consultar
+base de veículos. O hífen do padrão antigo é convenção de escrita, não texto da norma. Placas com
+formato próprio (Forças Armadas, diplomáticas, representação, motos de competição) são inválidas.
+`unmask_placa` não completa zeros e descarta letras e dígitos fora de ASCII (largura total).
+`mask_placa` devolve o valor sem máscara quando nenhum formato fecha.
