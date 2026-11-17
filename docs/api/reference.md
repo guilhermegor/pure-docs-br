@@ -206,8 +206,40 @@ fator de vencimento, valor, existência do banco e conversão de linha em códig
 ```python
 from pure_docs_br import is_valid_boleto_cobranca, mask_boleto_cobranca
 
-mask_boleto_cobranca("00190000090000000000000000000018199990000012345")  # "00190.00009 00000.000000 00000.000018 1 99990000012345"
-is_valid_boleto_cobranca("00190000090000000000000000000018199990000012346")  # False, o DV geral não confere
+mask_boleto_cobranca(
+    "00190000090000000000000000000018199990000012345"
+)  # "00190.00009 00000.000000 00000.000018 1 99990000012345"
+is_valid_boleto_cobranca(
+    "00190000090000000000000000000018199990000012346"
+)  # False, o DV geral não confere
+```
+
+---
+
+## Funções de boleto de arrecadação / convênio
+
+Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceção para `str`). Aceita o
+código de barras (44 dígitos, começa com 8) ou a linha digitável (48 dígitos: quatro blocos de 11
+dígitos, cada um seguido do seu DV). O 3º dígito (identificação do valor) escolhe o módulo: `6` ou `7`
+módulo 10, `8` ou `9` módulo 11; qualquer outro valor é inválido. No módulo 11 desta regra, resto 0 ou
+1 dá DV 0 e resto 10 dá DV 1, diferente do boleto de cobrança (47 dígitos). O DV geral fica na posição
+4 do código de barras. Fora do escopo: segmento, valor e empresa/órgão.
+
+| Função | Retorno | Comportamento |
+|--------|---------|---------------|
+| `unmask_boleto_arrecadacao(str_value)` | `str` | Mantém só dígitos ASCII e remove a cauda `.0` de um valor só com dígitos. Não completa zeros. |
+| `mask_boleto_arrecadacao(str_value)` | `str` | Formata a linha de 48 dígitos como `XXXXXXXXXXX-X XXXXXXXXXXX-X XXXXXXXXXXX-X XXXXXXXXXXX-X`; qualquer outro tamanho (inclusive o código de barras de 44) sai sem máscara. |
+| `is_valid_boleto_arrecadacao(str_value)` | `bool` | `True` quando há 44 dígitos começando em 8 com DV geral correto, ou 48 com os quatro DV de bloco corretos e o código de barras reconstruído válido. |
+
+```python
+from pure_docs_br import is_valid_boleto_arrecadacao, mask_boleto_arrecadacao
+
+mask_boleto_arrecadacao(
+    "816800000019234500000000000000000000000000000000"
+)  # "81680000001-9 23450000000-0 00000000000-0 00000000000-0"
+is_valid_boleto_arrecadacao(
+    "81690000001234500000000000000000000000000000"
+)  # False, o DV geral correto é 8
 ```
 
 ---

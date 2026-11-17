@@ -221,8 +221,12 @@ from pure_docs_br import is_valid_chave_acesso, mask_chave_acesso, unmask_chave_
 
 is_valid_chave_acesso("35231111222333000181550010000000011123456789")  # True
 is_valid_chave_acesso("35231111222333000181550010000000011123456780")  # False, o DV correto é 9
-mask_chave_acesso("35231111222333000181550010000000011123456789")  # "3523 1111 2223 3300 0181 5500 1000 0000 0111 2345 6789"
-unmask_chave_acesso("NFe35231111222333000181550010000000011123456789")  # "35231111222333000181550010000000011123456789"
+mask_chave_acesso(
+    "35231111222333000181550010000000011123456789"
+)  # "3523 1111 2223 3300 0181 5500 1000 0000 0111 2345 6789"
+unmask_chave_acesso(
+    "NFe35231111222333000181550010000000011123456789"
+)  # "35231111222333000181550010000000011123456789"
 ```
 
 Casos extremos: o DV usa o valor `ord(c) - 48` de cada caractere (letras valem 17 a 42), pesos 2 a 9 da
@@ -246,10 +250,18 @@ float→str produz; um valor com pontos ou espaços nunca foi float. Sempre uma 
 from pure_docs_br import is_valid_boleto_cobranca, mask_boleto_cobranca, unmask_boleto_cobranca
 
 is_valid_boleto_cobranca("00191999900000123450000000000000000000000001")  # True, código de barras
-is_valid_boleto_cobranca("00190.00009 00000.000000 00000.000018 1 99990000012345")  # True, linha digitável
-is_valid_boleto_cobranca("00192999900000123450000000000000000000000001")  # False, o DV geral correto é 1
-mask_boleto_cobranca("00190000090000000000000000000018199990000012345")  # "00190.00009 00000.000000 00000.000018 1 99990000012345"
-unmask_boleto_cobranca("00190.00009 00000.000000 00000.000018 1 99990000012345")  # "00190000090000000000000000000018199990000012345"
+is_valid_boleto_cobranca(
+    "00190.00009 00000.000000 00000.000018 1 99990000012345"
+)  # True, linha digitável
+is_valid_boleto_cobranca(
+    "00192999900000123450000000000000000000000001"
+)  # False, o DV geral correto é 1
+mask_boleto_cobranca(
+    "00190000090000000000000000000018199990000012345"
+)  # "00190.00009 00000.000000 00000.000018 1 99990000012345"
+unmask_boleto_cobranca(
+    "00190.00009 00000.000000 00000.000018 1 99990000012345"
+)  # "00190000090000000000000000000018199990000012345"
 ```
 
 Casos extremos: os campos 1 a 3 da linha têm DV módulo 10 (soma dos algarismos de cada produto) e o
@@ -258,3 +270,47 @@ DV geral é o módulo 11 com pesos 2 a 9 sobre as outras 43 posições; resultad
 `mask_boleto_cobranca` só formata a linha de 47 dígitos: um código de barras de 44 sai sem máscara,
 assim como qualquer outro tamanho. Não se valida o fator de vencimento, o valor nem a existência do
 banco, e a linha não é convertida em código de barras.
+
+## Boleto de arrecadação / convênio
+
+O boleto de arrecadação (contas de consumo e tributos) tem duas representações: o código de barras,
+com 44 dígitos, que começa sempre com 8 (produto 1, segmento 1, identificação do valor 1, DV geral 1 e
+40 dígitos de valor, empresa/órgão e campo livre), e a linha digitável, com 48 dígitos: quatro blocos de
+11 dígitos, cada um seguido do seu DV. O boleto de cobrança bancária (47 dígitos) é outro documento e
+não é coberto aqui.
+
+Formatos aceitos: a linha digitável com ou sem hifens e espaços, ou o código de barras só com dígitos.
+A cauda `.0` de conversão float só é removida de um valor só com dígitos, a forma que uma conversão
+float→str produz; um valor com hifens ou espaços nunca foi float. Sempre uma `str`.
+
+```python
+from pure_docs_br import (
+    is_valid_boleto_arrecadacao,
+    mask_boleto_arrecadacao,
+    unmask_boleto_arrecadacao,
+)
+
+is_valid_boleto_arrecadacao(
+    "81680000001234500000000000000000000000000000"
+)  # True, código de barras
+is_valid_boleto_arrecadacao(
+    "81680000001-9 23450000000-0 00000000000-0 00000000000-0"
+)  # True, linha digitável
+is_valid_boleto_arrecadacao(
+    "81690000001234500000000000000000000000000000"
+)  # False, o DV geral correto é 8
+mask_boleto_arrecadacao(
+    "816800000019234500000000000000000000000000000000"
+)  # "81680000001-9 23450000000-0 00000000000-0 00000000000-0"
+unmask_boleto_arrecadacao(
+    "81680000001-9 23450000000-0 00000000000-0 00000000000-0"
+)  # "816800000019234500000000000000000000000000000000"
+```
+
+Casos extremos: o 3º dígito escolhe o módulo, 6 ou 7 módulo 10 e 8 ou 9 módulo 11; qualquer outro
+valor torna o boleto inválido. No módulo 11, resto 0 ou 1 dá DV 0 e resto 10 dá DV 1 (regra distinta da
+cobrança). A linha só é válida quando os quatro DV de bloco conferem e o código de barras reconstruído
+dos quatro blocos também é válido. `unmask_boleto_arrecadacao` não completa zeros e descarta dígitos
+fora de ASCII (largura total). `mask_boleto_arrecadacao` só formata a linha de 48 dígitos: um código de
+barras de 44 sai sem máscara, assim como qualquer outro tamanho. A máscara com hifens é uma convenção de
+exibição, não texto da norma. Não se valida segmento, valor nem empresa/órgão.
