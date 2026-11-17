@@ -69,6 +69,7 @@ Toda função recebe e devolve `str` (ou `bool`) e aceita o documento com ou sem
 ```python
 from pure_docs_br import (
     is_valid_cep,
+    is_valid_chave_acesso,
     is_valid_cnpj,
     is_valid_cns,
     is_valid_cpf,
@@ -77,6 +78,7 @@ from pure_docs_br import (
     is_valid_processo_cnj,
     is_valid_titulo_eleitor,
     mask_cep,
+    mask_chave_acesso,
     mask_cnpj,
     mask_cns,
     mask_cpf,
@@ -85,6 +87,7 @@ from pure_docs_br import (
     mask_processo_cnj,
     mask_titulo_eleitor,
     unmask_cep,
+    unmask_chave_acesso,
     unmask_cnpj,
     unmask_cns,
     unmask_cpf,
@@ -132,6 +135,10 @@ is_valid_placa("ABC1D23")  # True, padrão Mercosul
 mask_processo_cnj("00000018420208260001")  # "0000001-84.2020.8.26.0001"
 unmask_processo_cnj("0000001-84.2020.8.26.0001")  # "00000018420208260001"
 is_valid_processo_cnj("0000001-84.2020.8.26.0001")  # True
+
+mask_chave_acesso("35231111222333000181550010000000011123456789")  # "3523 1111 2223 3300 0181 5500 1000 0000 0111 2345 6789"
+unmask_chave_acesso("NFe35231111222333000181550010000000011123456789")  # "35231111222333000181550010000000011123456789"
+is_valid_chave_acesso("35231111222333000181550010000000011123456789")  # True
 ```
 
 ### CEP
@@ -214,10 +221,10 @@ comunidade conhece; o `bin/poe_exec.sh` cobre os casos em que ele não basta:
 ## API pública
 
 A superfície pública é o que o `__init__.py` do pacote lista em `__all__`:
-`__version__`, `is_valid_cep`, `is_valid_cnpj`, `is_valid_cns`, `is_valid_cpf`,
+`__version__`, `is_valid_cep`, `is_valid_chave_acesso`, `is_valid_cnpj`, `is_valid_cns`, `is_valid_cpf`,
 `is_valid_pis_pasep`, `is_valid_placa`, `is_valid_processo_cnj`, `is_valid_titulo_eleitor`,
-`mask_cep`, `mask_cnpj`, `mask_cns`, `mask_cpf`, `mask_pis_pasep`, `mask_placa`,
-`mask_processo_cnj`, `mask_titulo_eleitor`, `unmask_cep`, `unmask_cnpj`, `unmask_cns`,
+`mask_cep`, `mask_chave_acesso`, `mask_cnpj`, `mask_cns`, `mask_cpf`, `mask_pis_pasep`, `mask_placa`,
+`mask_processo_cnj`, `mask_titulo_eleitor`, `unmask_cep`, `unmask_chave_acesso`, `unmask_cnpj`, `unmask_cns`,
 `unmask_cpf`, `unmask_pis_pasep`, `unmask_placa`, `unmask_processo_cnj` e
 `unmask_titulo_eleitor`.
 

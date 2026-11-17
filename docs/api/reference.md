@@ -165,6 +165,29 @@ is_valid_processo_cnj("0000001-85.2020.8.26.0001")  # False, o DD correto é 84
 
 ---
 
+## Funções de chave de acesso (NF-e, NFC-e, CT-e, MDF-e)
+
+Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceção para `str`). A chave tem
+44 caracteres no formato `[0-9]{6}[A-Z0-9]{12}[0-9]{26}` (MOC 7.0 e NT Conjunta 2025.001, que admite
+letras no CNPJ do emitente). O DV é o módulo 11 dos 43 primeiros caracteres, cada um valendo
+`ord(c) - 48`, com pesos 2 a 9 da direita para a esquerda; resto 0 ou 1 dá DV 0. Fora do escopo:
+validar o CNPJ embutido, a `cUF` e o `mod`.
+
+| Função | Retorno | Comportamento |
+|--------|---------|---------------|
+| `unmask_chave_acesso(str_value)` | `str` | Remove o prefixo `NFe`/`CTe`/`MDFe` e a cauda `.0`, mantém dígitos e letras ASCII em maiúsculas. Não completa zeros. |
+| `mask_chave_acesso(str_value)` | `str` | 11 grupos de 4 separados por espaço; se o tamanho não fecha em 44, devolve o valor sem máscara. |
+| `is_valid_chave_acesso(str_value)` | `bool` | `True` quando o formato fecha e o último caractere é o DV dos 43 primeiros. |
+
+```python
+from pure_docs_br import is_valid_chave_acesso
+
+is_valid_chave_acesso("NFe35231111222333000181550010000000011123456789")  # True
+is_valid_chave_acesso("35231111222333000181550010000000011123456780")  # False, o DV correto é 9
+```
+
+---
+
 ## Adicionando novos módulos
 
 Coloque os novos módulos em `src/pure_docs_br/`. Exporte os símbolos públicos em `src/pure_docs_br/__init__.py` e liste-os em `__all__`, para que quem usa a biblioteca importe direto da raiz do pacote, como `from pure_docs_br import mask_cpf`.

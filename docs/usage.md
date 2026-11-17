@@ -204,3 +204,29 @@ Casos extremos: os dígitos verificadores seguem ISO 7064 módulo 97-10, e `DD` 
 Não se confere `J` nem `TR` contra as tabelas oficiais, e a numeração anterior a 2008 não é coberta.
 `unmask_processo_cnj` completa zeros à esquerda até 20 e descarta dígitos fora de ASCII (largura
 total). `mask_processo_cnj` devolve o valor sem máscara quando o tamanho não fecha em 20.
+
+## Chave de acesso (NF-e, NFC-e, CT-e, MDF-e)
+
+A chave de acesso dos documentos fiscais eletrônicos tem 44 caracteres: `cUF` (2), `AAMM` (4), CNPJ do
+emitente (14), `mod` (2), série (3), número (9), `tpEmis` (1), `cNF` (8) e o dígito verificador. NF-e,
+NFC-e, CT-e e MDF-e usam a mesma composição e o mesmo DV (módulo 11, MOC 7.0).
+
+Formatos aceitos: só caracteres, em grupos de 4 separados por espaço (como no DANFE), com o prefixo do
+atributo `Id` do XML (`NFe`, `CTe`, `MDFe`) ou com cauda `.0` de conversão float. Desde a NT Conjunta
+2025.001 as 12 primeiras posições do CNPJ embutido (posições 7 a 18 da chave) podem ser letras `A` a `Z`;
+as demais posições são dígitos.
+
+```python
+from pure_docs_br import is_valid_chave_acesso, mask_chave_acesso, unmask_chave_acesso
+
+is_valid_chave_acesso("35231111222333000181550010000000011123456789")  # True
+is_valid_chave_acesso("35231111222333000181550010000000011123456780")  # False, o DV correto é 9
+mask_chave_acesso("35231111222333000181550010000000011123456789")  # "3523 1111 2223 3300 0181 5500 1000 0000 0111 2345 6789"
+unmask_chave_acesso("NFe35231111222333000181550010000000011123456789")  # "35231111222333000181550010000000011123456789"
+```
+
+Casos extremos: o DV usa o valor `ord(c) - 48` de cada caractere (letras valem 17 a 42), pesos 2 a 9 da
+direita para a esquerda; resto 0 ou 1 dá DV 0. `unmask_chave_acesso` mantém dígitos e letras ASCII em
+maiúsculas, não completa zeros e descarta dígitos fora de ASCII (largura total). `mask_chave_acesso`
+devolve o valor sem máscara quando o tamanho não fecha em 44. Não se valida o CNPJ embutido, a `cUF`
+nem o `mod`, nem que o documento existe.
