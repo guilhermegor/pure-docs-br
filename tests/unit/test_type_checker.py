@@ -1,5 +1,6 @@
 """Unit tests for the dependency-free runtime type checker."""
 
+import importlib
 from typing import TYPE_CHECKING
 
 import pytest
@@ -85,7 +86,7 @@ def test_type_checker_var_positional_checks_each_element() -> None:
 def test_type_checker_var_positional_rejects_a_bad_element() -> None:
     """``*args: int`` still rejects one element of the wrong type."""
     with pytest.raises(TypeError):
-        _probe_var_positional(1, "2")
+        _probe_var_positional(1, 2.5)
 
 
 def test_type_checker_var_keyword_checks_each_value() -> None:
@@ -102,6 +103,25 @@ def test_type_checker_var_keyword_rejects_a_bad_value() -> None:
 def test_type_checker_int_is_accepted_where_float_is_annotated() -> None:
     """``int`` widens to ``float``, as PEP 484 and mypy allow."""
     assert _probe_float(1) == 1.0
+
+
+def _probe_plain(int_value: int) -> int:
+    """Return the value unchanged; decorated inside the test that needs it."""
+    return int_value
+
+
+def test_type_checker_resolves_hints_once_per_function(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Hints are resolved on the first call only, then reused from the cache."""
+    cls_module = importlib.import_module("pure_docs_br._internal.utils.typing.type_checker")
+    fn_real = cls_module._resolve_hints
+    list_calls: list[object] = []
+    monkeypatch.setattr(
+        cls_module, "_resolve_hints", lambda fn: list_calls.append(fn) or fn_real(fn)
+    )
+    fn_probe = type_checker(_probe_plain)
+    fn_probe(1)
+    fn_probe(2)
+    assert len(list_calls) == 1
 
 
 def test_type_checker_bool_is_rejected_where_int_is_annotated() -> None:
