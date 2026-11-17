@@ -18,7 +18,7 @@
 <!-- slug: overview -->
 ## Visão geral
 
-Valida, aplica e remove a máscara de documentos brasileiros
+Valida, aplica e remove a máscara dos documentos do Brasil
 
 <!-- optional section: delete it when the project has no feature list -->
 <!-- slug: features -->
