@@ -142,6 +142,29 @@ is_valid_placa("ABC12D4")  # False, o 5º caractere deve ser letra no Mercosul
 
 ---
 
+## Funções de número de processo CNJ
+
+Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceção para `str`). O número
+único tem 20 dígitos, `NNNNNNN-DD.AAAA.J.TR.OOOO` (Resolução CNJ 65/2008), com dígitos verificadores
+ISO 7064 módulo 97-10: `int(N AAAA J TR OOOO DD) % 97 == 1`, com `DD` entre 02 e 98. Fora do escopo:
+conferir `J` e `TR` contra as tabelas dos anexos e a numeração anterior a 2008. `is_valid_processo_cnj`
+não confirma que o processo existe.
+
+| Função | Retorno | Comportamento |
+|--------|---------|---------------|
+| `unmask_processo_cnj(str_value)` | `str` | Mantém só dígitos ASCII, remove a cauda `.0` e completa zeros à esquerda até 20. Vazio continua vazio. |
+| `mask_processo_cnj(str_value)` | `str` | Formata como `NNNNNNN-DD.AAAA.J.TR.OOOO`; se o tamanho não fecha em 20 dígitos, devolve o valor sem máscara. |
+| `is_valid_processo_cnj(str_value)` | `bool` | `True` quando há 20 dígitos, `DD` entre 02 e 98 e o resto módulo 97 é 1. |
+
+```python
+from pure_docs_br import is_valid_processo_cnj, mask_processo_cnj
+
+mask_processo_cnj("00000018420208260001")  # "0000001-84.2020.8.26.0001"
+is_valid_processo_cnj("0000001-85.2020.8.26.0001")  # False, o DD correto é 84
+```
+
+---
+
 ## Adicionando novos módulos
 
 Coloque os novos módulos em `src/pure_docs_br/`. Exporte os símbolos públicos em `src/pure_docs_br/__init__.py` e liste-os em `__all__`, para que quem usa a biblioteca importe direto da raiz do pacote, como `from pure_docs_br import mask_cpf`.

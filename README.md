@@ -74,6 +74,7 @@ from pure_docs_br import (
     is_valid_cpf,
     is_valid_pis_pasep,
     is_valid_placa,
+    is_valid_processo_cnj,
     is_valid_titulo_eleitor,
     mask_cep,
     mask_cnpj,
@@ -81,6 +82,7 @@ from pure_docs_br import (
     mask_cpf,
     mask_pis_pasep,
     mask_placa,
+    mask_processo_cnj,
     mask_titulo_eleitor,
     unmask_cep,
     unmask_cnpj,
@@ -88,6 +90,7 @@ from pure_docs_br import (
     unmask_cpf,
     unmask_pis_pasep,
     unmask_placa,
+    unmask_processo_cnj,
     unmask_titulo_eleitor,
 )
 
@@ -125,6 +128,10 @@ is_valid_cns("100 0000 0001 0002")  # True
 mask_placa("abc1234")  # "ABC-1234"
 unmask_placa("abc-1234")  # "ABC1234"
 is_valid_placa("ABC1D23")  # True, padrão Mercosul
+
+mask_processo_cnj("00000018420208260001")  # "0000001-84.2020.8.26.0001"
+unmask_processo_cnj("0000001-84.2020.8.26.0001")  # "00000018420208260001"
+is_valid_processo_cnj("0000001-84.2020.8.26.0001")  # True
 ```
 
 ### CEP
@@ -208,9 +215,10 @@ comunidade conhece; o `bin/poe_exec.sh` cobre os casos em que ele não basta:
 
 A superfície pública é o que o `__init__.py` do pacote lista em `__all__`:
 `__version__`, `is_valid_cep`, `is_valid_cnpj`, `is_valid_cns`, `is_valid_cpf`,
-`is_valid_pis_pasep`, `is_valid_placa`, `is_valid_titulo_eleitor`, `mask_cep`, `mask_cnpj`,
-`mask_cns`, `mask_cpf`, `mask_pis_pasep`, `mask_placa`, `mask_titulo_eleitor`, `unmask_cep`,
-`unmask_cnpj`, `unmask_cns`, `unmask_cpf`, `unmask_pis_pasep`, `unmask_placa` e
+`is_valid_pis_pasep`, `is_valid_placa`, `is_valid_processo_cnj`, `is_valid_titulo_eleitor`,
+`mask_cep`, `mask_cnpj`, `mask_cns`, `mask_cpf`, `mask_pis_pasep`, `mask_placa`,
+`mask_processo_cnj`, `mask_titulo_eleitor`, `unmask_cep`, `unmask_cnpj`, `unmask_cns`,
+`unmask_cpf`, `unmask_pis_pasep`, `unmask_placa`, `unmask_processo_cnj` e
 `unmask_titulo_eleitor`.
 
 ### Garantia de API da 1.x
