@@ -197,3 +197,31 @@ def test_is_valid_empty_str_false(fn_call: object) -> None:
 def test_unmask_cnpj_scientific_notation_is_not_handled() -> None:
     """Scientific notation is not a float artifact: the exponent letter is kept."""
     assert unmask_cnpj("1.1222333000181e+13") == "11222333000181E13"
+
+
+LIST_NON_ASCII_CPF: list[str] = ["٥٢٩٩٨٢٢٤٧٢٥", "５２９９８２２４７２５"]
+LIST_NON_ASCII_CNPJ: list[str] = ["١١٢٢٢٣٣٣٠٠٠١٨١", "１１２２２３３３０００１８１"]
+
+
+@pytest.mark.parametrize("str_value", LIST_NON_ASCII_CPF)
+def test_unmask_cpf_non_ascii_digits_returns_empty(str_value: str) -> None:
+    """Arabic-Indic and full-width digits are dropped, never kept."""
+    assert unmask_cpf(str_value) == ""
+
+
+@pytest.mark.parametrize("str_value", LIST_NON_ASCII_CPF)
+def test_is_valid_cpf_non_ascii_digits_returns_false(str_value: str) -> None:
+    """Arabic-Indic and full-width digits are not a valid CPF."""
+    assert is_valid_cpf(str_value) is False
+
+
+@pytest.mark.parametrize("str_value", LIST_NON_ASCII_CNPJ)
+def test_unmask_cnpj_non_ascii_digits_returns_empty(str_value: str) -> None:
+    """Arabic-Indic and full-width digits are dropped, never kept."""
+    assert unmask_cnpj(str_value) == ""
+
+
+@pytest.mark.parametrize("str_value", LIST_NON_ASCII_CNPJ)
+def test_is_valid_cnpj_non_ascii_digits_returns_false(str_value: str) -> None:
+    """Arabic-Indic and full-width digits are not a valid CNPJ."""
+    assert is_valid_cnpj(str_value) is False

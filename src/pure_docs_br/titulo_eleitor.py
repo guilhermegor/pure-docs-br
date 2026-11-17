@@ -24,7 +24,7 @@ _UF_MIN: int = 1
 _UF_MAX: int = 28
 _SET_UF_SP_MG: frozenset[int] = frozenset({1, 2})
 
-_RE_NON_DIGIT: re.Pattern[str] = re.compile(r"\D")
+_RE_NON_DIGIT: re.Pattern[str] = re.compile(r"\D", re.ASCII)
 
 
 @type_checker
