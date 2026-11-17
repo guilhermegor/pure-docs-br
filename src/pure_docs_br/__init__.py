@@ -2,6 +2,11 @@
 
 from importlib.metadata import PackageNotFoundError, version
 
+from .boleto_arrecadacao import (
+    is_valid_boleto_arrecadacao,
+    mask_boleto_arrecadacao,
+    unmask_boleto_arrecadacao,
+)
 from .boleto_cobranca import (
     is_valid_boleto_cobranca,
     mask_boleto_cobranca,
@@ -36,6 +41,7 @@ except PackageNotFoundError:  # pragma: no cover - source tree without an instal
 
 __all__ = [
     "__version__",
+    "is_valid_boleto_arrecadacao",
     "is_valid_boleto_cobranca",
     "is_valid_cep",
     "is_valid_chave_acesso",
@@ -46,6 +52,7 @@ __all__ = [
     "is_valid_placa",
     "is_valid_processo_cnj",
     "is_valid_titulo_eleitor",
+    "mask_boleto_arrecadacao",
     "mask_boleto_cobranca",
     "mask_cep",
     "mask_chave_acesso",
@@ -56,6 +63,7 @@ __all__ = [
     "mask_placa",
     "mask_processo_cnj",
     "mask_titulo_eleitor",
+    "unmask_boleto_arrecadacao",
     "unmask_boleto_cobranca",
     "unmask_cep",
     "unmask_chave_acesso",
