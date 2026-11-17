@@ -238,8 +238,9 @@ DV geral 1, fator de vencimento 4, valor 10 e campo livre 25), e a linha digitá
 `AAABC.CCCCX DDDDD.DDDDDY EEEEE.EEEEEZ K UUUUVVVVVVVVVV`. O boleto de arrecadação/convênio (48 dígitos,
 começa com 8) é outro documento e não é coberto aqui.
 
-Formatos aceitos: a linha digitável com ou sem pontos e espaços, ou o código de barras só com dígitos;
-em ambos, com cauda `.0` de conversão float. Sempre uma `str`.
+Formatos aceitos: a linha digitável com ou sem pontos e espaços, ou o código de barras só com dígitos.
+A cauda `.0` de conversão float só é removida de um valor só com dígitos, a forma que uma conversão
+float→str produz; um valor com pontos ou espaços nunca foi float. Sempre uma `str`.
 
 ```python
 from pure_docs_br import is_valid_boleto_cobranca, mask_boleto_cobranca, unmask_boleto_cobranca

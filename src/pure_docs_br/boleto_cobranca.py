@@ -107,8 +107,8 @@ def unmask_boleto_cobranca(str_value: str) -> str:
     Parameters
     ----------
     str_value : str
-        A typeable line or barcode in any shape: punctuated, spaced or carrying a float
-        ``.0`` tail.
+        A typeable line or barcode, punctuated, spaced or bare. A float ``.0`` tail is
+        dropped only from an all-digit value, the one shape a float→str coercion yields.
 
     Returns
     -------

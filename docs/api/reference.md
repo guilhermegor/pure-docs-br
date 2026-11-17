@@ -199,7 +199,7 @@ fator de vencimento, valor, existência do banco e conversão de linha em códig
 
 | Função | Retorno | Comportamento |
 |--------|---------|---------------|
-| `unmask_boleto_cobranca(str_value)` | `str` | Mantém só dígitos ASCII e remove a cauda `.0`. Não completa zeros. |
+| `unmask_boleto_cobranca(str_value)` | `str` | Mantém só dígitos ASCII e remove a cauda `.0` de um valor só com dígitos. Não completa zeros. |
 | `mask_boleto_cobranca(str_value)` | `str` | Formata a linha de 47 dígitos como `AAAAA.AAAAA BBBBB.BBBBBB CCCCC.CCCCCC D EEEEEEEEEEEEEE`; qualquer outro tamanho (inclusive o código de barras de 44) sai sem máscara. |
 | `is_valid_boleto_cobranca(str_value)` | `bool` | `True` quando há 44 dígitos com DV geral correto, ou 47 com os três DV de campo e o DV geral corretos. |
 
