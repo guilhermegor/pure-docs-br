@@ -30,7 +30,8 @@ INT_EXIT_NOT_PTBR = 6
 
 RE_SITE_DESCRIPTION = re.compile(r"^site_description:\s*(.*?)\s*$", re.MULTILINE)
 RE_INLINE_VALUE = re.compile(r"[ \t]*[\"']?([\w-]+)")
-RE_THEME_LANGUAGE = re.compile(r"^([ \t]+)language:[ \t]*[\"']?([\w-]+)")
+RE_THEME_LANGUAGE = re.compile(r"^([ \t]+)[\"']?language[\"']?:[ \t]*[\"']?([\w-]+)")
+RE_INLINE_KEY = re.compile(r"[\"']?language[\"']?:")
 RE_SINGLE_QUOTED = re.compile(r"'((?:[^']|'')*)'(.*)$")
 
 
@@ -162,9 +163,9 @@ def inline_theme_language(str_line: str) -> str | None:
     int_depth = 0
     for int_pos, str_char in enumerate(str_body):
         int_depth += (str_char == "{") - (str_char == "}")
-        bool_key = str_body[int_pos - 1] in "{, " and str_body.startswith("language:", int_pos)
-        if int_depth == 1 and bool_key:
-            match = RE_INLINE_VALUE.match(str_body, int_pos + len("language:"))
+        key = RE_INLINE_KEY.match(str_body, int_pos) if str_body[int_pos - 1] in "{, " else None
+        if int_depth == 1 and key:
+            match = RE_INLINE_VALUE.match(str_body, key.end())
             return match.group(1) if match else None
     return None
 
@@ -173,7 +174,7 @@ def theme_lines(str_text: str) -> Iterator[str]:
     """Yield the ``theme:`` header line and the indented lines under it, skipping comments."""
     bool_in_theme = False
     for str_line in str_text.splitlines():
-        if not str_line.strip() or str_line.startswith("#"):
+        if not str_line.strip() or str_line.lstrip().startswith("#"):
             continue
         if str_line.startswith("theme:"):
             bool_in_theme = True

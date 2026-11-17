@@ -63,6 +63,24 @@ def test_description_language_exit_code(
     assert _run(tmp_path, str_mkdocs=str_mkdocs, str_desc=str_desc).returncode == int_code
 
 
+@pytest.mark.parametrize(
+    "str_theme",
+    [
+        "theme:\n    # note\n  name: material\n  language: pt-BR\n",
+        'theme:\n  "language": pt-BR\n',
+        "theme:\n  'language': pt-BR\n",
+        'theme: {"language": pt-BR}\n',
+        "theme: {name: material, 'language': pt-BR}\n",
+    ],
+)
+def test_description_language_theme_spellings_reject_english(
+    tmp_path: Path, *, str_theme: str
+) -> None:
+    """Every YAML spelling of ``theme.language: pt-BR`` still triggers the pt-BR check."""
+    cls_run = _run(tmp_path, str_mkdocs=str_theme, str_desc=STR_DESC_EN)
+    assert cls_run.returncode == 1
+
+
 def test_description_language_failure_message(tmp_path: Path) -> None:
     """The failure message says the description does not read as pt-BR."""
     cls_run = _run(tmp_path, str_mkdocs=STR_MKDOCS_PT, str_desc=STR_DESC_EN)
