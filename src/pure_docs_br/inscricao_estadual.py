@@ -216,6 +216,7 @@ _VARIANTS_GO_EXCEPTION: tuple[_Variant, ...] = (_variant(r"11094402[01]"),)
 _VARIANTS_MA: tuple[_Variant, ...] = (_variant(r"12\d{7}", _STEP_MOD11_W9),)
 _VARIANTS_MS: tuple[_Variant, ...] = (_variant(r"(?:28|50)\d{7}", _STEP_MOD11_W9),)
 _VARIANTS_MT: tuple[_Variant, ...] = (
+    _variant(r"\d{9}", _STEP_MOD11_W9),
     _variant(r"\d{11}", _Step((3, 2, 9, 8, 7, 6, 5, 4, 3, 2), _rule_mod11)),
 )
 _STEP_MG_DV2: _Step = _Step((3, 2, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2), _rule_mod11)
@@ -407,7 +408,7 @@ _DICT_MASKS: dict[str, dict[int, str]] = {
     "ES": {9: "########-#"},
     "GO": {9: "##.###.###-#"},
     "MA": {9: "##.###.###-#"},
-    "MT": {11: "##########-#"},
+    "MT": {9: "########-#", 11: "##########-#"},
     "MS": {9: "##.###.###-#"},
     "MG": {13: "###.###.###/####"},
     "PA": {9: "##-######-#"},
