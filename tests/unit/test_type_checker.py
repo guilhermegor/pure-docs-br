@@ -105,6 +105,18 @@ def test_type_checker_int_is_accepted_where_float_is_annotated() -> None:
     assert _probe_float(1) == 1.0
 
 
+@type_checker
+def _probe_mixed(*, int_value: int, value: "Decimal") -> int:
+    """Mix a plain annotation with a ``TYPE_CHECKING``-only one."""
+    return int_value
+
+
+def test_type_checker_unavailable_hint_keeps_checking_the_others() -> None:
+    """A ``TYPE_CHECKING``-only annotation does not switch off the plain ``int`` check."""
+    with pytest.raises(TypeError):
+        _probe_mixed(int_value="1", value=2)
+
+
 def _probe_plain(int_value: int) -> int:
     """Return the value unchanged; decorated inside the test that needs it."""
     return int_value

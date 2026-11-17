@@ -4,7 +4,7 @@ The package ships with no runtime dependencies, so this decorator replaces a thi
 checker. It validates every argument whose annotation is a plain class (``str``, ``int``)
 and leaves generic, union and string-forward annotations to mypy. Annotations resolve on
 the first call, so a class defined later in the module works and a name imported only under
-``TYPE_CHECKING`` disables the check instead of failing the import.
+``TYPE_CHECKING`` disables the check of that one parameter instead of failing the import.
 """
 
 from __future__ import annotations
@@ -12,6 +12,7 @@ from __future__ import annotations
 from collections.abc import Callable
 import functools
 import inspect
+import types
 from typing import Any, ParamSpec, TypeVar, get_type_hints
 
 
@@ -201,8 +202,40 @@ def _check_call(
         )
 
 
-def _resolve_hints(fn_target: Callable[_P, _R]) -> dict[str, object]:
-    """Resolve the annotations of ``fn_target``, or none when a name is unavailable.
+def _annotation_holder() -> None:
+    """Lend its code object to a stub that carries one annotation at a time."""
+
+
+def _resolve_one_hint(
+    *, dict_globals: dict[str, object], str_name: str, annotation: object
+) -> dict[str, object]:
+    """Resolve one annotation against ``dict_globals``, or nothing when a name is unavailable.
+
+    Parameters
+    ----------
+    dict_globals : dict[str, object]
+        The namespace of the decorated function's module.
+    str_name : str
+        The parameter (or ``return``) the annotation belongs to.
+    annotation : object
+        The raw annotation, usually a string under ``from __future__ import annotations``.
+
+    Returns
+    -------
+    dict[str, object]
+        ``{str_name: resolved}``, or empty when the annotation names a ``TYPE_CHECKING``-only
+        symbol.
+    """
+    fn_stub = types.FunctionType(_annotation_holder.__code__, dict_globals)
+    fn_stub.__annotations__ = {str_name: annotation}
+    try:
+        return get_type_hints(fn_stub)
+    except NameError:
+        return {}
+
+
+def _resolve_each_hint(fn_target: Callable[_P, _R]) -> dict[str, object]:
+    """Resolve the annotations one by one, dropping only those that name unavailable symbols.
 
     Parameters
     ----------
@@ -212,12 +245,35 @@ def _resolve_hints(fn_target: Callable[_P, _R]) -> dict[str, object]:
     Returns
     -------
     dict[str, object]
-        The resolved annotations; empty when one refers to a ``TYPE_CHECKING``-only name.
+        Every annotation that resolves; the others are left to mypy.
+    """
+    dict_globals = getattr(inspect.unwrap(fn_target), "__globals__", {})
+    dict_hints: dict[str, object] = {}
+    for str_name, annotation in inspect.get_annotations(fn_target).items():
+        dict_hints.update(
+            _resolve_one_hint(dict_globals=dict_globals, str_name=str_name, annotation=annotation)
+        )
+    return dict_hints
+
+
+def _resolve_hints(fn_target: Callable[_P, _R]) -> dict[str, object]:
+    """Resolve the annotations of ``fn_target``, skipping only those that cannot resolve.
+
+    Parameters
+    ----------
+    fn_target : Callable[_P, _R]
+        The decorated function.
+
+    Returns
+    -------
+    dict[str, object]
+        The resolved annotations. One that names a ``TYPE_CHECKING``-only symbol is dropped
+        on its own, so the remaining parameters are still checked.
     """
     try:
         return get_type_hints(fn_target)
     except NameError:
-        return {}
+        return _resolve_each_hint(fn_target)
 
 
 def type_checker(fn_target: Callable[_P, _R]) -> Callable[_P, _R]:
