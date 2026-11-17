@@ -75,6 +75,7 @@ from pure_docs_br import (
     is_valid_cnpj,
     is_valid_cns,
     is_valid_cpf,
+    is_valid_inscricao_estadual,
     is_valid_pis_pasep,
     is_valid_placa,
     is_valid_processo_cnj,
@@ -86,6 +87,7 @@ from pure_docs_br import (
     mask_cnpj,
     mask_cns,
     mask_cpf,
+    mask_inscricao_estadual,
     mask_pis_pasep,
     mask_placa,
     mask_processo_cnj,
@@ -97,6 +99,7 @@ from pure_docs_br import (
     unmask_cnpj,
     unmask_cns,
     unmask_cpf,
+    unmask_inscricao_estadual,
     unmask_pis_pasep,
     unmask_placa,
     unmask_processo_cnj,
@@ -116,6 +119,11 @@ unmask_cnpj("11222333000181.0")  # "11222333000181", descarta a cauda ".0"
 is_valid_cnpj("11.222.333/0001-81")  # True
 is_valid_cnpj("12.ABC.345/01DE-35")  # True, formato alfanumérico
 is_valid_cnpj("11222333000182")  # False, dígito verificador errado
+
+mask_inscricao_estadual("110042490114", str_uf="SP")  # "110.042.490.114"
+unmask_inscricao_estadual("110.042.490.114")  # "110042490114"
+is_valid_inscricao_estadual("110.042.490.114", str_uf="SP")  # True
+is_valid_inscricao_estadual("110042490114", str_uf="XX")  # False, UF desconhecida nunca lança
 
 mask_cep("01001000")  # "01001-000"
 unmask_cep("1001000.0")  # "01001000", restaura o zero à esquerda
@@ -176,6 +184,12 @@ biblioteca **não consulta a base dos Correios**, então não confirma que o CEP
 numérica curta é completada com zeros à esquerda até 8, por isso `is_valid_cep("1001000")` é
 `True`. O `00000-000` passa na checagem de formato. `mask_cep` devolve o valor sem máscara quando
 ele não tem 8 dígitos.
+
+### Inscrição Estadual
+
+A IE depende da UF (`str_uf`, obrigatório e nomeado) e as 27 UFs são suportadas. Uma UF fora das 27
+siglas devolve `False` em vez de lançar, então uma UF digitada errado faz toda IE parecer inválida.
+`ISENTO` e o produtor rural de SP (`P-...`) devolvem `False`.
 
 ### Entrada inválida
 
@@ -250,10 +264,10 @@ comunidade conhece; o `bin/poe_exec.sh` cobre os casos em que ele não basta:
 
 A superfície pública é o que o `__init__.py` do pacote lista em `__all__`:
 `__version__`, `is_valid_boleto_arrecadacao`, `is_valid_boleto_cobranca`, `is_valid_cep`, `is_valid_chave_acesso`, `is_valid_cnpj`, `is_valid_cns`, `is_valid_cpf`,
-`is_valid_pis_pasep`, `is_valid_placa`, `is_valid_processo_cnj`, `is_valid_titulo_eleitor`,
-`mask_boleto_arrecadacao`, `mask_boleto_cobranca`, `mask_cep`, `mask_chave_acesso`, `mask_cnpj`, `mask_cns`, `mask_cpf`, `mask_pis_pasep`, `mask_placa`,
+`is_valid_inscricao_estadual`, `is_valid_pis_pasep`, `is_valid_placa`, `is_valid_processo_cnj`, `is_valid_titulo_eleitor`,
+`mask_boleto_arrecadacao`, `mask_boleto_cobranca`, `mask_cep`, `mask_chave_acesso`, `mask_cnpj`, `mask_cns`, `mask_cpf`, `mask_inscricao_estadual`, `mask_pis_pasep`, `mask_placa`,
 `mask_processo_cnj`, `mask_titulo_eleitor`, `unmask_boleto_arrecadacao`, `unmask_boleto_cobranca`, `unmask_cep`, `unmask_chave_acesso`, `unmask_cnpj`, `unmask_cns`,
-`unmask_cpf`, `unmask_pis_pasep`, `unmask_placa`, `unmask_processo_cnj` e
+`unmask_cpf`, `unmask_inscricao_estadual`, `unmask_pis_pasep`, `unmask_placa`, `unmask_processo_cnj` e
 `unmask_titulo_eleitor`.
 
 ### Garantia de API da 1.x

@@ -314,3 +314,40 @@ dos quatro blocos também é válido. `unmask_boleto_arrecadacao` não completa 
 fora de ASCII (largura total). `mask_boleto_arrecadacao` só formata a linha de 48 dígitos: um código de
 barras de 44 sai sem máscara, assim como qualquer outro tamanho. A máscara com hifens é uma convenção de
 exibição, não texto da norma. Não se valida segmento, valor nem empresa/órgão.
+
+## Inscrição Estadual (IE)
+
+A Inscrição Estadual identifica o contribuinte do ICMS e é emitida por cada UF, com tamanho, pesos e
+regra de dígito verificador próprios (de 8 a 14 dígitos). O número não carrega a UF, então ela é um
+argumento obrigatório e nomeado, `str_uf`, com a sigla em maiúsculas. As 27 UFs são suportadas.
+
+Formatos aceitos: com ou sem pontuação e o artefato de float (`110042490114.0`). Sempre uma `str`.
+
+```python
+from pure_docs_br import (
+    is_valid_inscricao_estadual,
+    mask_inscricao_estadual,
+    unmask_inscricao_estadual,
+)
+
+is_valid_inscricao_estadual("110.042.490.114", str_uf="SP")  # True
+is_valid_inscricao_estadual("110042490115", str_uf="SP")  # False, DV2 errado
+mask_inscricao_estadual("110042490114", str_uf="SP")  # "110.042.490.114"
+unmask_inscricao_estadual("110.042.490.114")  # "110042490114"
+```
+
+Casos extremos:
+
+- UF fora das 27 siglas (inclusive minúscula, como `"sp"`) não lança exceção: `is_valid_inscricao_estadual`
+  devolve `False`. Atenção: uma UF digitada errado faz toda IE parecer inválida. `mask_inscricao_estadual`
+  com UF desconhecida devolve o valor sem máscara.
+- `ISENTO` devolve `False`: a literal não é um número, e a aplicação deve tratá-la antes de chamar.
+- Qualquer valor com letra é inválido. O produtor rural de SP (`P-...`) está fora de escopo.
+- `unmask_inscricao_estadual` mantém só dígitos ASCII e não completa zeros. A cauda `.0` só é
+  removida de um valor só com dígitos; um valor pontuado nunca foi float.
+- `mask_inscricao_estadual` não confere os dígitos verificadores e devolve o valor sem máscara quando
+  o tamanho não é um dos da UF.
+- A validação não consulta o cadastro: não diz se a inscrição existe ou está ativa.
+- Variantes: BA (8 ou 9 dígitos, módulo 10 ou 11), PE (9 dígitos e-Fisco, ou 14 da numeração antiga),
+  RN (9 ou 10), RO (14, ou 9 da numeração anterior a 2000) e GO (faixa 10103105 a 10119997 e a
+  inscrição 11094402).

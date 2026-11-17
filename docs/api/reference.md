@@ -244,6 +244,61 @@ is_valid_boleto_arrecadacao(
 
 ---
 
+## Funções de Inscrição Estadual (IE)
+
+Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceção para `str`). A UF é o
+argumento nomeado `str_uf` (sigla em maiúsculas). Uma UF fora das 27 siglas faz `is_valid_inscricao_estadual`
+devolver `False`, então uma UF digitada errado torna toda IE inválida. `ISENTO` e qualquer valor com
+letra (inclusive o produtor rural `P-...` de SP) são inválidos. Fonte das regras: páginas do Sintegra
+(`http://www.sintegra.gov.br/Cad_Estados/cad_<UF>.html`), SEFAZ-GO para Goiás.
+
+| Função | Retorno | Comportamento |
+|--------|---------|---------------|
+| `unmask_inscricao_estadual(str_value)` | `str` | Mantém só dígitos ASCII e remove a cauda `.0` de um valor só com dígitos. Não completa zeros. |
+| `mask_inscricao_estadual(str_value, *, str_uf)` | `str` | Aplica a máscara da UF conforme o número de dígitos; UF desconhecida ou tamanho fora da tabela devolve o valor sem máscara. |
+| `is_valid_inscricao_estadual(str_value, *, str_uf)` | `bool` | `True` quando tamanho, prefixo e dígitos verificadores seguem a regra da UF. |
+
+UFs suportadas (`#` é um dígito):
+
+| UF | Dígitos | Máscara |
+|----|---------|---------|
+| AC | 13 | `##.###.###/###-##` |
+| AL | 9 | `##.###.###-#` |
+| AP | 9 | `##.###.###-#` |
+| AM | 9 | `##.###.###-#` |
+| BA | 8 ou 9 | `######-##` / `#######-##` |
+| CE | 9 | `########-#` |
+| DF | 13 | `###.#####.###-##` |
+| ES | 9 | `########-#` |
+| GO | 9 | `##.###.###-#` |
+| MA | 9 | `##.###.###-#` |
+| MT | 11 | `##########-#` |
+| MS | 9 | `##.###.###-#` |
+| MG | 13 | `###.###.###/####` |
+| PA | 9 | `##-######-#` |
+| PB | 9 | `########-#` |
+| PR | 10 | `###.#####-##` |
+| PE | 9 ou 14 | `#######-##` / `##.#.###.#######-#` |
+| PI | 9 | `########-#` |
+| RJ | 8 | `##.###.##-#` |
+| RN | 9 ou 10 | `##.###.###-#` / `##.#.###.###-#` |
+| RS | 10 | `###/#######` |
+| RO | 9 ou 14 | `###.#####-#` / `#############-#` |
+| RR | 9 | `##.###.###-#` |
+| SC | 9 | `###.###.###` |
+| SP | 12 | `###.###.###.###` |
+| SE | 9 | `########-#` |
+| TO | 11 | `##.##.######-#` |
+
+```python
+from pure_docs_br import is_valid_inscricao_estadual, mask_inscricao_estadual
+
+mask_inscricao_estadual("109876547", str_uf="GO")  # "10.987.654-7"
+is_valid_inscricao_estadual("110042490114", str_uf="XX")  # False, UF desconhecida
+```
+
+---
+
 ## Adicionando novos módulos
 
 Coloque os novos módulos em `src/pure_docs_br/`. Exporte os símbolos públicos em `src/pure_docs_br/__init__.py` e liste-os em `__all__`, para que quem usa a biblioteca importe direto da raiz do pacote, como `from pure_docs_br import mask_cpf`.
