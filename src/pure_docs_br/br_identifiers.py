@@ -33,9 +33,9 @@ _ASCII_ZERO: int = ord("0")
 _CNPJ_WEIGHTS_DV1: tuple[int, ...] = (5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2)
 _CNPJ_WEIGHTS_DV2: tuple[int, ...] = (6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2)
 
-_RE_FLOAT_ARTIFACT: re.Pattern[str] = re.compile(r"^\s*(\d+)\.0+\s*$")
+_RE_FLOAT_ARTIFACT: re.Pattern[str] = re.compile(r"^\s*([0-9]+)\.0+\s*$")
 _RE_NON_ALNUM: re.Pattern[str] = re.compile(r"[^0-9A-Za-z]")
-_RE_NON_DIGIT: re.Pattern[str] = re.compile(r"\D")
+_RE_NON_DIGIT: re.Pattern[str] = re.compile(r"\D", re.ASCII)
 
 
 @type_checker
@@ -78,7 +78,7 @@ def unmask_cnpj(str_value: str) -> str:
     """
     str_clean = _strip_float_artifact(str_value)
     str_clean = _RE_NON_ALNUM.sub("", str_clean).upper()
-    if str_clean.isdigit():
+    if str_clean.isascii() and str_clean.isdigit():
         str_clean = str_clean.zfill(_LEN_CNPJ)
     return str_clean
 
@@ -149,8 +149,9 @@ def is_valid_cnpj(str_value: str) -> bool:
     str_clean = unmask_cnpj(str_value)
     return (
         len(str_clean) == _LEN_CNPJ
+        and str_clean[12:].isascii()
         and str_clean[12:].isdigit()
-        and not (str_clean.isdigit() and len(set(str_clean)) == 1)
+        and not (str_clean.isascii() and str_clean.isdigit() and len(set(str_clean)) == 1)
         and str_clean[12:] == _cnpj_check_digits(str_clean[:12])
     )
 
@@ -258,6 +259,7 @@ def is_valid_cpf(str_value: str) -> bool:
     str_clean = unmask_cpf(str_value)
     return (
         len(str_clean) == _LEN_CPF
+        and str_clean.isascii()
         and str_clean.isdigit()
         and len(set(str_clean)) > 1
         and str_clean[9:] == _cpf_check_digits(str_clean)

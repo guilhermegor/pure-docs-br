@@ -19,7 +19,7 @@ from pure_docs_br.br_identifiers import _strip_float_artifact
 
 _LEN_CEP: int = 8
 
-_RE_NON_DIGIT: re.Pattern[str] = re.compile(r"\D")
+_RE_NON_DIGIT: re.Pattern[str] = re.compile(r"\D", re.ASCII)
 
 
 @type_checker
