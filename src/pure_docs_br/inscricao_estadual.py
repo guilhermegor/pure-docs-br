@@ -354,11 +354,19 @@ def _is_valid_ro(str_ie: str) -> bool:
 
 
 @type_checker
-def _is_valid_to(str_ie: str) -> bool:
-    """Validate a TO registration: the type digits 3 and 4 do not enter the calculation."""
+def _is_valid_to_legacy(str_ie: str) -> bool:
+    """Validate the 11-digit TO form: the type digits 3 and 4 do not enter the calculation."""
     if not _check_variants(str_ie, tuple_variants=_VARIANTS_TO_SHAPE):
         return False
     return _check_variants(str_ie[:2] + str_ie[4:], tuple_variants=_VARIANTS_TO_DV)
+
+
+@type_checker
+def _is_valid_to(str_ie: str) -> bool:
+    """Validate a TO registration: the 9-digit form of RICMS-TO art. 90 or the legacy 11."""
+    return _check_variants(str_ie, tuple_variants=_VARIANTS_9_DIGITS_MOD11) or _is_valid_to_legacy(
+        str_ie
+    )
 
 
 @type_checker
@@ -424,7 +432,7 @@ _DICT_MASKS: dict[str, dict[int, str]] = {
     "SC": {9: "###.###.###"},
     "SP": {12: "###.###.###.###"},
     "SE": {9: "########-#"},
-    "TO": {11: "##.##.######-#"},
+    "TO": {9: "##.######-#", 11: "##.##.######-#"},
 }
 
 
