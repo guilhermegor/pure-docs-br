@@ -9,7 +9,8 @@ Interface pública desta biblioteca.
 ## Funções de CPF e CNPJ
 
 Funções puras, importadas da raiz do pacote (`from pure_docs_br import ...`). Todas recebem `str`; um valor que
-não seja `str` (`None`, `float`, `NaN`) lança `TypeError`. Dado um `str`, nenhuma lança exceção.
+não seja `str` (`None`, `float`, `NaN`) lança `TypeError`. Dado um `str`, nenhuma lança exceção por causa do valor; a única exceção é a UF de `is_valid_rg`
+(`NotImplementedError` para UF sem regra com fonte, `ValueError` para UF desconhecida).
 Entrada numérica curta é completada com zeros à esquerda antes de os dígitos verificadores serem
 testados (o mesmo preenchimento de `unmask_*`), de propósito, para recuperar documentos guardados
 como número. Assim `is_valid_cpf("191")` é `True` (`"191"` vira `00000000191`), mas
@@ -181,7 +182,7 @@ a estratégia de máscara fica para a issue #53.
 |----|-------|-------------------|
 | SP | 9 caracteres com DV módulo 11, pesos 9..2, resto 10 vira `X`; 8 dígitos valem só como formato (documentos antigos não têm DV) | 3 fontes comunitárias concordantes, **não oficial** (a SSP-SP não publica); média |
 | RJ | 9 dígitos, DV módulo 10, pesos 2,1 a partir da unidade, "noves fora" | **fonte comunitária única** (ghiorzi.org); baixa |
-| MG | 8 dígitos, só formato (MG não tem DV) | fonte jornalística; média-baixa |
+| MG | 7 ou 8 dígitos, só formato (MG não tem DV) | fonte jornalística e registro do TCE-MG com RG de 7 dígitos; média-baixa |
 | demais 24 UFs | `NotImplementedError` | nenhuma fonte encontrada |
 | sem UF | 7 a 10 caracteres, só dígitos, `X` apenas no fim | heurística, não norma; pode reprovar RG com prefixo de letras |
 

@@ -216,7 +216,7 @@ regra, a biblioteca não percebe.
 Não existe norma nacional para o RG: cada UF numera o seu. A biblioteca valida por UF
 (`is_valid_rg(valor, str_uf="SP")`), com a sigla em maiúsculas e comparada exatamente. SP usa o dígito
 verificador módulo 11, **não oficial** (reconstruído pela comunidade); RJ usa módulo 10 de **uma única
-fonte comunitária**; MG só tem formato. Outra UF lança `NotImplementedError` e UF desconhecida lança
+fonte comunitária**; MG só tem formato (7 ou 8 dígitos). Outra UF lança `NotImplementedError` e UF desconhecida lança
 `ValueError`. Sem UF vale uma heurística (7 a 10 caracteres, `X` só no fim), não uma norma. Na CIN o
 número é o CPF: use `is_valid_cin`, que não tem relação com o RG.
 

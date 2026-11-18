@@ -60,6 +60,11 @@ def test_is_valid_rg_mg_eight_digits_returns_true() -> None:
     assert is_valid_rg("12345678", str_uf="MG") is True
 
 
+def test_is_valid_rg_mg_seven_digits_returns_true() -> None:
+    """MG accepts a 7-digit RG (TCE-MG record M-6.691.335)."""
+    assert is_valid_rg("6.691.335", str_uf="MG") is True
+
+
 def test_is_valid_rg_mg_nine_digits_returns_false() -> None:
     """MG rejects a 9-character value."""
     assert is_valid_rg("123456789", str_uf="MG") is False

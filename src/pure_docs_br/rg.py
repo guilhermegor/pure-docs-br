@@ -37,7 +37,7 @@ _RE_PUNCT: re.Pattern[str] = re.compile(r"[\s.\-/]")
 _RE_GENERIC: re.Pattern[str] = re.compile(r"[0-9]{6,9}[0-9X]", re.ASCII)
 _RE_SP: re.Pattern[str] = re.compile(r"[0-9]{8}[0-9X]?", re.ASCII)
 _RE_RJ: re.Pattern[str] = re.compile(r"[0-9]{9}", re.ASCII)
-_RE_MG: re.Pattern[str] = re.compile(r"[0-9]{8}", re.ASCII)
+_RE_MG: re.Pattern[str] = re.compile(r"[0-9]{7,8}", re.ASCII)
 
 _TUPLE_UF_UNSOURCED: tuple[str, ...] = (
     "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "PA", "PB",
@@ -105,7 +105,7 @@ def _is_valid_rj(str_rg: str) -> bool:
 
 @type_checker
 def _is_valid_mg(str_rg: str) -> bool:
-    """MG rule: 8 digits, no check digit, format only."""
+    """MG rule: 7 or 8 digits (a 7-digit TCE-MG record exists), format only."""
     return bool(_RE_MG.fullmatch(str_rg))
 
 
@@ -158,7 +158,7 @@ def is_valid_rg(str_value: str, *, str_uf: str | None = None) -> bool:
       documents carry no DV.
     - **RJ**: 9 digits, DV modulo 10 with weights 2,1 from the unit digit and nines out.
       Community rule from a **single source** (ghiorzi.org), low confidence.
-    - **MG**: 8 digits, format only (MG has no DV).
+    - **MG**: 7 or 8 digits, format only (MG has no DV; a TCE-MG record shows a 7-digit RG).
     - **Any other UF**: ``NotImplementedError`` (no sourced rule yet).
     - **No UF**: 7 to 10 characters, digits only, ``X`` allowed only last. A heuristic,
       not a norm; it can reject documents with letter prefixes.
