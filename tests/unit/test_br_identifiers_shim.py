@@ -1,6 +1,8 @@
 """Unit tests for the deprecated ``pure_docs_br.br_identifiers`` shim."""
 
 import importlib
+import os
+from pathlib import Path
 import subprocess
 import sys
 
@@ -42,8 +44,13 @@ def test_package_attribute_access_lazily_imports_shim_and_warns(
 
 def test_package_import_never_touches_the_deprecated_shim() -> None:
     """``import pure_docs_br`` raises no ``DeprecationWarning`` attributed to the package."""
+    path_pkg_root = Path(pure_docs_br.__file__).parents[1]
+    str_pythonpath = os.pathsep.join(
+        filter(None, [str(path_pkg_root), os.environ.get("PYTHONPATH")])
+    )
     cls_result = subprocess.run(  # noqa: S603 - constant argv, no untrusted input
         [sys.executable, "-c", STR_IMPORT_PROGRAM],
         check=False,
+        env={**os.environ, "PYTHONPATH": str_pythonpath},
     )
     assert cls_result.returncode == 0
