@@ -20,6 +20,7 @@ from .br_identifiers import (
     unmask_cnpj,
     unmask_cpf,
 )
+from .caepf import is_valid_caepf, mask_caepf, unmask_caepf
 from .cep import is_valid_cep, mask_cep, unmask_cep
 from .chave_acesso import is_valid_chave_acesso, mask_chave_acesso, unmask_chave_acesso
 from .cnh import is_valid_cnh, unmask_cnh
@@ -51,6 +52,7 @@ __all__ = [
     "__version__",
     "is_valid_boleto_arrecadacao",
     "is_valid_boleto_cobranca",
+    "is_valid_caepf",
     "is_valid_cep",
     "is_valid_chave_acesso",
     "is_valid_cin",
@@ -67,6 +69,7 @@ __all__ = [
     "is_valid_titulo_eleitor",
     "mask_boleto_arrecadacao",
     "mask_boleto_cobranca",
+    "mask_caepf",
     "mask_cep",
     "mask_chave_acesso",
     "mask_cnpj",
@@ -79,6 +82,7 @@ __all__ = [
     "mask_titulo_eleitor",
     "unmask_boleto_arrecadacao",
     "unmask_boleto_cobranca",
+    "unmask_caepf",
     "unmask_cep",
     "unmask_chave_acesso",
     "unmask_cnh",

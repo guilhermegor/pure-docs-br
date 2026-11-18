@@ -30,6 +30,7 @@ Valida, aplica e remove a máscara dos documentos do Brasil
 - Valida o CNS (Cartão Nacional de Saúde, 15 dígitos, definitivo ou provisório, módulo 11).
 - Valida o número de registro da CNH (11 dígitos; **algoritmo dos dígitos verificadores não oficial**, reconstruído pela comunidade: pode reprovar uma CNH real e aprovar um número inventado, então não use como único critério; não confirma que a CNH existe nem está vigente, para isso use o serviço "Validar CNH" do SENATRAN).
 - Valida o RENAVAM (11 dígitos, ou 9 dos números antigos completados com zeros) pelo dígito verificador, módulo 11, conforme o Comunicado de Importação nº 064/2025 do Siscomex. **Não há norma do SENATRAN publicando a especificação completa**: aceitar 9 dígitos e rejeitar números com todos os dígitos iguais são convenções da comunidade. Não há `mask_renavam`. A validação é aritmética local e não confirma que o veículo existe, que o RENAVAM está ativo, que pertence a quem o informa nem que a placa corresponde; para isso consulte o serviço do SENATRAN/DETRAN.
+- Valida, mascara (`NNN.NNN.NNN/NNN-NN`) e desmascara o CAEPF (14 dígitos: 9 do CPF, 3 de sequencial e 2 dígitos verificadores). **Só a estrutura é oficial**: a Receita Federal não publica o cálculo dos dígitos verificadores. A fórmula usada foi reconstruída a partir de uma fonte comunitária (ghiorzi.org) e reproduz o exemplo oficial do SERPRO (`00000002500171`), mas o ramo `> 99` e o resto 10 tratado como 0 seguem sem confirmação. Pode reprovar um CAEPF real e aprovar um número nunca emitido, e a biblioteca não percebe se a Receita mudar a regra. Não garante que o CAEPF existe, está ativo nem pertence ao titular; use a consulta oficial no e-CAC.
 - Valida o RG por UF (`is_valid_rg(valor, str_uf=...)`) e o número da CIN (`is_valid_cin`, que é o CPF). **Não existe norma nacional para o RG**: SP usa dígito verificador módulo 11 **não oficial** (reconstruído pela comunidade; 8 dígitos antigos só têm o formato verificado), RJ usa módulo 10 de **fonte comunitária única** (baixa confiança), MG só tem o formato (7 ou 8 dígitos). Qualquer outra UF lança `NotImplementedError` (sem regra com fonte) e UF desconhecida lança `ValueError`. Sem UF vale uma heurística de 7 a 10 caracteres, não uma norma. Não há `mask_rg`. `True` significa "parece um RG": não garante que o RG existe, que pertence a quem o informa nem que foi emitido por aquela UF, e a biblioteca não percebe se o órgão mudar a regra.
 - Aplica e remove a máscara (`XXX.XXX.XXX-XX`, `XX.XXX.XXX/XXXX-XX`, `XXXXX-XXX`, `XXXX XXXX XXXX` e `XXX XXXX XXXX XXXX`).
 - Tolera texto sujo: pontuação, zeros à esquerda perdidos e a cauda `.0` de um número que virou `str` (por exemplo `"52998224725.0"`).
@@ -73,6 +74,7 @@ Toda função recebe e devolve `str` (ou `bool`) e aceita o documento com ou sem
 from pure_docs_br import (
     is_valid_boleto_arrecadacao,
     is_valid_boleto_cobranca,
+    is_valid_caepf,
     is_valid_cep,
     is_valid_chave_acesso,
     is_valid_cin,
@@ -89,6 +91,7 @@ from pure_docs_br import (
     is_valid_titulo_eleitor,
     mask_boleto_arrecadacao,
     mask_boleto_cobranca,
+    mask_caepf,
     mask_cep,
     mask_chave_acesso,
     mask_cnpj,
@@ -101,6 +104,7 @@ from pure_docs_br import (
     mask_titulo_eleitor,
     unmask_boleto_arrecadacao,
     unmask_boleto_cobranca,
+    unmask_caepf,
     unmask_cep,
     unmask_chave_acesso,
     unmask_cnh,
