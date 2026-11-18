@@ -2,7 +2,7 @@
 
 import pytest
 
-from pure_docs_br import is_valid_renavam, unmask_renavam
+from pure_docs_br import is_valid_renavam, mask_renavam, unmask_renavam
 from pure_docs_br.renavam import _compute_dv
 
 
@@ -76,3 +76,42 @@ def test_unmask_renavam_punctuation_stripped() -> None:
 def test_unmask_renavam_no_digits_returns_empty() -> None:
     """Input with no digits yields an empty string."""
     assert unmask_renavam("ABC") == ""
+
+
+def test_mask_renavam_applies_pattern() -> None:
+    """Each N takes the next digit and other characters are copied."""
+    assert mask_renavam("22500062413", str_pattern="NNNNNNNNNN-N") == "2250006241-3"
+
+
+def test_mask_renavam_unmasks_input_first() -> None:
+    """A punctuated input is unmasked before the pattern is applied."""
+    assert mask_renavam("225.00062413", str_pattern="NNNNNNNNNN-N") == "2250006241-3"
+
+
+def test_mask_renavam_keeps_any_separator() -> None:
+    """Characters other than N are copied as is."""
+    assert mask_renavam("22500062413", str_pattern="N" * 11 + "/") == "22500062413/"
+
+
+@pytest.mark.parametrize("str_pattern", ["", "NNN", "N" * 10, "N" * 12])
+def test_mask_renavam_wrong_slot_count_raises(str_pattern: str) -> None:
+    """A pattern without exactly 11 N raises ValueError."""
+    with pytest.raises(ValueError, match="exactly 11"):
+        mask_renavam("22500062413", str_pattern=str_pattern)
+
+
+@pytest.mark.parametrize("str_value", ["", "ABC", "123456789012"])
+def test_mask_renavam_unmaskable_input_returns_bare_value(str_value: str) -> None:
+    """Empty, digitless or over-long input never raises and comes back unmasked."""
+    assert mask_renavam(str_value, str_pattern="NNNNNNNNNN-N") == unmask_renavam(str_value)
+
+
+def test_mask_renavam_non_str_raises_type_error() -> None:
+    """A non-str argument is rejected by the runtime type checker."""
+    with pytest.raises(TypeError):
+        mask_renavam(1, str_pattern="NNNNNNNNNN-N")  # type: ignore[arg-type]
+
+
+def test_mask_renavam_nine_digits_padded_to_eleven() -> None:
+    """The old 9-digit number is padded with zeros to 11 before masking."""
+    assert mask_renavam("000123455", str_pattern="NNNNNNNNNN-N") == "0000012345-5"

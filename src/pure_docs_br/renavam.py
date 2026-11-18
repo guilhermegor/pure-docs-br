@@ -1,4 +1,4 @@
-"""Brazilian RENAVAM (Registro Nacional de Veículos Automotores) — validate, unmask.
+"""Brazilian RENAVAM (Registro Nacional de Veículos Automotores) — validate, unmask, mask.
 
 Pure, stateless functions with the same bad-input contract as
 :mod:`pure_docs_br.br_identifiers`: a non-``str`` raises ``TypeError`` from the runtime
@@ -8,14 +8,15 @@ Comunicado de Importação nº 064/2025 ("algoritmo módulo 11 e peso 9"): over 
 digit is 0 when ``rest`` is 0 or 1, else ``11 - rest``. SENATRAN/DENATRAN never published
 a complete RENAVAM specification, and these parts are community convention, not official:
 accepting the old 9-digit number by left-padding with zeros to 11, and rejecting an
-all-equal number. The RENAVAM has no official mask, so this module ships no
-``mask_renavam``; the mask strategy belongs to issue #53.
+all-equal number. The RENAVAM has no official mask, so ``mask_renavam`` takes
+the display pattern from the caller.
 """
 
 from __future__ import annotations
 
 import re
 
+from pure_docs_br._internal.utils.mask_pattern import apply_mask_pattern
 from pure_docs_br._internal.utils.typing import type_checker
 from pure_docs_br.br_identifiers import _strip_float_artifact
 
@@ -58,10 +59,40 @@ def unmask_renavam(str_value: str) -> str:
     -------
     str
         ASCII digits only, left-padded with zeros to 11; input with no digits yields
-        ``""``. There is no ``mask_renavam``: the RENAVAM has no official mask.
+        ``""``.
     """
     str_digits = _strip_to_digits(str_value)
     return str_digits.zfill(_LEN_RENAVAM) if str_digits else ""
+
+
+@type_checker
+def mask_renavam(str_value: str, *, str_pattern: str) -> str:
+    """Format a RENAVAM with a caller-supplied pattern.
+
+    The RENAVAM has no official mask, so the pattern is required and the library imposes
+    none.
+
+    Parameters
+    ----------
+    str_value : str
+        A number in any shape (it is unmasked first; 9 digits are padded to 11).
+    str_pattern : str
+        The display pattern with exactly 11 ``N``; each takes the next digit and every
+        other character is copied as is, e.g. ``"NNNNNNNNNN-N"``.
+
+    Returns
+    -------
+    str
+        The patterned number when it normalises to 11 digits; otherwise the bare unmasked
+        value (empty input, or more than 11 digits).
+
+    Raises
+    ------
+    ValueError
+        When the pattern does not contain exactly 11 ``N``.
+    """
+    str_clean = unmask_renavam(str_value)
+    return apply_mask_pattern(str_clean, str_pattern=str_pattern, int_len=_LEN_RENAVAM)
 
 
 @type_checker

@@ -126,19 +126,20 @@ Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceç�
 de registro da CNH tem 11 dígitos (9 + 2 dígitos verificadores); só esse formato é oficial
 (Resolução CONTRAN 886/2021, art. 4º, I). **A fórmula dos dígitos verificadores não é oficial**: é a
 variante `dsc` reconstruída pela comunidade e pode errar nos dois sentidos (reprovar CNH real,
-aprovar número inventado). Não há `mask_cnh`: a CNH não tem máscara oficial e a estratégia fica para
-a issue #53. A validação é só aritmética local e não confirma que a CNH existe, está vigente ou
+aprovar número inventado). A CNH não tem máscara oficial: `mask_cnh` exige o padrão. A validação é só aritmética local e não confirma que a CNH existe, está vigente ou
 pertence a quem a apresenta (use o serviço "Validar CNH" do SENATRAN).
 
 | Função | Retorno | Comportamento |
 |--------|---------|---------------|
 | `unmask_cnh(str_value)` | `str` | Mantém só dígitos ASCII, descarta a cauda `.0` e completa zeros à esquerda até 11. Entrada sem dígitos devolve `""`. |
+| `mask_cnh(str_value, *, str_pattern)` | `str` | Aplica o padrão do chamador: cada `N` recebe o próximo dígito, o resto é copiado. Padrão sem exatamente 11 `N` levanta `ValueError`; entrada sem 11 dígitos devolve só os dígitos. |
 | `is_valid_cnh(str_value)` | `bool` | `True` quando há 11 dígitos não todos iguais e os dois dígitos verificadores fecham na variante `dsc`. |
 
 ```python
-from pure_docs_br import is_valid_cnh, unmask_cnh
+from pure_docs_br import is_valid_cnh, mask_cnh, unmask_cnh
 
 unmask_cnh("119")  # "00000000119"
+mask_cnh("02650306461", str_pattern="NNN NNNN NNNN")  # "026 5030 6461"
 is_valid_cnh("98765432109")  # True
 ```
 
@@ -150,20 +151,22 @@ Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceç�
 tem 11 dígitos (10 da base + 1 dígito verificador). O dígito verificador segue o Comunicado de
 Importação nº 064/2025 do Siscomex (módulo 11, pesos `3,2,9,8,7,6,5,4,3,2`); o SENATRAN não publicou
 a especificação completa. **Partes não oficiais (convenção da comunidade)**: aceitar o número antigo
-de 9 dígitos completando com zeros e rejeitar números com todos os dígitos iguais. Não há
-`mask_renavam`: o RENAVAM não tem máscara oficial e a estratégia fica para a issue #53. A validação é
+de 9 dígitos completando com zeros e rejeitar números com todos os dígitos iguais. O RENAVAM não
+tem máscara oficial: `mask_renavam` exige o padrão. A validação é
 só aritmética local e não confirma que o veículo existe, que o RENAVAM está ativo, que pertence a
 quem o informa nem que a placa corresponde (use o serviço do SENATRAN/DETRAN).
 
 | Função | Retorno | Comportamento |
 |--------|---------|---------------|
 | `unmask_renavam(str_value)` | `str` | Mantém só dígitos ASCII, descarta a cauda `.0` e completa zeros à esquerda até 11. Entrada sem dígitos devolve `""`. |
+| `mask_renavam(str_value, *, str_pattern)` | `str` | Aplica o padrão do chamador: cada `N` recebe o próximo dígito, o resto é copiado; 9 dígitos são completados com zeros até 11. Padrão sem exatamente 11 `N` levanta `ValueError`; entrada sem 11 dígitos devolve só os dígitos. |
 | `is_valid_renavam(str_value)` | `bool` | `True` quando há 9 ou 11 dígitos, a forma de 11 não é toda igual e o dígito verificador fecha. |
 
 ```python
-from pure_docs_br import is_valid_renavam, unmask_renavam
+from pure_docs_br import is_valid_renavam, mask_renavam, unmask_renavam
 
 unmask_renavam("1234567897.0")  # "01234567897"
+mask_renavam("22500062413", str_pattern="NNNNNNNNNN-N")  # "2250006241-3"
 is_valid_renavam("22500062413")  # True
 ```
 

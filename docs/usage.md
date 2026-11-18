@@ -170,16 +170,19 @@ Formatos aceitos: sem máscara (`12345678900`), com espaços ou pontuação e o 
 (`12345678900.0`). Sempre uma `str`.
 
 ```python
-from pure_docs_br import is_valid_cnh, unmask_cnh
+from pure_docs_br import is_valid_cnh, mask_cnh, unmask_cnh
 
 is_valid_cnh("12345678900")  # True
 is_valid_cnh("12345678901")  # False, dígito verificador errado
 unmask_cnh("12345678900.0")  # "12345678900"
 unmask_cnh("119")  # "00000000119"
+mask_cnh("02650306461", str_pattern="NNN NNNN NNNN")  # "026 5030 6461"
 ```
 
-Casos extremos: não existe `mask_cnh`, pois a CNH não tem máscara oficial e a estratégia de máscara
-fica para a issue #53. `unmask_cnh` completa zeros à esquerda até 11 dígitos. Os 11 dígitos todos
+Casos extremos: a CNH não tem máscara oficial, então `mask_cnh(valor, str_pattern=...)` exige o padrão e a
+biblioteca não impõe nenhum: cada `N` recebe o próximo dígito e os demais caracteres são copiados.
+Um padrão sem exatamente 11 `N` levanta `ValueError`; entrada sem 11 dígitos (vazia ou com mais de
+11) volta só com os dígitos, sem máscara. `unmask_cnh` completa zeros à esquerda até 11 dígitos. Os 11 dígitos todos
 iguais são inválidos. Como o algoritmo não é oficial, `is_valid_cnh` pode reprovar uma CNH real e
 aprovar um número inventado; não use como único critério para bloquear ou aprovar alguém. Também não
 confirma que a CNH existe, está vigente ou pertence a quem a apresenta; para isso use o serviço
@@ -195,16 +198,20 @@ Formatos aceitos: sem máscara (`22500062413`), com espaços ou pontuação, o a
 (`1234567897.0`) e o número antigo de 9 dígitos (`000123455`). Sempre uma `str`.
 
 ```python
-from pure_docs_br import is_valid_renavam, unmask_renavam
+from pure_docs_br import is_valid_renavam, mask_renavam, unmask_renavam
 
 is_valid_renavam("22500062413")  # True
 is_valid_renavam("22500062414")  # False, dígito verificador errado
 is_valid_renavam("000123455")  # True, 9 dígitos equivalem a 00000123455
 unmask_renavam("1234567897.0")  # "01234567897"
+mask_renavam("22500062413", str_pattern="NNNNNNNNNN-N")  # "2250006241-3"
+mask_renavam("000123455", str_pattern="NNNNNNNNNN-N")  # "0000012345-5"
 ```
 
-Casos extremos: não existe `mask_renavam`, pois o RENAVAM não tem máscara oficial e a estratégia de
-máscara fica para a issue #53. `unmask_renavam` completa zeros à esquerda até 11 dígitos. Aceitar 9
+Casos extremos: o RENAVAM não tem máscara oficial, então `mask_renavam(valor, str_pattern=...)` exige o padrão
+e a biblioteca não impõe nenhum: cada `N` recebe o próximo dígito e os demais caracteres são
+copiados. Um padrão sem exatamente 11 `N` levanta `ValueError`; entrada sem 11 dígitos depois de
+completar zeros (vazia ou com mais de 11) volta só com os dígitos. `unmask_renavam` completa zeros à esquerda até 11 dígitos. Aceitar 9
 dígitos (completados com zeros) e rejeitar números com todos os dígitos iguais são convenções da
 comunidade, não regras do SENATRAN. Um número de 10 dígitos é inválido. A validação é aritmética
 local: não confirma que o veículo existe, que o RENAVAM está ativo, que pertence a quem o informa

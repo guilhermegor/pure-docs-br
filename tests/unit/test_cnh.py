@@ -2,7 +2,7 @@
 
 import pytest
 
-from pure_docs_br import is_valid_cnh, unmask_cnh
+from pure_docs_br import is_valid_cnh, mask_cnh, unmask_cnh
 
 
 LIST_VALID: list[str] = [
@@ -60,3 +60,37 @@ def test_unmask_cnh_short_digits_zero_padded() -> None:
 def test_unmask_cnh_no_digits_returns_empty() -> None:
     """Input with no digits yields an empty string."""
     assert unmask_cnh("ABC") == ""
+
+
+def test_mask_cnh_applies_pattern() -> None:
+    """Each N takes the next digit and other characters are copied."""
+    assert mask_cnh("02650306461", str_pattern="NNN NNNN NNNN") == "026 5030 6461"
+
+
+def test_mask_cnh_unmasks_input_first() -> None:
+    """A punctuated input is unmasked before the pattern is applied."""
+    assert mask_cnh("026.50306461", str_pattern="NNN NNNN NNNN") == "026 5030 6461"
+
+
+def test_mask_cnh_keeps_any_separator() -> None:
+    """Characters other than N are copied as is."""
+    assert mask_cnh("02650306461", str_pattern="N" * 11 + "/") == "02650306461/"
+
+
+@pytest.mark.parametrize("str_pattern", ["", "NNN", "N" * 10, "N" * 12])
+def test_mask_cnh_wrong_slot_count_raises(str_pattern: str) -> None:
+    """A pattern without exactly 11 N raises ValueError."""
+    with pytest.raises(ValueError, match="exactly 11"):
+        mask_cnh("02650306461", str_pattern=str_pattern)
+
+
+@pytest.mark.parametrize("str_value", ["", "ABC", "123456789012"])
+def test_mask_cnh_unmaskable_input_returns_bare_value(str_value: str) -> None:
+    """Empty, digitless or over-long input never raises and comes back unmasked."""
+    assert mask_cnh(str_value, str_pattern="NNN NNNN NNNN") == unmask_cnh(str_value)
+
+
+def test_mask_cnh_non_str_raises_type_error() -> None:
+    """A non-str argument is rejected by the runtime type checker."""
+    with pytest.raises(TypeError):
+        mask_cnh(1, str_pattern="NNN NNNN NNNN")  # type: ignore[arg-type]
