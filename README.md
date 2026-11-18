@@ -74,9 +74,9 @@ Toda função recebe e devolve `str` (ou `bool`) e aceita o documento com ou sem
 from pure_docs_br import (
     is_valid_boleto_arrecadacao,
     is_valid_boleto_cobranca,
+    is_valid_caepf,
     is_valid_cep,
     is_valid_chave_acesso,
-    is_valid_caepf,
     is_valid_cin,
     is_valid_cnh,
     is_valid_cnpj,

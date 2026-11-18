@@ -251,7 +251,8 @@ SERPRO (`00000002500171`); sem o `+ 12` ele não fecha. **Seguem sem confirmaç�
 (subtrair 100) e o tratamento do resto 10 como 0.
 
 Formatos aceitos: com máscara (`000.000.025/001-71`), sem máscara (`00000002500171`), com a cauda de
-float (`11144477700154.0`) e com zeros à esquerda perdidos. Sempre uma `str`.
+float (`11144477700154.0`) e com zeros à esquerda perdidos: validação, máscara e remoção da máscara completam zeros à esquerda até
+14 dígitos (`is_valid_caepf("2500171")` é `True`). Sempre uma `str`.
 
 ```python
 from pure_docs_br import is_valid_caepf, mask_caepf, unmask_caepf
@@ -263,7 +264,7 @@ unmask_caepf("111.444.777/001-54")  # "11144477700154"
 ```
 
 Casos extremos: sequencial `000` e base de CPF com os 9 dígitos iguais são rejeitados (não há outra
-verificação da base). `mask_caepf` devolve o valor sem máscara quando passa de 14 dígitos. Pode
+verificação da base). `mask_caepf` devolve o valor sem máscara quando passa de 14 dígitos (entrada vazia também). Pode
 reprovar um CAEPF real e aprovar um número nunca emitido, e a biblioteca não percebe se a Receita
 mudar a regra. Não confirma que o CAEPF existe, está ativo, pertence ao titular nem que o CPF-base
 está regular; use a consulta oficial no e-CAC.

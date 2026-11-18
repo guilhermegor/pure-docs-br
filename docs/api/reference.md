@@ -216,8 +216,8 @@ titular (use o e-CAC).
 | Função | Retorno | Comportamento |
 |--------|---------|---------------|
 | `unmask_caepf(str_value)` | `str` | Mantém só dígitos ASCII, descarta a cauda `.0` e completa zeros à esquerda até 14. Entrada sem dígitos devolve `""`. |
-| `mask_caepf(str_value)` | `str` | `NNN.NNN.NNN/NNN-NN` quando o valor tem 14 dígitos; senão devolve o valor sem máscara. |
-| `is_valid_caepf(str_value)` | `bool` | `True` quando há 14 dígitos, a base de CPF não é toda igual, o sequencial não é `000` e os dígitos verificadores fecham. |
+| `mask_caepf(str_value)` | `str` | Completa zeros à esquerda até 14 e então, se há 14 dígitos, devolve `NNN.NNN.NNN/NNN-NN`; senão (vazio ou mais de 14) devolve o valor sem máscara. |
+| `is_valid_caepf(str_value)` | `bool` | `True` quando, completado com zeros à esquerda até 14, há 14 dígitos, a base de CPF não é toda igual, o sequencial não é `000` e os dígitos verificadores fecham. |
 
 ```python
 from pure_docs_br import is_valid_caepf, mask_caepf, unmask_caepf

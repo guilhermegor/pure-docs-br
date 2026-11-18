@@ -117,10 +117,11 @@ def is_valid_caepf(str_value: str) -> bool:
     Returns
     -------
     bool
-        ``True`` when the value has 14 digits, its CPF base is not all equal, the sequential
+        ``True`` when the value, left-padded with zeros to 14 digits like
+        :func:`unmask_caepf`, has 14 digits, its CPF base is not all equal, the sequential
         is not ``000`` and the check digits match the computation over the first 12.
     """
-    str_digits = _strip_to_digits(str_value)
+    str_digits = unmask_caepf(str_value)
     return (
         len(str_digits) == _LEN_CAEPF
         and len(set(str_digits[:_LEN_CPF_BASE])) > 1
