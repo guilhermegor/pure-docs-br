@@ -28,7 +28,7 @@ from .certidao_matricula import (
     unmask_certidao_matricula,
 )
 from .chave_acesso import is_valid_chave_acesso, mask_chave_acesso, unmask_chave_acesso
-from .cnh import is_valid_cnh, unmask_cnh
+from .cnh import is_valid_cnh, mask_cnh, unmask_cnh
 from .cns import is_valid_cns, mask_cns, unmask_cns
 from .inscricao_estadual import (
     is_valid_inscricao_estadual,
@@ -38,7 +38,7 @@ from .inscricao_estadual import (
 from .pis_pasep import is_valid_pis_pasep, mask_pis_pasep, unmask_pis_pasep
 from .placa_veiculo import is_valid_placa, mask_placa, unmask_placa
 from .processo_cnj import is_valid_processo_cnj, mask_processo_cnj, unmask_processo_cnj
-from .renavam import is_valid_renavam, unmask_renavam
+from .renavam import is_valid_renavam, mask_renavam, unmask_renavam
 from .rg import is_valid_cin, is_valid_rg, unmask_rg
 from .titulo_eleitor import (
     is_valid_titulo_eleitor,
@@ -79,6 +79,7 @@ __all__ = [
     "mask_cep",
     "mask_certidao_matricula",
     "mask_chave_acesso",
+    "mask_cnh",
     "mask_cnpj",
     "mask_cns",
     "mask_cpf",
@@ -86,6 +87,7 @@ __all__ = [
     "mask_pis_pasep",
     "mask_placa",
     "mask_processo_cnj",
+    "mask_renavam",
     "mask_titulo_eleitor",
     "unmask_boleto_arrecadacao",
     "unmask_boleto_cobranca",

@@ -28,8 +28,8 @@ Valida, aplica e remove a máscara dos documentos do Brasil
 - Valida o formato do CEP (8 dígitos; o CEP não tem dígito verificador).
 - Valida o Título de Eleitor (12 dígitos, UF e dois dígitos verificadores).
 - Valida o CNS (Cartão Nacional de Saúde, 15 dígitos, definitivo ou provisório, módulo 11).
-- Valida o número de registro da CNH (11 dígitos; **algoritmo dos dígitos verificadores não oficial**, reconstruído pela comunidade: pode reprovar uma CNH real e aprovar um número inventado, então não use como único critério; não confirma que a CNH existe nem está vigente, para isso use o serviço "Validar CNH" do SENATRAN).
-- Valida o RENAVAM (11 dígitos, ou 9 dos números antigos completados com zeros) pelo dígito verificador, módulo 11, conforme o Comunicado de Importação nº 064/2025 do Siscomex. **Não há norma do SENATRAN publicando a especificação completa**: aceitar 9 dígitos e rejeitar números com todos os dígitos iguais são convenções da comunidade. Não há `mask_renavam`. A validação é aritmética local e não confirma que o veículo existe, que o RENAVAM está ativo, que pertence a quem o informa nem que a placa corresponde; para isso consulte o serviço do SENATRAN/DETRAN.
+- Valida o número de registro da CNH (11 dígitos; **algoritmo dos dígitos verificadores não oficial**, reconstruído pela comunidade: pode reprovar uma CNH real e aprovar um número inventado, então não use como único critério; não confirma que a CNH existe nem está vigente, para isso use o serviço "Validar CNH" do SENATRAN). `mask_cnh(valor, *, str_pattern)` formata com o padrão que você escolher (cada `N` recebe o próximo dígito); **não há máscara oficial**, então o padrão é obrigatório e a biblioteca não impõe nenhum.
+- Valida o RENAVAM (11 dígitos, ou 9 dos números antigos completados com zeros) pelo dígito verificador, módulo 11, conforme o Comunicado de Importação nº 064/2025 do Siscomex. **Não há norma do SENATRAN publicando a especificação completa**: aceitar 9 dígitos e rejeitar números com todos os dígitos iguais são convenções da comunidade. `mask_renavam(valor, *, str_pattern)` formata com o padrão que você escolher (cada `N` recebe o próximo dígito); **não há máscara oficial**, então o padrão é obrigatório. A validação é aritmética local e não confirma que o veículo existe, que o RENAVAM está ativo, que pertence a quem o informa nem que a placa corresponde; para isso consulte o serviço do SENATRAN/DETRAN.
 - Valida, mascara (`NNN.NNN.NNN/NNN-NN`) e desmascara o CAEPF (14 dígitos: 9 do CPF, 3 de sequencial e 2 dígitos verificadores). **Só a estrutura é oficial**: a Receita Federal não publica o cálculo dos dígitos verificadores. A fórmula usada foi reconstruída a partir de uma fonte comunitária (ghiorzi.org) e reproduz o exemplo oficial do SERPRO (`00000002500171`), mas o ramo `> 99` e o resto 10 tratado como 0 seguem sem confirmação. Pode reprovar um CAEPF real e aprovar um número nunca emitido, e a biblioteca não percebe se a Receita mudar a regra. Não garante que o CAEPF existe, está ativo nem pertence ao titular; use a consulta oficial no e-CAC.
 - Valida, mascara (`NNNNNN NN NN NNNN N NNNNN NNN NNNNNNN-NN`) e desmascara a matrícula das certidões de nascimento, casamento e óbito (32 dígitos; uma só função para os três tipos). **A estrutura é oficial (Provimento CNJ nº 3/2009, mantida pelo Código Nacional de Normas); a fórmula dos dígitos verificadores não é publicada pelo CNJ.** A lib usa o algoritmo de uma fonte secundária que reproduz o programa do CNJ (módulo 11, resto 10 vira 1), não confrontado com certidão real. O código da serventia (CNS, posições 1-6) é validado por Luhn (ISO/IEC 7812-1), uma regra **empírica** (100% dos CNS da lista do CNJ passam), não publicada pelo CNJ; a existência do cartório não é consultada. Ano de `1800` ao ano corrente, acervo `01` a `99`, tipo de serviço `55`, tipo do livro `1` a `9` (o art. 473 vigente lista 1 a 7; 8 e 9 vêm de certidões antigas, que seguem válidas) e `xx` no lugar dos dígitos verificadores é aceito (cartórios sem computador). Se o CNJ mudar a regra, a lib não percebe. Não garante que a certidão existe, foi lavrada, pertence a quem a apresenta nem que o cartório existe; só a consulta ao cartório ou à Central de Registro Civil confirma.
 - Valida o RG por UF (`is_valid_rg(valor, str_uf=...)`) e o número da CIN (`is_valid_cin`, que é o CPF). **Não existe norma nacional para o RG**: SP usa dígito verificador módulo 11 **não oficial** (reconstruído pela comunidade; 8 dígitos antigos só têm o formato verificado), RJ usa módulo 10 de **fonte comunitária única** (baixa confiança), MG só tem o formato (7 ou 8 dígitos). Qualquer outra UF lança `NotImplementedError` (sem regra com fonte) e UF desconhecida lança `ValueError`. Sem UF vale uma heurística de 7 a 10 caracteres, não uma norma. Não há `mask_rg`. `True` significa "parece um RG": não garante que o RG existe, que pertence a quem o informa nem que foi emitido por aquela UF, e a biblioteca não percebe se o órgão mudar a regra.
@@ -81,6 +81,7 @@ from pure_docs_br import (
     is_valid_chave_acesso,
     is_valid_cin,
     is_valid_cnh,
+    mask_cnh,
     is_valid_cnpj,
     is_valid_cns,
     is_valid_cpf,
@@ -89,6 +90,7 @@ from pure_docs_br import (
     is_valid_placa,
     is_valid_processo_cnj,
     is_valid_renavam,
+    mask_renavam,
     is_valid_rg,
     is_valid_titulo_eleitor,
     mask_boleto_arrecadacao,
@@ -214,7 +216,7 @@ siglas devolve `False` em vez de lançar, então uma UF digitada errado faz toda
 - Toda função exige `str`: qualquer outro tipo (`None`, `float`, `int`, inclusive o `NaN` de uma
   coluna do pandas) lança `TypeError`. Converta antes, por exemplo com `.astype(str)`, ou filtre
   os nulos.
-- Dado um `str`, nenhuma função lança exceção por causa do valor (a única exceção é a UF de `is_valid_rg`: `NotImplementedError` para UF sem regra com fonte e `ValueError` para UF desconhecida). `is_valid_*` devolve `False` para texto vazio,
+- Dado um `str`, nenhuma função lança exceção por causa do valor do documento (as exceções são a UF de `is_valid_rg`: `NotImplementedError` para UF sem regra com fonte e `ValueError` para UF desconhecida; e o `str_pattern` de `mask_cnh` e `mask_renavam`: `ValueError` quando não tem exatamente 11 `N`). `is_valid_*` devolve `False` para texto vazio,
   com tamanho errado ou com dígito verificador errado, então uma linha ruim não interrompe a
   transformação de uma coluna inteira.
 - `mask_*` devolve o valor sem máscara (o que `unmask_*` produz) quando ele não tem o tamanho do

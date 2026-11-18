@@ -1,22 +1,24 @@
-"""Brazilian CNH (Carteira Nacional de Habilitação) registration number — validate, unmask.
+"""Brazilian CNH (Carteira Nacional de Habilitação) registration number — validate, unmask, mask.
 
 Pure, stateless functions with the same bad-input contract as
 :mod:`pure_docs_br.br_identifiers`: a non-``str`` raises ``TypeError`` from the runtime
-type checker, a ``str`` never raises. Only the format is official: Resolução CONTRAN
+type checker, a ``str`` document value never raises (only an invalid ``str_pattern`` in
+``mask_*`` raises ``ValueError``). Only the format is official: Resolução CONTRAN
 886/2021, art. 4º, I, gives the registration number 9 characters plus 2 check digits
 (11 in all) and says the check digit comes from a modulo 11 routine, without publishing
 weights or a formula. **The check-digit algorithm below is NOT official**: it is the
 community's reverse-engineered ``dsc`` variant. ``dv1 = sum(d[i] * (9 - i), i=0..8) % 11``
 (a value of 10 or more becomes 0 and sets ``dsc = 2``); ``dv2 = sum(d[i] * (i + 1),
 i=0..8) % 11 - dsc``, plus 11 when negative and 0 when 10 or more. It can reject a real
-CNH and accept an invented number. The CNH has no official mask, so this module ships no
-``mask_cnh``; the mask strategy belongs to issue #53.
+CNH and accept an invented number. The CNH has no official mask, so ``mask_cnh`` takes the
+display pattern from the caller.
 """
 
 from __future__ import annotations
 
 import re
 
+from pure_docs_br._internal.utils.mask_pattern import apply_mask_pattern
 from pure_docs_br._internal.utils.typing import type_checker
 from pure_docs_br.br_identifiers import _strip_float_artifact
 
@@ -56,10 +58,38 @@ def unmask_cnh(str_value: str) -> str:
     -------
     str
         ASCII digits only, left-padded with zeros to 11; input with no digits yields
-        ``""``. There is no ``mask_cnh``: the CNH has no official mask.
+        ``""``.
     """
     str_digits = _RE_NON_DIGIT.sub("", _strip_float_artifact(str_value))
     return str_digits.zfill(_LEN_CNH) if str_digits else ""
+
+
+@type_checker
+def mask_cnh(str_value: str, *, str_pattern: str) -> str:
+    """Format a CNH registration number with a caller-supplied pattern.
+
+    The CNH has no official mask, so the pattern is required and the library imposes none.
+
+    Parameters
+    ----------
+    str_value : str
+        A number in any shape (it is unmasked first).
+    str_pattern : str
+        The display pattern with exactly 11 ``N``; each takes the next digit and every
+        other character is copied as is, e.g. ``"NNN NNNN NNNN"``.
+
+    Returns
+    -------
+    str
+        The patterned number when it normalises to 11 digits; otherwise the bare unmasked
+        value (empty input, or more than 11 digits).
+
+    Raises
+    ------
+    ValueError
+        When the pattern does not contain exactly 11 ``N``.
+    """
+    return apply_mask_pattern(unmask_cnh(str_value), str_pattern=str_pattern, int_len=_LEN_CNH)
 
 
 @type_checker
