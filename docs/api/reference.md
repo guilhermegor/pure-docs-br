@@ -229,6 +229,39 @@ is_valid_caepf("00000002500171")  # True
 
 ---
 
+## Funções de matrícula de certidão
+
+Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceção para `str`). Uma só
+família cobre as certidões de nascimento, casamento e óbito (matrícula de 32 dígitos). A estrutura é
+oficial (Provimento CNJ nº 3/2009); **o cálculo dos dígitos verificadores não é publicado pelo CNJ**
+e vem de uma fonte secundária (módulo 11, resto 10 vale 1). O dígito do CNS (posições 1-6) é
+validado por Luhn (ISO/IEC 7812-1), regra **empírica** não publicada pelo CNJ. Não confirma que a
+certidão ou o cartório existem; se o CNJ mudar a regra, a lib não percebe.
+
+| Função | Retorno | Comportamento |
+|--------|---------|---------------|
+| `unmask_certidao_matricula(str_value)` | `str` | Mantém só dígitos ASCII, descarta a cauda `.0` e completa zeros à esquerda até 32; 30 dígitos seguidos de `xx` ficam como estão, em maiúsculas. Entrada sem dígitos devolve `""`. |
+| `mask_certidao_matricula(str_value)` | `str` | Se há 32 posições, devolve `NNNNNN NN NN NNNN N NNNNN NNN NNNNNNN-NN`; senão devolve o valor sem máscara. |
+| `is_valid_certidao_matricula(str_value)` | `bool` | `True` com 32 posições, dígitos não todos iguais, CNS aprovado em Luhn, acervo `01`-`99`, serviço `55`, ano de `1800` ao ano corrente, tipo do livro `1`-`9` e dígitos verificadores corretos (ou `xx`). |
+
+```python
+from pure_docs_br import (
+    is_valid_certidao_matricula,
+    mask_certidao_matricula,
+    unmask_certidao_matricula,
+)
+
+is_valid_certidao_matricula("10453901552013100012021000012321")  # True
+mask_certidao_matricula(
+    "10453901552013100012021000012321"
+)  # "104539 01 55 2013 1 00012 021 0000123-21"
+unmask_certidao_matricula(
+    "10453901552013100012021000012321.0"
+)  # "10453901552013100012021000012321"
+```
+
+---
+
 ## Funções de placa de veículo
 
 Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceção para `str`). A placa
