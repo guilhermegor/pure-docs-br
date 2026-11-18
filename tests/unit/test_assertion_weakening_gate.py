@@ -872,3 +872,187 @@ def test_test_file_removed_classifies_each_row_shape(
 def test_moving_a_test_into_src_arms_the_expected_value_rule() -> None:
     """Intended: a test moved into ``src/`` is a production-path change for the whole diff."""
     assert gate._touches_production_code([("R", "tests/test_a.py", "src/a.py")])
+
+
+_STR_BASE_REF = "base"
+_STR_OLD_ALL = (
+    "def test_cpf():\n    assert f(1) == 2\n\n\ndef test_cnpj():\n    assert g(1) == 3\n"
+)
+_STR_SPLIT_CNPJ = "def test_cnpj():\n    assert g(1) == 3\n"
+
+
+def _split_problems(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    str_cpf_source: str,
+    str_cnpj_source: str,
+    str_extra_source: str = "",
+) -> list[str]:
+    """Run ``collect_problems`` on the #65 shape: git pairs the old file with ``test_cnpj`` only.
+
+    Parameters
+    ----------
+    monkeypatch : pytest.MonkeyPatch
+        Replaces ``gate.show`` with an in-memory file map.
+    str_cpf_source : str
+        Content of the brand-new ``test_cpf.py``.
+    str_cnpj_source : str
+        Content of ``test_cnpj.py``, the rename target of the old file.
+    str_extra_source : str
+        Content of a second brand-new file, ``test_extra.py`` (empty: no tests).
+
+    Returns
+    -------
+    list of str
+        Findings from ``gate.collect_problems``.
+    """
+    dict_files = {
+        (_STR_BASE_REF, "tests/unit/test_all.py"): _STR_OLD_ALL,
+        (gate.STR_INDEX_REF, "tests/unit/test_cpf.py"): str_cpf_source,
+        (gate.STR_INDEX_REF, "tests/unit/test_cnpj.py"): str_cnpj_source,
+        (gate.STR_INDEX_REF, "tests/unit/test_extra.py"): str_extra_source,
+    }
+    monkeypatch.setattr(
+        gate, "show", lambda str_ref, *, str_path: dict_files.get((str_ref, str_path))
+    )
+    list_changed = [
+        ("A", "tests/unit/test_cpf.py", "tests/unit/test_cpf.py"),
+        ("R", "tests/unit/test_all.py", "tests/unit/test_cnpj.py"),
+        ("A", "tests/unit/test_extra.py", "tests/unit/test_extra.py"),
+    ]
+    return gate.collect_problems(list_changed, str_base=_STR_BASE_REF)
+
+
+def test_a_test_moved_unchanged_to_another_file_is_not_reported(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The #65 split: git pairs the old file with one new file, the other half is not a delete."""
+    str_cpf = "def test_cpf():\n    assert f(1) == 2\n"
+    list_problems = _split_problems(
+        monkeypatch, str_cpf_source=str_cpf, str_cnpj_source=_STR_SPLIT_CNPJ
+    )
+    assert list_problems == []
+
+
+def test_a_test_moved_to_another_file_with_a_weakened_assertion_is_reported(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A move cannot hide a weakening: a changed body is not a proven move."""
+    str_cpf = "def test_cpf():\n    assert f(1) in (2, 3)\n"
+    list_problems = _split_problems(
+        monkeypatch, str_cpf_source=str_cpf, str_cnpj_source=_STR_SPLIT_CNPJ
+    )
+    assert any("bodies differ" in str_p for str_p in list_problems), list_problems
+
+
+def test_a_test_deleted_with_no_same_name_addition_is_still_reported(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Without a same-name test added anywhere in the diff, the removal stays ``deleted``."""
+    str_cpf = "def test_other():\n    assert f(1) == 2\n"
+    list_problems = _split_problems(
+        monkeypatch, str_cpf_source=str_cpf, str_cnpj_source=_STR_SPLIT_CNPJ
+    )
+    assert any("test 'test_cpf' deleted" in str_p for str_p in list_problems), list_problems
+
+
+def test_an_unrelated_same_name_test_in_another_file_does_not_hide_a_deletion(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A same-name addition with a different body is not a move; the finding hints at it."""
+    str_cpf = "def test_cpf():\n    assert h(1) == 9\n    assert h(2) == 8\n"
+    list_problems = _split_problems(
+        monkeypatch, str_cpf_source=str_cpf, str_cnpj_source=_STR_SPLIT_CNPJ
+    )
+    assert any(
+        "test 'test_cpf' deleted (possible move to 'tests/unit/test_cpf.py'" in str_p
+        for str_p in list_problems
+    ), list_problems
+
+
+def _deleted_split_problems(
+    monkeypatch: pytest.MonkeyPatch, *, str_cpf_source: str, str_cnpj_source: str
+) -> list[str]:
+    """Run ``collect_problems`` on a split git reports as ``D`` plus two ``A`` rows, no rename.
+
+    Parameters
+    ----------
+    monkeypatch : pytest.MonkeyPatch
+        Replaces ``gate.show`` with an in-memory file map.
+    str_cpf_source : str
+        Content of the brand-new ``test_cpf.py``.
+    str_cnpj_source : str
+        Content of the brand-new ``test_cnpj.py``.
+
+    Returns
+    -------
+    list of str
+        Findings from ``gate.collect_problems``.
+    """
+    dict_files = {
+        (_STR_BASE_REF, "tests/unit/test_all.py"): _STR_OLD_ALL,
+        (gate.STR_INDEX_REF, "tests/unit/test_cpf.py"): str_cpf_source,
+        (gate.STR_INDEX_REF, "tests/unit/test_cnpj.py"): str_cnpj_source,
+    }
+    monkeypatch.setattr(
+        gate, "show", lambda str_ref, *, str_path: dict_files.get((str_ref, str_path))
+    )
+    list_changed = [
+        ("D", "tests/unit/test_all.py", "tests/unit/test_all.py"),
+        ("A", "tests/unit/test_cpf.py", "tests/unit/test_cpf.py"),
+        ("A", "tests/unit/test_cnpj.py", "tests/unit/test_cnpj.py"),
+    ]
+    return gate.collect_problems(list_changed, str_base=_STR_BASE_REF)
+
+
+def test_a_deleted_file_split_unchanged_into_new_files_is_not_reported(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Every test of the deleted file reappears with an equal body, so nothing left the suite."""
+    list_problems = _deleted_split_problems(
+        monkeypatch,
+        str_cpf_source="def test_cpf():\n    assert f(1) == 2\n",
+        str_cnpj_source=_STR_SPLIT_CNPJ,
+    )
+    assert list_problems == []
+
+
+def test_a_deleted_file_split_with_one_test_dropped_reports_only_that_test(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The moved test is cleared; the one with no equal addition is still ``deleted``."""
+    list_problems = _deleted_split_problems(
+        monkeypatch,
+        str_cpf_source="def test_cpf():\n    assert f(1) == 2\n",
+        str_cnpj_source="def test_other():\n    assert g(1) == 3\n",
+    )
+    assert list_problems == ["tests/unit/test_all.py: test 'test_cnpj' deleted"], list_problems
+
+
+def test_a_deleted_file_with_no_test_moved_keeps_the_whole_file_finding(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """With no equal addition anywhere, the deletion is reported as the whole file."""
+    list_problems = _deleted_split_problems(
+        monkeypatch,
+        str_cpf_source="def test_x():\n    assert f(1) == 2\n",
+        str_cnpj_source="def test_y():\n    assert g(1) == 3\n",
+    )
+    assert list_problems == [
+        "tests/unit/test_all.py: entire test file deleted or moved out of tests/ (2 test(s))"
+    ], list_problems
+
+
+def test_a_same_name_test_added_in_two_files_matches_the_one_with_an_equal_body(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Only the second file's body equals the base version, and that is the move."""
+    str_cpf = "def test_cpf():\n    assert h(1) == 9\n"
+    str_extra = "def test_cpf():\n    assert f(1) == 2\n"
+    list_problems = _split_problems(
+        monkeypatch,
+        str_cpf_source=str_cpf,
+        str_cnpj_source=_STR_SPLIT_CNPJ,
+        str_extra_source=str_extra,
+    )
+    assert list_problems == []
