@@ -239,6 +239,35 @@ completa zeros. `True` significa "parece um RG": não confirma que o RG existe, 
 informa, que não foi cancelado nem que foi emitido por aquela UF. Se o órgão mudar a regra, a
 biblioteca não percebe.
 
+## CAEPF
+
+O CAEPF (Cadastro de Atividade Econômica da Pessoa Física) tem 14 dígitos: os 9 primeiros do CPF do
+titular, 3 de sequencial (`001` a `999`) e 2 dígitos verificadores. A estrutura e a máscara
+`NNN.NNN.NNN/NNN-NN` são oficiais (IN RFB nº 1.828/2018). **A fórmula dos dígitos verificadores não é
+publicada pela Receita Federal.** A usada aqui foi reconstruída a partir de uma fonte comunitária
+(ghiorzi.org/DVnew.htm), inclui o ajuste `+ 12` (soma 12 aos dois dígitos lidos como um número e
+subtrai 100 se passar de 99) e reproduz o exemplo oficial da documentação da API Cadastro CAEPF do
+SERPRO (`00000002500171`); sem o `+ 12` ele não fecha. **Seguem sem confirmação** o ramo `> 99`
+(subtrair 100) e o tratamento do resto 10 como 0.
+
+Formatos aceitos: com máscara (`000.000.025/001-71`), sem máscara (`00000002500171`), com a cauda de
+float (`11144477700154.0`) e com zeros à esquerda perdidos. Sempre uma `str`.
+
+```python
+from pure_docs_br import is_valid_caepf, mask_caepf, unmask_caepf
+
+is_valid_caepf("00000002500171")  # True, exemplo oficial do SERPRO
+is_valid_caepf("11144477700155")  # False, dígito verificador errado
+mask_caepf("11144477700154")  # "111.444.777/001-54"
+unmask_caepf("111.444.777/001-54")  # "11144477700154"
+```
+
+Casos extremos: sequencial `000` e base de CPF com os 9 dígitos iguais são rejeitados (não há outra
+verificação da base). `mask_caepf` devolve o valor sem máscara quando passa de 14 dígitos. Pode
+reprovar um CAEPF real e aprovar um número nunca emitido, e a biblioteca não percebe se a Receita
+mudar a regra. Não confirma que o CAEPF existe, está ativo, pertence ao titular nem que o CPF-base
+está regular; use a consulta oficial no e-CAC.
+
 ## Placa de veículo
 
 A placa de veículo tem 7 caracteres em dois padrões que coexistem: o antigo `LLLNNNN` (`ABC-1234`) e

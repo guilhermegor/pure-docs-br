@@ -203,6 +203,32 @@ is_valid_cin("529.982.247-25")  # True
 
 ---
 
+## Funções de CAEPF
+
+Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceção para `str`). O CAEPF tem
+14 dígitos (9 do CPF, 3 de sequencial, 2 dígitos verificadores) e a máscara `NNN.NNN.NNN/NNN-NN`; só
+essa estrutura é oficial. **O cálculo dos dígitos verificadores não é publicado pela Receita Federal**:
+a fórmula (com o ajuste `+ 12`) vem de uma fonte comunitária e reproduz o exemplo oficial do SERPRO
+`00000002500171`; o ramo `> 99` e o resto 10 como 0 seguem sem confirmação. Pode reprovar um CAEPF
+real e aprovar um número nunca emitido, e não confirma que o CAEPF existe, está ativo nem pertence ao
+titular (use o e-CAC).
+
+| Função | Retorno | Comportamento |
+|--------|---------|---------------|
+| `unmask_caepf(str_value)` | `str` | Mantém só dígitos ASCII, descarta a cauda `.0` e completa zeros à esquerda até 14. Entrada sem dígitos devolve `""`. |
+| `mask_caepf(str_value)` | `str` | `NNN.NNN.NNN/NNN-NN` quando o valor tem 14 dígitos; senão devolve o valor sem máscara. |
+| `is_valid_caepf(str_value)` | `bool` | `True` quando há 14 dígitos, a base de CPF não é toda igual, o sequencial não é `000` e os dígitos verificadores fecham. |
+
+```python
+from pure_docs_br import is_valid_caepf, mask_caepf, unmask_caepf
+
+mask_caepf("11144477700154")  # "111.444.777/001-54"
+unmask_caepf("11144477700154.0")  # "11144477700154"
+is_valid_caepf("00000002500171")  # True
+```
+
+---
+
 ## Funções de placa de veículo
 
 Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceção para `str`). A placa
