@@ -106,6 +106,26 @@ def test_main_wrong_language_page_exits_one(
     assert _run(tmp_path) == 1
 
 
+def test_main_wrong_language_contributing_exits_one(
+    tmp_path: Path, *, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """The root CONTRIBUTING.md is part of the page set, and the finding names it."""
+    _write(tmp_path / "mkdocs.yml", str_text=STR_MKDOCS_PT)
+    _write(tmp_path / "docs" / "index.md", str_text=STR_PT)
+    _write(tmp_path / "CONTRIBUTING.md", str_text=STR_EN)
+    int_code = _run(tmp_path)
+    str_out = "".join(capsys.readouterr())
+    assert (int_code, "CONTRIBUTING.md" in str_out) == (1, True)
+
+
+def test_main_conforming_contributing_exits_zero(tmp_path: Path) -> None:
+    """A root CONTRIBUTING.md in the declared locale passes."""
+    _write(tmp_path / "mkdocs.yml", str_text=STR_MKDOCS_PT)
+    _write(tmp_path / "docs" / "index.md", str_text=STR_PT)
+    _write(tmp_path / "CONTRIBUTING.md", str_text=STR_PT)
+    assert _run(tmp_path) == 0
+
+
 def test_main_wrong_language_readme_exits_one(tmp_path: Path) -> None:
     """The root README is part of the page set."""
     _write(tmp_path / "mkdocs.yml", str_text=STR_MKDOCS_EN)

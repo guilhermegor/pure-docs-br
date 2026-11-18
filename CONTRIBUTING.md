@@ -1,215 +1,218 @@
-# Contribution Guidelines
+# Guia de Contribuição
 
-Thank you for considering contributing to our project! Please take a moment to review these guidelines to ensure a smooth collaboration.
+Obrigado por considerar contribuir com o nosso projeto! Reserve um momento para ler estas diretrizes e garantir uma colaboração tranquila.
 
-## Development Conventions
+## Convenções de Desenvolvimento
 
-### Variable Naming Standards
+### Padrões de Nomes de Variáveis
 
-We use the following standardized variable naming conventions:
+Usamos as seguintes convenções padronizadas de nomes de variáveis:
 
-| Variable        | Description |
-|-----------------|-------------|
-| `int_cddr`      | Integer calendar days redemption period (funding to delivery) |
-| `int_wddr`      | Integer working days redemption period (funding to delivery) |
-| `int_cddt`      | Integer calendar days total investment period (funding to maturity) |
-| `int_wddt`      | Integer working days total investment period (funding to maturity) |
-| `int_cddm`      | Integer calendar days per month (convention: 30) |
-| `int_wddm`      | Integer working days per month (convention: 22) |
-| `int_cddy`      | Integer calendar days per year (convention: 365) |
-| `int_wddy`      | Integer working days per year (convention: 252) |
-| `int_cd_bef`    | Integer calendar days before (convention: 1) |
-| `int_wd_bef`    | Integer working days before (convention: 1) |
-| `int_cd_aft`    | Integer calendar days after (convention: 1) |
-| `int_wd_aft`    | Integer working days after (convention: 1) |
-| `int_cd_cap`    | Integer calendar days capitalization |
-| `int_wd_cap`    | Integer working days capitalization |
-| `int_nper_cd`   | Integer number of periods (calendar days) |
-| `int_nper_wd`   | Integer number of periods (working days) |
-| `float_pv`      | Present value of instrument notional (negative for purchasing, positive for selling) |
-| `float_fv`      | Future value of instrument notional (negative for purchasing, positive for selling) |
-| `float_notional`| Priced value from contract in absolute terms |
-| `float_position_value`| Accounting current market value, for taxing purposes |
-| `float_acquisition_basis`| Accounting cost basis, for taxing purposes |
-| `float_size`    | Size of instrument contract |
-| `float_xcg`     | Exchange value for instrument pricing |
-| `float_qty`     | Quantity of instruments (positive for purchasing, negative for selling) |
-| `date_ref`        | Reference date |
-| `date_xpt`        | Maturity date |
-| `date_rdm`        | Redemption date |
-| `date_start`        | Start date |
-| `date_end`        | End date |
-| `date_current` | Current date, for iteration puroposes|
-| `int_n_smp`     | Number of samples |
-| `int_max_retries` | Maximum number of retries |
+| Variável        | Descrição |
+|-----------------|-----------|
+| `int_cddr`      | Inteiro: dias corridos do prazo de resgate (do aporte à entrega) |
+| `int_wddr`      | Inteiro: dias úteis do prazo de resgate (do aporte à entrega) |
+| `int_cddt`      | Inteiro: dias corridos do prazo total do investimento (do aporte ao vencimento) |
+| `int_wddt`      | Inteiro: dias úteis do prazo total do investimento (do aporte ao vencimento) |
+| `int_cddm`      | Inteiro: dias corridos por mês (convenção: 30) |
+| `int_wddm`      | Inteiro: dias úteis por mês (convenção: 22) |
+| `int_cddy`      | Inteiro: dias corridos por ano (convenção: 365) |
+| `int_wddy`      | Inteiro: dias úteis por ano (convenção: 252) |
+| `int_cd_bef`    | Inteiro: dias corridos antes (convenção: 1) |
+| `int_wd_bef`    | Inteiro: dias úteis antes (convenção: 1) |
+| `int_cd_aft`    | Inteiro: dias corridos depois (convenção: 1) |
+| `int_wd_aft`    | Inteiro: dias úteis depois (convenção: 1) |
+| `int_cd_cap`    | Inteiro: dias corridos de capitalização |
+| `int_wd_cap`    | Inteiro: dias úteis de capitalização |
+| `int_nper_cd`   | Inteiro: número de períodos (dias corridos) |
+| `int_nper_wd`   | Inteiro: número de períodos (dias úteis) |
+| `float_pv`      | Valor presente do principal do instrumento (negativo na compra, positivo na venda) |
+| `float_fv`      | Valor futuro do principal do instrumento (negativo na compra, positivo na venda) |
+| `float_notional`| Valor precificado do contrato em termos absolutos |
+| `float_position_value`| Valor contábil atual de mercado, para fins tributários |
+| `float_acquisition_basis`| Custo contábil de aquisição, para fins tributários |
+| `float_size`    | Tamanho do contrato do instrumento |
+| `float_xcg`     | Valor de câmbio para a precificação do instrumento |
+| `float_qty`     | Quantidade de instrumentos (positiva na compra, negativa na venda) |
+| `date_ref`        | Data de referência |
+| `date_xpt`        | Data de vencimento |
+| `date_rdm`        | Data de resgate |
+| `date_start`        | Data de início |
+| `date_end`        | Data de fim |
+| `date_current` | Data atual, para fins de iteração |
+| `int_n_smp`     | Número de amostras |
+| `int_max_retries` | Número máximo de tentativas |
 
-## Branching Strategy
+## Estratégia de Branches
 
-**`main` is protected — direct commits and pushes are blocked** (`no-commit-to-branch` locally,
-server-side branch protection on GitHub). All changes land via a branch → Pull Request → merge
-(online), or `poe new_branch` → `poe git_merge_to_main` (offline).
+**A `main` é protegida: commits e pushes diretos são bloqueados** (`no-commit-to-branch` localmente,
+proteção de branch no servidor do GitHub). Toda mudança entra por branch, Pull Request e merge
+(online), ou por `poe new_branch` e `poe git_merge_to_main` (offline).
 
-### Branch Naming Convention
+### Convenção de Nomes de Branch
 
-All branches must follow the pattern: `<purpose>/<issue-number>-<branch-task>`
-(for example `feat/42-user-authentication`). The `branch-has-issue` workflow rejects a
-branch without the issue number, except `release/`, `dependabot/` and `renovate/`
+Toda branch segue o padrão `<propósito>/<número-da-issue>-<tarefa>`
+(por exemplo `feat/42-user-authentication`). O workflow `branch-has-issue` rejeita uma
+branch sem o número da issue, exceto `release/`, `dependabot/` e `renovate/`.
 
-**Available purposes:**
+**Propósitos disponíveis:**
 
-| Purpose         | Format                      | When to Use |
+| Propósito       | Formato                     | Quando usar |
 |-----------------|-----------------------------|-------------|
-| Feature         | `feature/<N>-<name>` or `feat/<N>-<name>` | New functionality |
-| Bugfix          | `bugfix/<N>-<description>` or `fix/<N>-<description>` | Bug resolution |
-| Hotfix          | `hotfix/<N>-<description>` | Critical production fixes |
-| Release         | `release/<version>` | Version preparation |
-| Documentation   | `docs/<N>-<description>` | Documentation updates |
-| Refactor        | `refactor/<N>-<description>` | Code improvements |
-| Chore           | `chore/<N>-<description>` | Project maintenance tasks |
+| Feature         | `feature/<N>-<nome>` ou `feat/<N>-<nome>` | Funcionalidade nova |
+| Bugfix          | `bugfix/<N>-<descrição>` ou `fix/<N>-<descrição>` | Correção de defeito |
+| Hotfix          | `hotfix/<N>-<descrição>` | Correções críticas em produção |
+| Release         | `release/<versão>` | Preparação de versão |
+| Documentation   | `docs/<N>-<descrição>` | Atualização de documentação |
+| Refactor        | `refactor/<N>-<descrição>` | Melhorias de código |
+| Chore           | `chore/<N>-<descrição>` | Manutenção do projeto |
 
-**Examples:**
+**Exemplos:**
 - `feat/42-user-authentication`
 - `fix/57-login-validation-issue`
 - `docs/63-update-api-reference`
 
-## Commit Message Standards
+## Padrões de Mensagem de Commit
 
-All commits must follow the [Conventional Commits](https://www.conventionalcommits.org/) specification: `<type>/<scope>`
+Todo commit segue a especificação [Conventional Commits](https://www.conventionalcommits.org/): `<tipo>(<escopo>): <descrição>`.
+As mensagens de commit são escritas em inglês, porque fazem parte do registro técnico.
 
-**Available types:**
+**Tipos disponíveis:**
 
-| Type       | Purpose |
-|------------|---------|
-| `build`    | Build system or dependency changes |
-| `ci`       | CI configuration changes |
-| `docs`     | Documentation updates |
-| `feat`     | New features |
-| `fix`      | Bug fixes |
-| `perf`     | Performance improvements |
-| `refactor` | Code restructuring |
-| `style`    | Formatting changes |
-| `test`     | Test additions/modifications |
-| `chore`    | Maintenance tasks |
-| `revert`   | Reverting changes |
-| `bump`     | Version updates |
+| Tipo       | Finalidade |
+|------------|------------|
+| `build`    | Mudanças no build ou nas dependências |
+| `ci`       | Mudanças na configuração de CI |
+| `docs`     | Atualizações de documentação |
+| `feat`     | Funcionalidades novas |
+| `fix`      | Correções de defeitos |
+| `perf`     | Melhorias de desempenho |
+| `refactor` | Reestruturação de código |
+| `style`    | Mudanças de formatação |
+| `test`     | Inclusão ou alteração de testes |
+| `chore`    | Tarefas de manutenção |
+| `revert`   | Reversão de mudanças |
+| `bump`     | Atualização de versão |
 
-**Examples:**
+**Exemplos:**
 - `feat(auth): implement OAuth2 integration`
 - `fix(calculations): correct rounding errors in tax computation`
 - `docs(readme): add installation instructions`
 
-**Pre-flight before committing:** `poe check_commit_msg <file>` runs the same gitlint +
-commitizen checks the `commit-msg` hook enforces, in seconds — catching a too-long title or
-a wrong type before it is rediscovered after the full pre-commit gate (lint, tests, coverage)
-has already run.
+**Verificação antes do commit:** `poe check_commit_msg <arquivo>` roda em segundos as mesmas
+verificações de gitlint e commitizen que o hook `commit-msg` impõe, e pega um título longo demais
+ou um tipo errado antes que o problema apareça depois de todo o gate de pre-commit (lint, testes,
+cobertura) já ter rodado.
 
-## Development Setup
+## Configuração do Ambiente de Desenvolvimento
 
-1. **Dependency Management**:
-   - Use Poetry (version specified in `requirements.txt`)
-   - Avoid adding redundant libraries - check `pyproject.toml` first
-   - Run `poetry install` to set up the development environment
+1. **Gerenciamento de dependências**:
+   - Use o Poetry (versão definida em `requirements.txt`)
+   - Evite adicionar bibliotecas redundantes: confira o `pyproject.toml` antes
+   - Rode `poetry install` para preparar o ambiente de desenvolvimento
 
-2. **Pre-commit Hooks**:
-   - Install with `poe precommit`
-   - This enables automatic:
-     - Code linting
-     - Formatting
-     - Security vulnerability scanning
-     - Large file detection
-     - Secret key detection
+2. **Hooks de pre-commit**:
+   - Instale com `poe precommit`
+   - Isso habilita, automaticamente:
+     - Lint de código
+     - Formatação
+     - Varredura de vulnerabilidades de segurança
+     - Detecção de arquivos grandes
+     - Detecção de chaves secretas
 
-3. **Testing Framework**:
-   - Maintain the standard file structure:
-     - Implementation: `src/<feat_name>.py`
-     - Tests: `tests/test_<feat_name>.py`
-   - Run comprehensive validation with: `poe unit_tests -k <keyword>`
-        - This command executes:
-            - **Ruff**: Linting, formatting, and flagging deprecated Python features
-            - **Codespell**: Spelling verification in comments and docstrings
-            - **Automated tests**: All test cases matching the project's testing standards
-   - Ensure 100% test coverage for critical components
-   - Run tests locally before pushing changes
+3. **Framework de testes**:
+   - Mantenha a estrutura padrão de arquivos:
+     - Implementação: `src/<nome_da_feature>.py`
+     - Testes: `tests/test_<nome_da_feature>.py`
+   - Rode a validação completa com: `poe unit_tests -k <palavra-chave>`
+        - Esse comando executa:
+            - **Ruff**: lint, formatação e sinalização de recursos obsoletos do Python
+            - **Codespell**: verificação ortográfica em comentários e docstrings
+            - **Testes automatizados**: todos os casos de teste que seguem os padrões do projeto
+   - Garanta 100% de cobertura de testes nos componentes críticos
+   - Rode os testes localmente antes de enviar as mudanças
 
-4. **Test-Driven Development**:
-   - Write tests before implementation when possible
-   - Include normal operations, edge cases, error conditions, type validation, and checks for examples in docstrings
-   - Maintain test fixtures for complex scenarios
-   - Recommended to use UNIT_TEST_TEMPLATE.md for AI generation of unit tests, in order to implement test-driven development best practices and follow project standards
+4. **Desenvolvimento guiado por testes**:
+   - Escreva os testes antes da implementação sempre que possível
+   - Inclua operações normais, casos de borda, condições de erro, validação de tipos e verificação dos exemplos das docstrings
+   - Mantenha fixtures para os cenários complexos
+   - Recomenda-se usar o UNIT_TEST_TEMPLATE.md para gerar testes unitários com IA, de modo a aplicar as boas práticas de desenvolvimento guiado por testes e seguir os padrões do projeto
 
-5. **Test order and seed-specific failures**:
-   - `pytest-randomly` shuffles test order on every run and prints the seed used, pass or
-     fail — a hidden dependency between tests (a `get` test relying on state a `post` test
-     left behind) fails instead of passing silently forever.
-   - The seed is reported in the session header as `Using --randomly-seed=<N>`, on every
-     run rather than only on failure. To reproduce an order, build the command from that
-     number yourself: `pytest -p randomly --randomly-seed=<N>`.
-   - **A test that fails only under a particular seed is a real defect, never flakiness to
-     re-run away.** Re-running until it goes green hides the exact bug this exists to catch
-     — report the seed and the failing test instead of retrying.
-   - A test fixture with `scope="module"`/`"class"`/`"session"` shares its instance across
-     tests, which is exactly the shape an order dependency takes. `check_fixture_scope.py`
-     (a proxy, not a detector — see its module docstring) requires a written
-     `# fixture-scope-ok: <reason>` comment before it accepts one.
+5. **Ordem dos testes e falhas ligadas a uma seed**:
+   - O `pytest-randomly` embaralha a ordem dos testes a cada execução e imprime a seed usada,
+     com sucesso ou falha: uma dependência escondida entre testes (um teste de `get` que
+     depende do estado deixado por um teste de `post`) falha, em vez de passar em silêncio
+     para sempre.
+   - A seed aparece no cabeçalho da sessão como `Using --randomly-seed=<N>`, em toda
+     execução e não apenas na falha. Para reproduzir uma ordem, monte o comando com esse
+     número: `pytest -p randomly --randomly-seed=<N>`.
+   - **Um teste que falha apenas com uma seed específica é um defeito real, nunca uma
+     instabilidade para rodar de novo até passar.** Rodar até ficar verde esconde exatamente
+     o defeito que isso existe para pegar: informe a seed e o teste que falhou, em vez de
+     tentar de novo.
+   - Uma fixture com `scope="module"`/`"class"`/`"session"` compartilha a instância entre os
+     testes, que é justamente a forma que uma dependência de ordem assume.
+     O `check_fixture_scope.py` (um indicador, não um detector: veja a docstring do módulo)
+     exige um comentário `# fixture-scope-ok: <motivo>` escrito antes de aceitar uma.
 
-## Pull Request Process
+## Processo de Pull Request
 
-1. **Open an Issue First**:
-   - Check existing issues on this repository's [GitHub Issues](../../issues) page
-   - Open a new issue using the repository's issue template if none exists for your work
-   - State what you want to change and why, and list the files it will touch
-   - For non-trivial work, wait for the issue to be accepted before writing code
+1. **Abra uma issue primeiro**:
+   - Confira as issues existentes na página de [Issues do GitHub](../../issues) deste repositório
+   - Abra uma issue nova com o template do repositório se não houver uma para o seu trabalho
+   - Diga o que você quer mudar e por quê, e liste os arquivos que serão tocados
+   - Em trabalhos não triviais, espere a issue ser aceita antes de escrever código
 
-2. **Branch from the Default Branch**:
-   - Name it `<type>/<issue-number>-<slug>` (for example `feat/42-user-authentication`);
-     see "Branch Naming Convention" above
+2. **Crie a branch a partir da branch padrão**:
+   - Nomeie como `<tipo>/<número-da-issue>-<slug>` (por exemplo `feat/42-user-authentication`);
+     veja "Convenção de Nomes de Branch" acima
 
-3. **Opening a PR**:
-   - Put `Closes #<N>` in the PR body so the issue closes when the PR merges
-   - Fill out the PR template completely
-   - Include:
-     - Detailed description
-     - Changes made
-     - Testing performed
-     - Documentation updates
-     - Any technical debt created
+3. **Abrindo o PR**:
+   - Coloque `Closes #<N>` no corpo do PR para que a issue feche quando o PR for mesclado
+   - Preencha o template de PR por completo
+   - Inclua:
+     - Descrição detalhada
+     - Mudanças feitas
+     - Testes realizados
+     - Atualizações de documentação
+     - Qualquer dívida técnica criada
 
-4. **Code Review**:
-   - Expect constructive feedback
-   - Address all review comments
-   - Update documentation as needed
-   - Keep commits logically organized
+4. **Revisão de código**:
+   - Espere feedback construtivo
+   - Responda a todos os comentários da revisão
+   - Atualize a documentação conforme necessário
+   - Mantenha os commits organizados de forma lógica
 
-5. **Merge Approval**:
-   - Requires at least one approval
-   - All tests must pass
-   - Code coverage should not decrease
-   - Documentation must be updated
+5. **Aprovação do merge**:
+   - Exige pelo menos uma aprovação
+   - Todos os testes devem passar
+   - A cobertura de código não deve diminuir
+   - A documentação deve estar atualizada
 
-### Baseline-Ratchet Guards: The Baseline PR Merges First
+### Guardas de Baseline-Ratchet: o PR do Baseline Entra Primeiro
 
-A baseline-ratchet guard grandfathers what exists today and gives every new file a budget of
-zero. The comment budget (`bin/check_comment_budget.py`, baseline `comment_budget_baseline.txt`)
-is the current one. The baseline is a snapshot of the default branch, so every PR that merges
-ahead of the PR that introduces or regenerates it adds files the snapshot has no row for, and
-that PR goes red after each branch update through no fault of its own.
+Uma guarda de baseline-ratchet tolera o que existe hoje e dá a todo arquivo novo um orçamento
+zero. O orçamento de comentários (`bin/check_comment_budget.py`, baseline `comment_budget_baseline.txt`)
+é a guarda atual. O baseline é um retrato da branch padrão, então todo PR que entra antes do PR
+que o cria ou o regenera adiciona arquivos para os quais o retrato não tem linha, e esse PR fica
+vermelho a cada atualização de branch, sem culpa própria.
 
-- **The PR that introduces or regenerates a baseline merges first.** Hold the merge queue
-  until it lands; in a serial queue it otherwise never converges, and a red baseline PR that
-  is pushed to the back stays red.
-- **A later PR's new violations are its author's to fix, never to baseline.** Do not
-  regenerate the baseline to absorb them; the ratchet only goes down.
-- `--write-baseline` records the commit it measured in a `base <sha>` row (`unknown` when git
-  is unavailable) and prints it. A failing run prints `baselined at <sha>, HEAD is at <sha>`,
-  so a stale baseline is visible in the CI log instead of reading as a broken PR.
+- **O PR que cria ou regenera um baseline entra primeiro.** Segure a fila de merge até ele
+  chegar; numa fila serial, caso contrário, ela nunca converge, e um PR de baseline vermelho
+  empurrado para o fim da fila continua vermelho.
+- **As violações novas de um PR posterior são de quem o escreveu corrigir, nunca de baselinar.**
+  Não regenere o baseline para absorvê-las; o ratchet só desce.
+- O `--write-baseline` registra o commit medido numa linha `base <sha>` (`unknown` quando o git
+  não está disponível) e o imprime. Uma execução que falha imprime `baselined at <sha>, HEAD is
+  at <sha>`, de modo que um baseline velho aparece no log do CI em vez de parecer um PR quebrado.
 
-## Best Practices
+## Boas Práticas
 
-- **Keep branches focused** - one feature/bugfix per branch
-- **Make small, frequent commits** - easier to review
-- **Write descriptive commit messages** - explain why, not just what
-- **Update documentation** - when adding new features
-- **Follow existing patterns** - maintain consistency
-- **Communicate early** - if you're stuck or need clarification
+- **Mantenha as branches focadas**: uma funcionalidade ou correção por branch
+- **Faça commits pequenos e frequentes**: são mais fáceis de revisar
+- **Escreva mensagens de commit descritivas**: explique o porquê, não só o quê
+- **Atualize a documentação**: ao adicionar funcionalidades novas
+- **Siga os padrões existentes**: mantenha a consistência
+- **Comunique-se cedo**: se estiver travado ou precisar de esclarecimento
 
-We appreciate your contributions and look forward to collaborating with you!
+Agradecemos suas contribuições e esperamos colaborar com você!
