@@ -1,4 +1,9 @@
-"""pure-docs-br package."""
+"""pure-docs-br package.
+
+Every ``is_valid_*``, ``mask_*`` and ``unmask_*`` function shares one bad-input contract: a
+non-``str`` (``None``, ``float``/``NaN``) raises ``TypeError`` from the runtime type checker,
+while any ``str`` never raises because of its value. Stringify or drop nulls first.
+"""
 
 from importlib.metadata import PackageNotFoundError, version
 
@@ -12,14 +17,6 @@ from .boleto_cobranca import (
     mask_boleto_cobranca,
     unmask_boleto_cobranca,
 )
-from .br_identifiers import (
-    is_valid_cnpj,
-    is_valid_cpf,
-    mask_cnpj,
-    mask_cpf,
-    unmask_cnpj,
-    unmask_cpf,
-)
 from .caepf import is_valid_caepf, mask_caepf, unmask_caepf
 from .cep import is_valid_cep, mask_cep, unmask_cep
 from .certidao_matricula import (
@@ -29,7 +26,9 @@ from .certidao_matricula import (
 )
 from .chave_acesso import is_valid_chave_acesso, mask_chave_acesso, unmask_chave_acesso
 from .cnh import is_valid_cnh, mask_cnh, unmask_cnh
+from .cnpj import is_valid_cnpj, mask_cnpj, unmask_cnpj
 from .cns import is_valid_cns, mask_cns, unmask_cns
+from .cpf import is_valid_cpf, mask_cpf, unmask_cpf
 from .inscricao_estadual import (
     is_valid_inscricao_estadual,
     mask_inscricao_estadual,

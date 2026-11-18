@@ -1,7 +1,7 @@
 """Brazilian Título de Eleitor helpers — mask, unmask and validate the voter ID.
 
 Pure, stateless functions with the same bad-input contract as
-:mod:`pure_docs_br.br_identifiers`: a non-``str`` raises ``TypeError`` from the runtime
+:mod:`pure_docs_br`: a non-``str`` raises ``TypeError`` from the runtime
 type checker, a ``str`` never raises. A title has 12 digits: 8 sequential, 2 for the
 state (UF) and 2 check digits, both modulo 11. The algorithm comes from the Portuguese
 Wikipedia article "Título de eleitor" (secondary source); the CAIXA *Guia de
@@ -14,8 +14,8 @@ from __future__ import annotations
 
 import re
 
+from pure_docs_br._internal.utils.float_artifact import _strip_float_artifact
 from pure_docs_br._internal.utils.typing import type_checker
-from pure_docs_br.br_identifiers import _strip_float_artifact
 
 
 _LEN_TITULO: int = 12
