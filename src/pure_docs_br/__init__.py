@@ -32,6 +32,7 @@ from .inscricao_estadual import (
 from .pis_pasep import is_valid_pis_pasep, mask_pis_pasep, unmask_pis_pasep
 from .placa_veiculo import is_valid_placa, mask_placa, unmask_placa
 from .processo_cnj import is_valid_processo_cnj, mask_processo_cnj, unmask_processo_cnj
+from .renavam import is_valid_renavam, unmask_renavam
 from .titulo_eleitor import (
     is_valid_titulo_eleitor,
     mask_titulo_eleitor,
@@ -59,6 +60,7 @@ __all__ = [
     "is_valid_pis_pasep",
     "is_valid_placa",
     "is_valid_processo_cnj",
+    "is_valid_renavam",
     "is_valid_titulo_eleitor",
     "mask_boleto_arrecadacao",
     "mask_boleto_cobranca",
@@ -84,5 +86,6 @@ __all__ = [
     "unmask_pis_pasep",
     "unmask_placa",
     "unmask_processo_cnj",
+    "unmask_renavam",
     "unmask_titulo_eleitor",
 ]
