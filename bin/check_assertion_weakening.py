@@ -888,7 +888,12 @@ def _function_findings(
 
 
 def _file_findings(
-    str_path: str, *, str_old_text: str, str_new_text: str, bool_prod_changed: bool
+    str_path: str,
+    *,
+    str_old_text: str,
+    str_new_text: str,
+    bool_prod_changed: bool,
+    dict_moved: dict | None = None,
 ) -> list:
     """Return every weakening finding for one changed test file.
 
@@ -902,6 +907,10 @@ def _file_findings(
         Content in this change.
     bool_prod_changed : bool
         Whether a non-test file also changed in this diff.
+    dict_moved : dict or None
+        ``{name: (path, ast.FunctionDef)}`` of tests added in OTHER test files of the same
+        diff. A test missing here but present there moved: it is judged against its
+        merge-base version instead of reported ``deleted``.
 
     Returns
     -------
@@ -915,6 +924,7 @@ def _file_findings(
     if dict_old_funcs is None or dict_new_funcs is None:
         return [f"{str_path}: could not parse — not checked"]
     list_problems = []
+    dict_moved = dict_moved or {}
     list_free = [str_n for str_n in dict_new_funcs if str_n not in dict_old_funcs]
     dict_renames = rename_pairs(
         {str_n: cls_f for str_n, cls_f in dict_old_funcs.items() if str_n not in dict_new_funcs},
@@ -924,6 +934,9 @@ def _file_findings(
     for str_name, node_old in dict_old_funcs.items():
         str_now = dict_renames.get(str_name, str_name)
         node_new = dict_new_funcs.get(str_now)
+        str_shown = str_path
+        if node_new is None and str_name in dict_moved:
+            str_shown, node_new = dict_moved[str_name]
         if node_new is None:
             list_problems.append(
                 deleted_message(str_path, str_name=str_name, list_unpaired_added=list_free)
@@ -931,7 +944,7 @@ def _file_findings(
             continue
         list_problems.extend(
             _function_findings(
-                str_path,
+                str_shown,
                 str_name=str_now,
                 node_old=node_old,
                 node_new=node_new,
@@ -939,6 +952,65 @@ def _file_findings(
             )
         )
     return list_problems
+
+
+def _added_tests(list_changed: list, *, str_base: str) -> dict:
+    """Return the tests each changed test file adds, by file.
+
+    Parameters
+    ----------
+    list_changed : list of tuple
+        ``(status_letter, source_path, destination_path)`` rows from ``changed_paths``.
+    str_base : str
+        The merge-base commit.
+
+    Returns
+    -------
+    dict
+        ``{path: {name: ast.FunctionDef}}`` of names present now and absent from that file's
+        merge-base version (every test of a new file). Unparsable files are skipped; the
+        per-file check already reports them.
+    """
+    dict_added = {}
+    for str_status, str_src, str_path in list_changed:
+        if _test_file_removed(str_status, str_src=str_src, str_path=str_path):
+            continue
+        if not RE_TEST_PATH.search(str_path):
+            continue
+        str_new = show(STR_INDEX_REF, str_path=str_path)
+        str_old = show(str_base, str_path=str_src) if RE_TEST_PATH.search(str_src) else None
+        dict_new_funcs = parse_functions(str_new) if str_new is not None else None
+        dict_old_funcs = parse_functions(str_old) if str_old is not None else {}
+        if dict_new_funcs is None or dict_old_funcs is None:
+            continue
+        dict_added[str_path] = {
+            str_n: cls_f for str_n, cls_f in dict_new_funcs.items() if str_n not in dict_old_funcs
+        }
+    return dict_added
+
+
+def _moved_from_elsewhere(dict_added: dict, *, str_path: str) -> dict:
+    """Return the tests added in every test file except ``str_path``.
+
+    Parameters
+    ----------
+    dict_added : dict
+        Result of ``_added_tests``.
+    str_path : str
+        The file being checked.
+
+    Returns
+    -------
+    dict
+        ``{name: (path, ast.FunctionDef)}``; the first file in diff order wins a shared name.
+    """
+    dict_moved = {}
+    for str_other, dict_funcs in dict_added.items():
+        if str_other == str_path:
+            continue
+        for str_name, cls_func in dict_funcs.items():
+            dict_moved.setdefault(str_name, (str_other, cls_func))
+    return dict_moved
 
 
 def _touches_production_code(list_changed: list) -> bool:
@@ -1029,6 +1101,7 @@ def collect_problems(list_changed: list, *, str_base: str) -> list:
     """
     list_problems = []
     bool_prod_changed = _touches_production_code(list_changed)
+    dict_added = _added_tests(list_changed, str_base=str_base)
     for str_status, str_src, str_path in list_changed:
         if _test_file_removed(str_status, str_src=str_src, str_path=str_path):
             list_problems.extend(_removed_findings(str_base, str_path=str_src))
@@ -1045,6 +1118,7 @@ def collect_problems(list_changed: list, *, str_base: str) -> list:
                 str_old_text=str_old,
                 str_new_text=str_new,
                 bool_prod_changed=bool_prod_changed,
+                dict_moved=_moved_from_elsewhere(dict_added, str_path=str_path),
             )
         )
     return list_problems
