@@ -3,6 +3,7 @@
 import pytest
 
 from pure_docs_br import (
+    certidao_matricula,
     is_valid_certidao_matricula,
     mask_certidao_matricula,
     unmask_certidao_matricula,
@@ -41,7 +42,6 @@ LIST_INVALID: list[str] = [
     "10453801552013100012021000012369",
     "10453900552013100012021000012340",
     "10453901551799100012021000012388",
-    "10453901552099100012021000012365",
     "10453901551013100012021000012313",
     "00000000000000000000000000000000",
     "",
@@ -65,6 +65,57 @@ def test_is_valid_certidao_matricula_masked_returns_true(str_value: str) -> None
 def test_is_valid_certidao_matricula_invalid_returns_false(str_value: str) -> None:
     """Reject wrong DVs, fields out of range, bad CNS, bad lengths and junk."""
     assert is_valid_certidao_matricula(str_value) is False
+
+
+def test_is_valid_certidao_matricula_future_year_returns_false(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """With the clock fixed at 2026, year 2099 is in the future."""
+    monkeypatch.setattr(certidao_matricula, "_current_year", lambda: 2026)
+    assert is_valid_certidao_matricula("10453901552099100012021000012365") is False
+
+
+def test_is_valid_certidao_matricula_year_reached_returns_true(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """With the clock fixed at 2099, the same value is accepted."""
+    monkeypatch.setattr(certidao_matricula, "_current_year", lambda: 2099)
+    assert is_valid_certidao_matricula("10453901552099100012021000012365") is True
+
+
+def test_is_valid_certidao_matricula_masked_xx_returns_true() -> None:
+    """Accept a literal masked value ending in ``-XX``."""
+    assert is_valid_certidao_matricula("104539 01 55 2013 1 00012 021 0000123-XX") is True
+
+
+def test_is_valid_certidao_matricula_extra_x_returns_false() -> None:
+    """A stray ``X`` is not silently dropped."""
+    assert is_valid_certidao_matricula(f"{STR_SOURCE}X") is False
+
+
+def test_is_valid_certidao_matricula_dotted_dv_zero_pair_returns_true() -> None:
+    """``.00`` after 30 digits is the DV pair, not a float tail."""
+    assert is_valid_certidao_matricula("104539015520131000120210000513.00") is True
+
+
+def test_is_valid_certidao_matricula_masked_float_tail_returns_true() -> None:
+    """A float tail after the masked form is dropped."""
+    assert is_valid_certidao_matricula("104539 01 55 2013 1 00012 021 0000123-21.0") is True
+
+
+def test_unmask_certidao_matricula_extra_x_returns_empty() -> None:
+    """A stray ``X`` yields an empty string."""
+    assert unmask_certidao_matricula(f"{STR_SOURCE}X") == ""
+
+
+def test_unmask_certidao_matricula_overlength_is_not_truncated() -> None:
+    """Longer input keeps every digit."""
+    assert unmask_certidao_matricula("1" * 32 + "-1") == "1" * 33
+
+
+def test_mask_certidao_matricula_xx_keeps_dv() -> None:
+    """The ``XX`` DV is masked like digits."""
+    assert mask_certidao_matricula("104539015520131000120210000123xx").endswith("0000123-XX")
 
 
 def test_is_valid_certidao_matricula_non_str_raises_type_error() -> None:
@@ -135,4 +186,4 @@ def test_mask_certidao_matricula_groups_with_spaces() -> None:
 
 def test_mask_certidao_matricula_too_long_returns_unmasked() -> None:
     """A value that does not fit 32 comes back unmasked."""
-    assert mask_certidao_matricula("1" * 33) == "1" * 33
+    assert mask_certidao_matricula("1" * 32 + "-1") == "1" * 33

@@ -289,6 +289,11 @@ Formatos aceitos: sem máscara, com a máscara de espaços dos modelos de certid
 (`104539 01 55 2013 1 00012 021 0000123-21`), com a cauda de float (`...21.0`) e com zeros à esquerda
 perdidos (completados até 32 dígitos). Sempre uma `str`.
 
+Importe a matrícula como texto (por exemplo `dtype=str` no pandas) antes de qualquer conversão
+numérica: 32 dígitos não cabem em um `float`, que arredonda o número, e nenhuma limpeza de `.0` ou de
+zeros recupera os dígitos perdidos. A cauda `.0` só é removida de um texto que ainda tem todos os
+dígitos originais. Um `X` fora de um `xx` final rejeita o valor.
+
 ```python
 from pure_docs_br import (
     is_valid_certidao_matricula,
