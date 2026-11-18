@@ -2,7 +2,9 @@
 
 Every ``is_valid_*``, ``mask_*`` and ``unmask_*`` function shares one bad-input contract: a
 non-``str`` (``None``, ``float``/``NaN``) raises ``TypeError`` from the runtime type checker,
-while any ``str`` never raises because of its value. Stringify or drop nulls first.
+while a ``str`` document value never raises because of its value. The only other exception is
+a ``ValueError`` from ``mask_cnh`` and ``mask_renavam`` for an invalid ``str_pattern`` (one
+without exactly 11 ``N``). Stringify or drop nulls first.
 """
 
 from importlib.metadata import PackageNotFoundError, version
