@@ -29,6 +29,7 @@ Valida, aplica e remove a máscara dos documentos do Brasil
 - Valida o Título de Eleitor (12 dígitos, UF e dois dígitos verificadores).
 - Valida o CNS (Cartão Nacional de Saúde, 15 dígitos, definitivo ou provisório, módulo 11).
 - Valida o número de registro da CNH (11 dígitos; **algoritmo dos dígitos verificadores não oficial**, reconstruído pela comunidade: pode reprovar uma CNH real e aprovar um número inventado, então não use como único critério; não confirma que a CNH existe nem está vigente, para isso use o serviço "Validar CNH" do SENATRAN).
+- Valida o RENAVAM (11 dígitos, ou 9 dos números antigos completados com zeros) pelo dígito verificador, módulo 11, conforme o Comunicado de Importação nº 064/2025 do Siscomex. **Não há norma do SENATRAN publicando a especificação completa**: aceitar 9 dígitos e rejeitar números com todos os dígitos iguais são convenções da comunidade. Não há `mask_renavam`. A validação é aritmética local e não confirma que o veículo existe, que o RENAVAM está ativo, que pertence a quem o informa nem que a placa corresponde; para isso consulte o serviço do SENATRAN/DETRAN.
 - Aplica e remove a máscara (`XXX.XXX.XXX-XX`, `XX.XXX.XXX/XXXX-XX`, `XXXXX-XXX`, `XXXX XXXX XXXX` e `XXX XXXX XXXX XXXX`).
 - Tolera texto sujo: pontuação, zeros à esquerda perdidos e a cauda `.0` de um número que virou `str` (por exemplo `"52998224725.0"`).
 - Funções puras, sem I/O e sem dependências de execução.
@@ -81,6 +82,7 @@ from pure_docs_br import (
     is_valid_pis_pasep,
     is_valid_placa,
     is_valid_processo_cnj,
+    is_valid_renavam,
     is_valid_titulo_eleitor,
     mask_boleto_arrecadacao,
     mask_boleto_cobranca,
@@ -106,6 +108,7 @@ from pure_docs_br import (
     unmask_pis_pasep,
     unmask_placa,
     unmask_processo_cnj,
+    unmask_renavam,
     unmask_titulo_eleitor,
 )
 

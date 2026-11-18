@@ -143,6 +143,31 @@ is_valid_cnh("98765432109")  # True
 
 ---
 
+## Funções de RENAVAM
+
+Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceção para `str`). O RENAVAM
+tem 11 dígitos (10 da base + 1 dígito verificador). O dígito verificador segue o Comunicado de
+Importação nº 064/2025 do Siscomex (módulo 11, pesos `3,2,9,8,7,6,5,4,3,2`); o SENATRAN não publicou
+a especificação completa. **Partes não oficiais (convenção da comunidade)**: aceitar o número antigo
+de 9 dígitos completando com zeros e rejeitar números com todos os dígitos iguais. Não há
+`mask_renavam`: o RENAVAM não tem máscara oficial e a estratégia fica para a issue #53. A validação é
+só aritmética local e não confirma que o veículo existe, que o RENAVAM está ativo, que pertence a
+quem o informa nem que a placa corresponde (use o serviço do SENATRAN/DETRAN).
+
+| Função | Retorno | Comportamento |
+|--------|---------|---------------|
+| `unmask_renavam(str_value)` | `str` | Mantém só dígitos ASCII, descarta a cauda `.0` e completa zeros à esquerda até 11. Entrada sem dígitos devolve `""`. |
+| `is_valid_renavam(str_value)` | `bool` | `True` quando há 9 ou 11 dígitos, a forma de 11 não é toda igual e o dígito verificador fecha. |
+
+```python
+from pure_docs_br import is_valid_renavam, unmask_renavam
+
+unmask_renavam("1234567897.0")  # "01234567897"
+is_valid_renavam("22500062413")  # True
+```
+
+---
+
 ## Funções de placa de veículo
 
 Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceção para `str`). A placa

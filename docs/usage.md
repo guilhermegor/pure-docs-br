@@ -185,6 +185,32 @@ aprovar um número inventado; não use como único critério para bloquear ou ap
 confirma que a CNH existe, está vigente ou pertence a quem a apresenta; para isso use o serviço
 "Validar CNH" do SENATRAN (gov.br). Se o órgão mudar a regra, a biblioteca não percebe.
 
+## RENAVAM
+
+O RENAVAM (Registro Nacional de Veículos Automotores) tem 11 dígitos: 10 da base e 1 dígito
+verificador. O cálculo do dígito segue o Comunicado de Importação nº 064/2025 do Siscomex (módulo 11,
+pesos `3,2,9,8,7,6,5,4,3,2`). Não há norma do SENATRAN publicando a especificação completa.
+
+Formatos aceitos: sem máscara (`22500062413`), com espaços ou pontuação, o artefato de float
+(`1234567897.0`) e o número antigo de 9 dígitos (`000123455`). Sempre uma `str`.
+
+```python
+from pure_docs_br import is_valid_renavam, unmask_renavam
+
+is_valid_renavam("22500062413")  # True
+is_valid_renavam("22500062414")  # False, dígito verificador errado
+is_valid_renavam("000123455")  # True, 9 dígitos equivalem a 00000123455
+unmask_renavam("1234567897.0")  # "01234567897"
+```
+
+Casos extremos: não existe `mask_renavam`, pois o RENAVAM não tem máscara oficial e a estratégia de
+máscara fica para a issue #53. `unmask_renavam` completa zeros à esquerda até 11 dígitos. Aceitar 9
+dígitos (completados com zeros) e rejeitar números com todos os dígitos iguais são convenções da
+comunidade, não regras do SENATRAN. Um número de 10 dígitos é inválido. A validação é aritmética
+local: não confirma que o veículo existe, que o RENAVAM está ativo, que pertence a quem o informa
+nem que a placa corresponde; para isso consulte o serviço do SENATRAN/DETRAN. Se o órgão mudar a
+regra, a biblioteca não percebe.
+
 ## Placa de veículo
 
 A placa de veículo tem 7 caracteres em dois padrões que coexistem: o antigo `LLLNNNN` (`ABC-1234`) e
