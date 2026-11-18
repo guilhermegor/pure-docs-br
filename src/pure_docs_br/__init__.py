@@ -22,6 +22,7 @@ from .br_identifiers import (
 )
 from .cep import is_valid_cep, mask_cep, unmask_cep
 from .chave_acesso import is_valid_chave_acesso, mask_chave_acesso, unmask_chave_acesso
+from .cnh import is_valid_cnh, unmask_cnh
 from .cns import is_valid_cns, mask_cns, unmask_cns
 from .inscricao_estadual import (
     is_valid_inscricao_estadual,
@@ -50,6 +51,7 @@ __all__ = [
     "is_valid_boleto_cobranca",
     "is_valid_cep",
     "is_valid_chave_acesso",
+    "is_valid_cnh",
     "is_valid_cnpj",
     "is_valid_cns",
     "is_valid_cpf",
@@ -74,6 +76,7 @@ __all__ = [
     "unmask_boleto_cobranca",
     "unmask_cep",
     "unmask_chave_acesso",
+    "unmask_cnh",
     "unmask_cnpj",
     "unmask_cns",
     "unmask_cpf",

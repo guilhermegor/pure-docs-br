@@ -159,6 +159,32 @@ começam com `0`, `3`, `4`, `5` ou `6` são inválidos. `mask_cns` devolve o val
 tamanho não fecha em 15 dígitos. A rotina vem de fontes públicas que citam o DATASUS, não do texto
 oficial.
 
+## CNH
+
+O número de registro da CNH (Carteira Nacional de Habilitação) tem 11 dígitos: 9 da base e 2 dígitos
+verificadores. Só esse formato é oficial (Resolução CONTRAN 886/2021, art. 4º, I). A fórmula dos
+dígitos verificadores não é publicada, e a biblioteca usa a variante `dsc` reconstruída pela
+comunidade.
+
+Formatos aceitos: sem máscara (`12345678900`), com espaços ou pontuação e o artefato de float
+(`12345678900.0`). Sempre uma `str`.
+
+```python
+from pure_docs_br import is_valid_cnh, unmask_cnh
+
+is_valid_cnh("12345678900")  # True
+is_valid_cnh("12345678901")  # False, dígito verificador errado
+unmask_cnh("12345678900.0")  # "12345678900"
+unmask_cnh("119")  # "00000000119"
+```
+
+Casos extremos: não existe `mask_cnh`, pois a CNH não tem máscara oficial e a estratégia de máscara
+fica para a issue #53. `unmask_cnh` completa zeros à esquerda até 11 dígitos. Os 11 dígitos todos
+iguais são inválidos. Como o algoritmo não é oficial, `is_valid_cnh` pode reprovar uma CNH real e
+aprovar um número inventado; não use como único critério para bloquear ou aprovar alguém. Também não
+confirma que a CNH existe, está vigente ou pertence a quem a apresenta; para isso use o serviço
+"Validar CNH" do SENATRAN (gov.br). Se o órgão mudar a regra, a biblioteca não percebe.
+
 ## Placa de veículo
 
 A placa de veículo tem 7 caracteres em dois padrões que coexistem: o antigo `LLLNNNN` (`ABC-1234`) e

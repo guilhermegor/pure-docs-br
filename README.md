@@ -28,6 +28,7 @@ Valida, aplica e remove a máscara dos documentos do Brasil
 - Valida o formato do CEP (8 dígitos; o CEP não tem dígito verificador).
 - Valida o Título de Eleitor (12 dígitos, UF e dois dígitos verificadores).
 - Valida o CNS (Cartão Nacional de Saúde, 15 dígitos, definitivo ou provisório, módulo 11).
+- Valida o número de registro da CNH (11 dígitos; **algoritmo dos dígitos verificadores não oficial**, reconstruído pela comunidade: pode reprovar uma CNH real e aprovar um número inventado, então não use como único critério; não confirma que a CNH existe nem está vigente, para isso use o serviço "Validar CNH" do SENATRAN).
 - Aplica e remove a máscara (`XXX.XXX.XXX-XX`, `XX.XXX.XXX/XXXX-XX`, `XXXXX-XXX`, `XXXX XXXX XXXX` e `XXX XXXX XXXX XXXX`).
 - Tolera texto sujo: pontuação, zeros à esquerda perdidos e a cauda `.0` de um número que virou `str` (por exemplo `"52998224725.0"`).
 - Funções puras, sem I/O e sem dependências de execução.
@@ -72,6 +73,7 @@ from pure_docs_br import (
     is_valid_boleto_cobranca,
     is_valid_cep,
     is_valid_chave_acesso,
+    is_valid_cnh,
     is_valid_cnpj,
     is_valid_cns,
     is_valid_cpf,
@@ -96,6 +98,7 @@ from pure_docs_br import (
     unmask_boleto_cobranca,
     unmask_cep,
     unmask_chave_acesso,
+    unmask_cnh,
     unmask_cnpj,
     unmask_cns,
     unmask_cpf,
