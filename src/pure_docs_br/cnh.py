@@ -2,7 +2,8 @@
 
 Pure, stateless functions with the same bad-input contract as
 :mod:`pure_docs_br.br_identifiers`: a non-``str`` raises ``TypeError`` from the runtime
-type checker, a ``str`` never raises. Only the format is official: Resolução CONTRAN
+type checker, a ``str`` document value never raises (only an invalid ``str_pattern`` in
+``mask_*`` raises ``ValueError``). Only the format is official: Resolução CONTRAN
 886/2021, art. 4º, I, gives the registration number 9 characters plus 2 check digits
 (11 in all) and says the check digit comes from a modulo 11 routine, without publishing
 weights or a formula. **The check-digit algorithm below is NOT official**: it is the

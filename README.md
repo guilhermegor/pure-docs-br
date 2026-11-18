@@ -216,7 +216,7 @@ siglas devolve `False` em vez de lançar, então uma UF digitada errado faz toda
 - Toda função exige `str`: qualquer outro tipo (`None`, `float`, `int`, inclusive o `NaN` de uma
   coluna do pandas) lança `TypeError`. Converta antes, por exemplo com `.astype(str)`, ou filtre
   os nulos.
-- Dado um `str`, nenhuma função lança exceção por causa do valor (a única exceção é a UF de `is_valid_rg`: `NotImplementedError` para UF sem regra com fonte e `ValueError` para UF desconhecida). `is_valid_*` devolve `False` para texto vazio,
+- Dado um `str`, nenhuma função lança exceção por causa do valor do documento (as exceções são a UF de `is_valid_rg`: `NotImplementedError` para UF sem regra com fonte e `ValueError` para UF desconhecida; e o `str_pattern` de `mask_cnh` e `mask_renavam`: `ValueError` quando não tem exatamente 11 `N`). `is_valid_*` devolve `False` para texto vazio,
   com tamanho errado ou com dígito verificador errado, então uma linha ruim não interrompe a
   transformação de uma coluna inteira.
 - `mask_*` devolve o valor sem máscara (o que `unmask_*` produz) quando ele não tem o tamanho do
