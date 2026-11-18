@@ -11,6 +11,7 @@ drop nulls first.
 
 from importlib import import_module
 from importlib.metadata import PackageNotFoundError, version
+from typing import TYPE_CHECKING
 
 from .boleto_arrecadacao import (
     is_valid_boleto_arrecadacao,
@@ -57,27 +58,29 @@ except PackageNotFoundError:  # pragma: no cover - source tree without an instal
     __version__ = "0.0.0"
 
 
-def __getattr__(str_name: str) -> object:
-    """Lazily import the deprecated ``br_identifiers`` shim so attribute access still works.
+if not TYPE_CHECKING:
 
-    Parameters
-    ----------
-    str_name : str
-        The attribute being looked up on the package.
+    def __getattr__(str_name: str) -> object:
+        """Lazily import the deprecated ``br_identifiers`` shim so attribute access still works.
 
-    Returns
-    -------
-    object
-        The ``pure_docs_br.br_identifiers`` module (which emits its ``DeprecationWarning``).
+        Parameters
+        ----------
+        str_name : str
+            The attribute being looked up on the package.
 
-    Raises
-    ------
-    AttributeError
-        For any name other than ``"br_identifiers"``.
-    """
-    if str_name == "br_identifiers":
-        return import_module("pure_docs_br.br_identifiers")
-    raise AttributeError(f"module {__name__!r} has no attribute {str_name!r}")
+        Returns
+        -------
+        object
+            The ``pure_docs_br.br_identifiers`` module (which emits its ``DeprecationWarning``).
+
+        Raises
+        ------
+        AttributeError
+            For any name other than ``"br_identifiers"``.
+        """
+        if str_name == "br_identifiers":
+            return import_module("pure_docs_br.br_identifiers")
+        raise AttributeError(f"module {__name__!r} has no attribute {str_name!r}")
 
 
 __all__ = [

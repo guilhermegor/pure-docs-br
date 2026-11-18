@@ -15,9 +15,31 @@ from pure_docs_br import br_identifiers
 STR_IMPORT_PROGRAM: str = (
     "import warnings; "
     "warnings.filterwarnings("
-    "'error', category=DeprecationWarning, module=r'pure_docs_br(\\.|$)'); "
+    "'error', message='pure_docs_br.br_identifiers is deprecated', category=DeprecationWarning); "
     "import pure_docs_br"
 )
+LIST_SHIM_PROGRAMS: list[str] = [
+    "import pure_docs_br; pure_docs_br.br_identifiers",
+    "from pure_docs_br import br_identifiers",
+    "import pure_docs_br.br_identifiers",
+]
+
+
+def _run_child(str_program: str) -> subprocess.CompletedProcess[str]:
+    """Run ``str_program`` in a fresh interpreter that imports this same copy of the package."""
+    path_pkg_root = Path(pure_docs_br.__file__).parents[1]
+    str_pythonpath = os.pathsep.join(
+        filter(None, [str(path_pkg_root), os.environ.get("PYTHONPATH")])
+    )
+    dict_env = {**os.environ, "PYTHONPATH": str_pythonpath}
+    dict_env.pop("PYTHONWARNINGS", None)
+    return subprocess.run(  # noqa: S603 - constant argv, no untrusted input
+        [sys.executable, "-c", str_program],
+        check=False,
+        capture_output=True,
+        text=True,
+        env=dict_env,
+    )
 
 
 def test_br_identifiers_import_warns_deprecation_naming_2_0_0() -> None:
@@ -43,14 +65,13 @@ def test_package_attribute_access_lazily_imports_shim_and_warns(
 
 
 def test_package_import_never_touches_the_deprecated_shim() -> None:
-    """``import pure_docs_br`` raises no ``DeprecationWarning`` attributed to the package."""
-    path_pkg_root = Path(pure_docs_br.__file__).parents[1]
-    str_pythonpath = os.pathsep.join(
-        filter(None, [str(path_pkg_root), os.environ.get("PYTHONPATH")])
-    )
-    cls_result = subprocess.run(  # noqa: S603 - constant argv, no untrusted input
-        [sys.executable, "-c", STR_IMPORT_PROGRAM],
-        check=False,
-        env={**os.environ, "PYTHONPATH": str_pythonpath},
-    )
-    assert cls_result.returncode == 0
+    """``import pure_docs_br`` never imports the shim, from any submodule or by any route."""
+    cls_result = _run_child(STR_IMPORT_PROGRAM)
+    assert cls_result.returncode == 0, cls_result.stderr
+
+
+@pytest.mark.parametrize("str_program", LIST_SHIM_PROGRAMS)
+def test_shim_warning_is_shown_under_default_filters(str_program: str) -> None:
+    """Every route to the shim shows its warning without ``-W``: it is attributed to the caller."""
+    cls_result = _run_child(str_program)
+    assert "<string>:1: DeprecationWarning: pure_docs_br.br_identifiers" in cls_result.stderr
