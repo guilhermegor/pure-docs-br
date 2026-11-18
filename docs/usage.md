@@ -269,6 +269,66 @@ reprovar um CAEPF real e aprovar um número nunca emitido, e a biblioteca não p
 mudar a regra. Não confirma que o CAEPF existe, está ativo, pertence ao titular nem que o CPF-base
 está regular; use a consulta oficial no e-CAC.
 
+## Matrícula da certidão
+
+A matrícula das certidões de nascimento, casamento e óbito tem 32 dígitos e é a mesma para os três
+tipos, então uma só família de funções serve a todos. A estrutura é oficial (Provimento CNJ nº
+3/2009, mantida pelo Código Nacional de Normas): CNS da serventia (6), acervo (2), tipo de serviço
+(2, sempre `55`), ano (4), tipo do livro (1), livro (5), folha (3), termo (7) e 2 dígitos
+verificadores. **A fórmula dos dígitos verificadores não é publicada nos provimentos.** A usada aqui
+vem de uma fonte secundária (ghiorzi.org/DVnew.htm) que reproduz o programa do CNJ: módulo 11 sobre
+os 30 primeiros dígitos e depois sobre os 30 mais o primeiro dígito, com resto 10 valendo 1. Ela
+não foi confrontada com uma certidão real.
+
+Regras aplicadas: ano de `1800` ao ano corrente; acervo de `01` a `99`; tipo de serviço `55`; tipo do
+livro de `1` a `9` (o art. 473 vigente lista 1 a 7; 8 e 9 vêm de certidões antigas, que seguem
+válidas); todos os dígitos iguais são rejeitados; o dígito do CNS passa por Luhn (próxima seção).
+`xx` no lugar dos dígitos verificadores (cartórios sem computador) é aceito como formato válido.
+
+Formatos aceitos: sem máscara, com a máscara de espaços dos modelos de certidão
+(`104539 01 55 2013 1 00012 021 0000123-21`), com a cauda de float (`...21.0`) e com zeros à esquerda
+perdidos (completados até 32 dígitos). Sempre uma `str`.
+
+Importe a matrícula como texto (por exemplo `dtype=str` no pandas) antes de qualquer conversão
+numérica: 32 dígitos não cabem em um `float`, que arredonda o número, e nenhuma limpeza de `.0` ou de
+zeros recupera os dígitos perdidos. A cauda `.0` só é removida de um texto que ainda tem todos os
+dígitos originais. Um `X` fora de um `xx` final rejeita o valor.
+
+```python
+from pure_docs_br import (
+    is_valid_certidao_matricula,
+    mask_certidao_matricula,
+    unmask_certidao_matricula,
+)
+
+is_valid_certidao_matricula("10453901552013100012021000012321")  # True
+is_valid_certidao_matricula("10453901552013100012021000012322")  # False, DV errado
+mask_certidao_matricula("10453901552013100012021000012321")
+# "104539 01 55 2013 1 00012 021 0000123-21"
+unmask_certidao_matricula("10453901552013100012021000012321.0")  # os 32 dígitos
+```
+
+Casos extremos: `mask_certidao_matricula` devolve o valor sem máscara quando não fecha 32 posições.
+Se o CNJ mudar a regra (o texto já foi alterado pelo Provimento 149/2023), a lib não percebe. Não
+confirma que a certidão existe, que o registro foi lavrado, que pertence a quem a apresenta nem que o
+cartório (CNS) existe; só a consulta ao cartório ou à Central de Registro Civil confirma.
+
+### O algoritmo de Luhn e o CNS
+
+O algoritmo de Luhn (módulo 10) é um dígito verificador definido no anexo da norma ISO/IEC 7812-1,
+a mesma usada nos números de cartão de crédito. Da direita para a esquerda, dobra-se um dígito sim,
+outro não, começando pelo penúltimo; quando o dobro passa de 9, soma-se seus dígitos (ou subtrai-se
+9); a soma de todos precisa ser múltipla de 10.
+
+Exemplo com o CNS `104539` (o último dígito é o verificador), da direita para a esquerda:
+`9`, `3` (dobrado: 6), `5`, `4` (dobrado: 8), `0`, `1` (dobrado: 2). Soma: 9 + 6 + 5 + 8 + 0 + 2 = 30,
+múltiplo de 10, então o CNS é válido. Com `104538` a soma é 29 e ele é reprovado.
+
+A biblioteca aplica Luhn ao CNS porque, na lista de serventias do CNJ, 6.303 de 6.308 códigos passam
+(os 5 restantes não são CNS), contra cerca de 10% de uma soma simples ou de um módulo 11, o que é o
+acaso. **É uma regra empírica, não publicada pelo CNJ.** Ela só confere o dígito: não consulta se a
+serventia existe.
+
 ## Placa de veículo
 
 A placa de veículo tem 7 caracteres em dois padrões que coexistem: o antigo `LLLNNNN` (`ABC-1234`) e
