@@ -882,7 +882,11 @@ _STR_SPLIT_CNPJ = "def test_cnpj():\n    assert g(1) == 3\n"
 
 
 def _split_problems(
-    monkeypatch: pytest.MonkeyPatch, *, str_cpf_source: str, str_cnpj_source: str
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    str_cpf_source: str,
+    str_cnpj_source: str,
+    str_extra_source: str = "",
 ) -> list[str]:
     """Run ``collect_problems`` on the #65 shape: git pairs the old file with ``test_cnpj`` only.
 
@@ -894,6 +898,8 @@ def _split_problems(
         Content of the brand-new ``test_cpf.py``.
     str_cnpj_source : str
         Content of ``test_cnpj.py``, the rename target of the old file.
+    str_extra_source : str
+        Content of a second brand-new file, ``test_extra.py`` (empty: no tests).
 
     Returns
     -------
@@ -904,6 +910,7 @@ def _split_problems(
         (_STR_BASE_REF, "tests/unit/test_all.py"): _STR_OLD_ALL,
         (gate.STR_INDEX_REF, "tests/unit/test_cpf.py"): str_cpf_source,
         (gate.STR_INDEX_REF, "tests/unit/test_cnpj.py"): str_cnpj_source,
+        (gate.STR_INDEX_REF, "tests/unit/test_extra.py"): str_extra_source,
     }
     monkeypatch.setattr(
         gate, "show", lambda str_ref, *, str_path: dict_files.get((str_ref, str_path))
@@ -911,6 +918,7 @@ def _split_problems(
     list_changed = [
         ("A", "tests/unit/test_cpf.py", "tests/unit/test_cpf.py"),
         ("R", "tests/unit/test_all.py", "tests/unit/test_cnpj.py"),
+        ("A", "tests/unit/test_extra.py", "tests/unit/test_extra.py"),
     ]
     return gate.collect_problems(list_changed, str_base=_STR_BASE_REF)
 
@@ -929,12 +937,12 @@ def test_a_test_moved_unchanged_to_another_file_is_not_reported(
 def test_a_test_moved_to_another_file_with_a_weakened_assertion_is_reported(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A move cannot hide a weakening: the moved body is judged against the base version."""
+    """A move cannot hide a weakening: a changed body is not a proven move."""
     str_cpf = "def test_cpf():\n    assert f(1) in (2, 3)\n"
     list_problems = _split_problems(
         monkeypatch, str_cpf_source=str_cpf, str_cnpj_source=_STR_SPLIT_CNPJ
     )
-    assert [str_p for str_p in list_problems if "operator weakened" in str_p], list_problems
+    assert any("bodies differ" in str_p for str_p in list_problems), list_problems
 
 
 def test_a_test_deleted_with_no_same_name_addition_is_still_reported(
@@ -946,3 +954,32 @@ def test_a_test_deleted_with_no_same_name_addition_is_still_reported(
         monkeypatch, str_cpf_source=str_cpf, str_cnpj_source=_STR_SPLIT_CNPJ
     )
     assert any("test 'test_cpf' deleted" in str_p for str_p in list_problems), list_problems
+
+
+def test_an_unrelated_same_name_test_in_another_file_does_not_hide_a_deletion(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A same-name addition with a different body is not a move; the finding hints at it."""
+    str_cpf = "def test_cpf():\n    assert h(1) == 9\n    assert h(2) == 8\n"
+    list_problems = _split_problems(
+        monkeypatch, str_cpf_source=str_cpf, str_cnpj_source=_STR_SPLIT_CNPJ
+    )
+    assert any(
+        "test 'test_cpf' deleted (possible move to 'tests/unit/test_cpf.py'" in str_p
+        for str_p in list_problems
+    ), list_problems
+
+
+def test_a_same_name_test_added_in_two_files_matches_the_one_with_an_equal_body(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Only the second file's body equals the base version, and that is the move."""
+    str_cpf = "def test_cpf():\n    assert h(1) == 9\n"
+    str_extra = "def test_cpf():\n    assert f(1) == 2\n"
+    list_problems = _split_problems(
+        monkeypatch,
+        str_cpf_source=str_cpf,
+        str_cnpj_source=_STR_SPLIT_CNPJ,
+        str_extra_source=str_extra,
+    )
+    assert list_problems == []
