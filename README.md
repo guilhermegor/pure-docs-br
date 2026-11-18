@@ -30,6 +30,7 @@ Valida, aplica e remove a máscara dos documentos do Brasil
 - Valida o CNS (Cartão Nacional de Saúde, 15 dígitos, definitivo ou provisório, módulo 11).
 - Valida o número de registro da CNH (11 dígitos; **algoritmo dos dígitos verificadores não oficial**, reconstruído pela comunidade: pode reprovar uma CNH real e aprovar um número inventado, então não use como único critério; não confirma que a CNH existe nem está vigente, para isso use o serviço "Validar CNH" do SENATRAN).
 - Valida o RENAVAM (11 dígitos, ou 9 dos números antigos completados com zeros) pelo dígito verificador, módulo 11, conforme o Comunicado de Importação nº 064/2025 do Siscomex. **Não há norma do SENATRAN publicando a especificação completa**: aceitar 9 dígitos e rejeitar números com todos os dígitos iguais são convenções da comunidade. Não há `mask_renavam`. A validação é aritmética local e não confirma que o veículo existe, que o RENAVAM está ativo, que pertence a quem o informa nem que a placa corresponde; para isso consulte o serviço do SENATRAN/DETRAN.
+- Valida o RG por UF (`is_valid_rg(valor, str_uf=...)`) e o número da CIN (`is_valid_cin`, que é o CPF). **Não existe norma nacional para o RG**: SP usa dígito verificador módulo 11 **não oficial** (reconstruído pela comunidade; 8 dígitos antigos só têm o formato verificado), RJ usa módulo 10 de **fonte comunitária única** (baixa confiança), MG só tem o formato (7 ou 8 dígitos). Qualquer outra UF lança `NotImplementedError` (sem regra com fonte) e UF desconhecida lança `ValueError`. Sem UF vale uma heurística de 7 a 10 caracteres, não uma norma. Não há `mask_rg`. `True` significa "parece um RG": não garante que o RG existe, que pertence a quem o informa nem que foi emitido por aquela UF, e a biblioteca não percebe se o órgão mudar a regra.
 - Aplica e remove a máscara (`XXX.XXX.XXX-XX`, `XX.XXX.XXX/XXXX-XX`, `XXXXX-XXX`, `XXXX XXXX XXXX` e `XXX XXXX XXXX XXXX`).
 - Tolera texto sujo: pontuação, zeros à esquerda perdidos e a cauda `.0` de um número que virou `str` (por exemplo `"52998224725.0"`).
 - Funções puras, sem I/O e sem dependências de execução.
@@ -74,6 +75,7 @@ from pure_docs_br import (
     is_valid_boleto_cobranca,
     is_valid_cep,
     is_valid_chave_acesso,
+    is_valid_cin,
     is_valid_cnh,
     is_valid_cnpj,
     is_valid_cns,
@@ -83,6 +85,7 @@ from pure_docs_br import (
     is_valid_placa,
     is_valid_processo_cnj,
     is_valid_renavam,
+    is_valid_rg,
     is_valid_titulo_eleitor,
     mask_boleto_arrecadacao,
     mask_boleto_cobranca,
@@ -109,6 +112,7 @@ from pure_docs_br import (
     unmask_placa,
     unmask_processo_cnj,
     unmask_renavam,
+    unmask_rg,
     unmask_titulo_eleitor,
 )
 
@@ -202,7 +206,7 @@ siglas devolve `False` em vez de lançar, então uma UF digitada errado faz toda
 - Toda função exige `str`: qualquer outro tipo (`None`, `float`, `int`, inclusive o `NaN` de uma
   coluna do pandas) lança `TypeError`. Converta antes, por exemplo com `.astype(str)`, ou filtre
   os nulos.
-- Dado um `str`, nenhuma função lança exceção. `is_valid_*` devolve `False` para texto vazio,
+- Dado um `str`, nenhuma função lança exceção por causa do valor (a única exceção é a UF de `is_valid_rg`: `NotImplementedError` para UF sem regra com fonte e `ValueError` para UF desconhecida). `is_valid_*` devolve `False` para texto vazio,
   com tamanho errado ou com dígito verificador errado, então uma linha ruim não interrompe a
   transformação de uma coluna inteira.
 - `mask_*` devolve o valor sem máscara (o que `unmask_*` produz) quando ele não tem o tamanho do

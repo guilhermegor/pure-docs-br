@@ -211,6 +211,34 @@ local: não confirma que o veículo existe, que o RENAVAM está ativo, que perte
 nem que a placa corresponde; para isso consulte o serviço do SENATRAN/DETRAN. Se o órgão mudar a
 regra, a biblioteca não percebe.
 
+## RG e CIN
+
+Não existe norma nacional para o RG: cada UF numera o seu. A biblioteca valida por UF
+(`is_valid_rg(valor, str_uf="SP")`), com a sigla em maiúsculas e comparada exatamente. SP usa o dígito
+verificador módulo 11, **não oficial** (reconstruído pela comunidade); RJ usa módulo 10 de **uma única
+fonte comunitária**; MG só tem formato (7 ou 8 dígitos). Outra UF lança `NotImplementedError` e UF desconhecida lança
+`ValueError`. Sem UF vale uma heurística (7 a 10 caracteres, `X` só no fim), não uma norma. Na CIN o
+número é o CPF: use `is_valid_cin`, que não tem relação com o RG.
+
+Formatos aceitos: com pontuação (`12.030.001-1`), sem máscara (`120300011`), dígito `x` minúsculo e a
+cauda de float (`123456789.0`). Sempre uma `str`.
+
+```python
+from pure_docs_br import is_valid_cin, is_valid_rg, unmask_rg
+
+is_valid_rg("12.030.001-1", str_uf="SP")  # True
+is_valid_rg("123456783", str_uf="SP")  # False, dígito verificador errado
+is_valid_rg("12345678", str_uf="SP")  # True, 8 dígitos só têm o formato verificado
+is_valid_rg("123456782", str_uf="RJ")  # True
+unmask_rg("10.000.006-x")  # "10000006X"
+is_valid_cin("529.982.247-25")  # True
+```
+
+Casos extremos: não existe `mask_rg` (a estratégia de máscara fica para a issue #53). `unmask_rg` não
+completa zeros. `True` significa "parece um RG": não confirma que o RG existe, que pertence a quem o
+informa, que não foi cancelado nem que foi emitido por aquela UF. Se o órgão mudar a regra, a
+biblioteca não percebe.
+
 ## Placa de veículo
 
 A placa de veículo tem 7 caracteres em dois padrões que coexistem: o antigo `LLLNNNN` (`ABC-1234`) e

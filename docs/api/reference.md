@@ -9,7 +9,8 @@ Interface pública desta biblioteca.
 ## Funções de CPF e CNPJ
 
 Funções puras, importadas da raiz do pacote (`from pure_docs_br import ...`). Todas recebem `str`; um valor que
-não seja `str` (`None`, `float`, `NaN`) lança `TypeError`. Dado um `str`, nenhuma lança exceção.
+não seja `str` (`None`, `float`, `NaN`) lança `TypeError`. Dado um `str`, nenhuma lança exceção por causa do valor; a única exceção é a UF de `is_valid_rg`
+(`NotImplementedError` para UF sem regra com fonte, `ValueError` para UF desconhecida).
 Entrada numérica curta é completada com zeros à esquerda antes de os dígitos verificadores serem
 testados (o mesmo preenchimento de `unmask_*`), de propósito, para recuperar documentos guardados
 como número. Assim `is_valid_cpf("191")` é `True` (`"191"` vira `00000000191`), mas
@@ -164,6 +165,40 @@ from pure_docs_br import is_valid_renavam, unmask_renavam
 
 unmask_renavam("1234567897.0")  # "01234567897"
 is_valid_renavam("22500062413")  # True
+```
+
+---
+
+## Funções de RG e CIN
+
+`is_valid_rg` e `unmask_rg` têm o mesmo contrato das funções acima para a entrada (`TypeError` para não `str`).
+**Não existe norma nacional para o RG**: cada UF numera o seu. `str_uf` roteia por um dicionário de
+funções por UF (como a inscrição estadual) e é comparado **exatamente** (sigla em maiúsculas, sem
+normalização: `"sp"` é UF desconhecida). Diferente da IE, UF desconhecida lança `ValueError`, e uma UF
+sem regra com fonte lança `NotImplementedError`; nunca devolve `False` em silêncio. Não há `mask_rg`:
+a estratégia de máscara fica para a issue #53.
+
+| UF | Regra | Fonte e confiança |
+|----|-------|-------------------|
+| SP | 9 caracteres com DV módulo 11, pesos 9..2, resto 10 vira `X`; 8 dígitos valem só como formato (documentos antigos não têm DV) | 3 fontes comunitárias concordantes, **não oficial** (a SSP-SP não publica); média |
+| RJ | 9 dígitos, DV módulo 10, pesos 2,1 a partir da unidade, "noves fora" | **fonte comunitária única** (ghiorzi.org); baixa |
+| MG | 7 ou 8 dígitos, só formato (MG não tem DV) | fonte jornalística e registro do TCE-MG com RG de 7 dígitos; média-baixa |
+| demais 24 UFs | `NotImplementedError` | nenhuma fonte encontrada |
+| sem UF | 7 a 10 caracteres, só dígitos, `X` apenas no fim | heurística, não norma; pode reprovar RG com prefixo de letras |
+
+| Função | Retorno | Comportamento |
+|--------|---------|---------------|
+| `unmask_rg(str_value)` | `str` | Remove `.`, `-`, `/`, espaços e a cauda `.0`, e põe em maiúsculas. Não completa zeros. |
+| `is_valid_rg(str_value, *, str_uf=None)` | `bool` | Valida pela regra da UF. Lança `ValueError` (UF desconhecida) ou `NotImplementedError` (UF sem regra). |
+| `is_valid_cin(str_value)` | `bool` | O número da CIN é o CPF (Lei 14.534/2023): reusa `is_valid_cpf`, sem relação com o RG. |
+
+```python
+from pure_docs_br import is_valid_cin, is_valid_rg, unmask_rg
+
+unmask_rg("10.000.006-x")  # "10000006X"
+is_valid_rg("12.030.001-1", str_uf="SP")  # True
+is_valid_rg("1234567", str_uf=None)  # True, heurística sem UF
+is_valid_cin("529.982.247-25")  # True
 ```
 
 ---
