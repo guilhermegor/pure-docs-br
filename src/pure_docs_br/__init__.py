@@ -2,11 +2,14 @@
 
 Every ``is_valid_*``, ``mask_*`` and ``unmask_*`` function shares one bad-input contract: a
 non-``str`` (``None``, ``float``/``NaN``) raises ``TypeError`` from the runtime type checker,
-while a ``str`` document value never raises because of its value. The only other exception is
-a ``ValueError`` from ``mask_cnh`` and ``mask_renavam`` for an invalid ``str_pattern`` (one
-without exactly 11 ``N``). Stringify or drop nulls first.
+while a ``str`` document value never raises because of its value. The only other exceptions are
+``is_valid_rg``'s UF errors (``NotImplementedError`` for a UF with no sourced rule,
+``ValueError`` for an unknown UF) and the ``ValueError`` from ``mask_cnh`` and
+``mask_renavam`` for an invalid ``str_pattern`` (one without exactly 11 ``N``). Stringify or
+drop nulls first.
 """
 
+from importlib import import_module
 from importlib.metadata import PackageNotFoundError, version
 
 from .boleto_arrecadacao import (
@@ -52,6 +55,29 @@ try:
     __version__ = version("pure-docs-br")
 except PackageNotFoundError:  # pragma: no cover - source tree without an installed dist
     __version__ = "0.0.0"
+
+
+def __getattr__(str_name: str) -> object:
+    """Lazily import the deprecated ``br_identifiers`` shim so attribute access still works.
+
+    Parameters
+    ----------
+    str_name : str
+        The attribute being looked up on the package.
+
+    Returns
+    -------
+    object
+        The ``pure_docs_br.br_identifiers`` module (which emits its ``DeprecationWarning``).
+
+    Raises
+    ------
+    AttributeError
+        For any name other than ``"br_identifiers"``.
+    """
+    if str_name == "br_identifiers":
+        return import_module("pure_docs_br.br_identifiers")
+    raise AttributeError(f"module {__name__!r} has no attribute {str_name!r}")
 
 
 __all__ = [

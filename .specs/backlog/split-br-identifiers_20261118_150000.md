@@ -6,4 +6,5 @@
 - [x] refactor/54-split-br-identifiers `br_identifiers.py` kept as a shim: `DeprecationWarning` on import, removal in 2.0.0; test in `test_br_identifiers_shim.py` (`pytest.warns` + `importlib.reload`)
 - [x] refactor/54-split-br-identifiers Contract ("non-`str` raises `TypeError`") moved to the package docstring; module docstrings point to `:mod:pure_docs_br`
 - [x] refactor/54-split-br-identifiers `CHANGELOG.md` is commitizen-generated ("do not edit by hand"): release notes are auto-generated (`generate_release_notes: true`), so the PR body does not reach them. Route: after the release that ships #54 publishes, the orchestrator appends the deprecation note (`pure_docs_br.br_identifiers` is deprecated, removal in 2.0.0, import from `pure_docs_br` instead) to the GitHub release body with `gh release edit`; workflows untouched
+- [x] refactor/54-split-br-identifiers Review fixes: docstring lists the rg UF errors, lazy `__getattr__` keeps `pure_docs_br.br_identifiers` attribute access (with its warning) and `import pure_docs_br` is proven warning-free by a subprocess test
 - [ ] Remove `br_identifiers.py` and its shim test in 2.0.0
