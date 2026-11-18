@@ -982,13 +982,31 @@ def _missing_test_finding(
         column). Otherwise the ``deleted`` finding, hinting at the first same-name file: a
         different body proves nothing, so a human judges it.
     """
-    str_old_dump = ast.dump(node_old)
-    if any(ast.dump(cls_f) == str_old_dump for _, cls_f in list_moved):
+    if _moved_unchanged(node_old, list_moved=list_moved):
         return ""
     str_msg = deleted_message(str_path, str_name=str_name, list_unpaired_added=list_free)
     if list_moved:
         str_msg += f" (possible move to {list_moved[0][0]!r}, bodies differ)"
     return str_msg
+
+
+def _moved_unchanged(node_old: ast.FunctionDef, *, list_moved: list) -> bool:
+    """Return whether some same-name test added elsewhere has the base version's exact AST.
+
+    Parameters
+    ----------
+    node_old : ast.FunctionDef
+        The test at the merge-base.
+    list_moved : list of tuple
+        ``(path, ast.FunctionDef)`` for each same-name test added in another file.
+
+    Returns
+    -------
+    bool
+        ``True`` when one ``ast.dump`` (which carries no line or column) is equal.
+    """
+    str_old_dump = ast.dump(node_old)
+    return any(ast.dump(cls_f) == str_old_dump for _, cls_f in list_moved)
 
 
 def _added_tests(list_changed: list, *, str_base: str) -> dict:
@@ -1096,7 +1114,7 @@ def _test_file_removed(str_status: str, *, str_src: str, str_path: str) -> bool:
     return str_status == "R" and bool(moved_off)
 
 
-def _removed_findings(str_base: str, *, str_path: str) -> list:
+def _removed_findings(str_base: str, *, str_path: str, dict_moved: dict) -> list:
     """Return the findings for a test file that left the suite.
 
     Parameters
@@ -1105,20 +1123,36 @@ def _removed_findings(str_base: str, *, str_path: str) -> list:
         The merge-base commit.
     str_path : str
         The test file's path at the base.
+    dict_moved : dict
+        ``{name: [(path, ast.FunctionDef), ...]}`` of tests added in other test files. A split
+        can reach git as ``D`` plus several ``A`` rows, with no rename to pair them.
 
     Returns
     -------
     list of str
-        One finding when the base file held tests (or cannot be parsed), else empty.
+        Nothing when the base file held no tests. The whole-file finding when none of its
+        tests moved unchanged (or it cannot be parsed). Otherwise one ``deleted`` finding per
+        test that did not move unchanged.
     """
     str_old = show(str_base, str_path=str_path)
     dict_old_funcs = parse_functions(str_old) if str_old is not None else {}
     if str_old is not None and dict_old_funcs is None:
         return [f"{str_path}: could not parse the removed test file — not checked"]
-    if dict_old_funcs:
+    list_left = [
+        _missing_test_finding(
+            str_path,
+            str_name=str_n,
+            node_old=cls_f,
+            list_free=[],
+            list_moved=dict_moved.get(str_n, []),
+        )
+        for str_n, cls_f in dict_old_funcs.items()
+    ]
+    list_left = [str_f for str_f in list_left if str_f]
+    if dict_old_funcs and len(list_left) == len(dict_old_funcs):
         int_n = len(dict_old_funcs)
         return [f"{str_path}: entire test file deleted or moved out of tests/ ({int_n} test(s))"]
-    return []
+    return list_left
 
 
 def collect_problems(list_changed: list, *, str_base: str) -> list:
@@ -1141,7 +1175,13 @@ def collect_problems(list_changed: list, *, str_base: str) -> list:
     dict_added = _added_tests(list_changed, str_base=str_base)
     for str_status, str_src, str_path in list_changed:
         if _test_file_removed(str_status, str_src=str_src, str_path=str_path):
-            list_problems.extend(_removed_findings(str_base, str_path=str_src))
+            list_problems.extend(
+                _removed_findings(
+                    str_base,
+                    str_path=str_src,
+                    dict_moved=_moved_from_elsewhere(dict_added, str_path=str_src),
+                )
+            )
             continue
         if not RE_TEST_PATH.search(str_path):
             continue
