@@ -119,6 +119,30 @@ is_valid_cns("300000000000000")  # False, começa com 3
 
 ---
 
+## Funções de CNH
+
+Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceção para `str`). O número
+de registro da CNH tem 11 dígitos (9 + 2 dígitos verificadores); só esse formato é oficial
+(Resolução CONTRAN 886/2021, art. 4º, I). **A fórmula dos dígitos verificadores não é oficial**: é a
+variante `dsc` reconstruída pela comunidade e pode errar nos dois sentidos (reprovar CNH real,
+aprovar número inventado). Não há `mask_cnh`: a CNH não tem máscara oficial e a estratégia fica para
+a issue #53. A validação é só aritmética local e não confirma que a CNH existe, está vigente ou
+pertence a quem a apresenta (use o serviço "Validar CNH" do SENATRAN).
+
+| Função | Retorno | Comportamento |
+|--------|---------|---------------|
+| `unmask_cnh(str_value)` | `str` | Mantém só dígitos ASCII, descarta a cauda `.0` e completa zeros à esquerda até 11. Entrada sem dígitos devolve `""`. |
+| `is_valid_cnh(str_value)` | `bool` | `True` quando há 11 dígitos não todos iguais e os dois dígitos verificadores fecham na variante `dsc`. |
+
+```python
+from pure_docs_br import is_valid_cnh, unmask_cnh
+
+unmask_cnh("119")  # "00000000119"
+is_valid_cnh("98765432109")  # True
+```
+
+---
+
 ## Funções de placa de veículo
 
 Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceção para `str`). A placa
