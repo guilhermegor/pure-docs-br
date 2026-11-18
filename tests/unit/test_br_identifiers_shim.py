@@ -10,6 +10,14 @@ import pure_docs_br
 from pure_docs_br import br_identifiers
 
 
+STR_IMPORT_PROGRAM: str = (
+    "import warnings; "
+    "warnings.filterwarnings("
+    "'error', category=DeprecationWarning, module=r'pure_docs_br(\\.|$)'); "
+    "import pure_docs_br"
+)
+
+
 def test_br_identifiers_import_warns_deprecation_naming_2_0_0() -> None:
     """Importing the shim emits a ``DeprecationWarning`` that says removal is in 2.0.0."""
     with pytest.warns(DeprecationWarning, match=r"removed in 2\.0\.0"):
@@ -33,15 +41,9 @@ def test_package_attribute_access_lazily_imports_shim_and_warns(
 
 
 def test_package_import_never_touches_the_deprecated_shim() -> None:
-    """``import pure_docs_br`` raises no package-scoped ``DeprecationWarning``."""
+    """``import pure_docs_br`` raises no ``DeprecationWarning`` attributed to the package."""
     cls_result = subprocess.run(  # noqa: S603 - constant argv, no untrusted input
-        [
-            sys.executable,
-            "-W",
-            "error::DeprecationWarning:pure_docs_br",
-            "-c",
-            "import pure_docs_br",
-        ],
+        [sys.executable, "-c", STR_IMPORT_PROGRAM],
         check=False,
     )
     assert cls_result.returncode == 0
