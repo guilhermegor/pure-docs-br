@@ -448,6 +448,27 @@ is_valid_inscricao_estadual("110042490114", str_uf="XX")  # False, UF desconheci
 
 ---
 
+## Registro de documentos
+
+Interface única por documento, para escolher o documento em tempo de execução. `DICT_DOCUMENTS` mapeia o nome do documento (`"cpf"`, `"cnpj"`, `"cnh"`, ...) a um `DocumentStrategy`, uma `NamedTuple` imutável que embrulha as funções públicas do documento sem reimplementar nenhuma regra.
+
+| Atributo | Tipo | Comportamento |
+|----------|------|---------------|
+| `is_valid(str_value)` | `bool` | A função `is_valid_*` do documento. |
+| `mask(str_value)` | `str` | A função `mask_*` do documento. CNH e RENAVAM não têm máscara oficial: devolve os dígitos sem máscara e nunca levanta exceção. |
+| `unmask(str_value)` | `str` | A função `unmask_*` do documento. |
+
+Nomes registrados: `boleto_arrecadacao`, `boleto_cobranca`, `caepf`, `cep`, `certidao_matricula`, `chave_acesso`, `cnh`, `cnpj`, `cns`, `cpf`, `pis_pasep`, `placa`, `processo_cnj`, `renavam` e `titulo_eleitor`. Inscrição Estadual e RG ficam de fora: exigem o argumento `str_uf`, que a interface única não carrega. Um nome fora do registro levanta `KeyError`.
+
+```python
+from purepii_br import DICT_DOCUMENTS
+
+DICT_DOCUMENTS["cpf"].mask("52998224725")  # "529.982.247-25"
+DICT_DOCUMENTS["cnh"].mask("0265.030.6461")  # "02650306461"
+```
+
+---
+
 ## Adicionando novos módulos
 
 Coloque os novos módulos em `src/purepii_br/`. Exporte os símbolos públicos em `src/purepii_br/__init__.py` e liste-os em `__all__`, para que quem usa a biblioteca importe direto da raiz do pacote, como `from purepii_br import mask_cpf`.

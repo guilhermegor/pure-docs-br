@@ -557,3 +557,25 @@ Casos extremos:
 - Variantes: BA (8 ou 9 dígitos, módulo 10 ou 11), PE (9 dígitos e-Fisco, ou 14 da numeração antiga),
   RN (9 ou 10), RO (14, ou 9 da numeração anterior a 2000) e GO (faixa 10103105 a 10119997 e a
   inscrição 11094402).
+
+## Escolher o documento em tempo de execução
+
+Quando a coluna guarda documentos de um tipo só conhecido em tempo de execução, use o registro
+`DICT_DOCUMENTS`: cada nome (`"cpf"`, `"cnpj"`, `"cnh"`, ...) leva a um `DocumentStrategy` com `is_valid`,
+`mask` e `unmask`, que apenas chamam as funções públicas de cada documento.
+
+```python
+from purepii_br import DICT_DOCUMENTS
+
+list_values = ["529.982.247-25", "111.444.777-35"]
+cls_strategy = DICT_DOCUMENTS["cpf"]
+[cls_strategy.is_valid(str_value) for str_value in list_values]  # [True, True]
+DICT_DOCUMENTS["cnh"].mask("0265.030.6461")  # "02650306461"
+```
+
+Casos extremos:
+
+- CNH e RENAVAM não têm máscara oficial: `mask` devolve os dígitos sem máscara e nunca levanta
+  exceção, então um laço sobre todos os documentos não quebra.
+- Um nome fora do registro levanta `KeyError`.
+- Inscrição Estadual e RG não estão no registro: as funções exigem `str_uf`.
