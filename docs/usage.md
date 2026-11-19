@@ -176,7 +176,7 @@ quando a soma ponderada fecha: `is_valid_cns("500000000000002")` devolve `False`
   que aplica a rotina provisória a "números que iniciam com 5, 7, 8 ou 9". Nenhum documento normativo
   sustenta esse prefixo.
 
-**Motivo.** A biblioteca segue a única regra documentada. É também a escolha do
+**Motivo.** A biblioteca segue a única regra com respaldo normativo oficial. É também a escolha do
 [brazilian-utils](https://brazilian-utils.com.br/pt-br/utils/cns), e mantém o comportamento de quem
 usa a 1.4.0 ou posterior.
 
