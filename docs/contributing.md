@@ -145,6 +145,50 @@ No primeiro upload o projeto ainda não existe — registre um **pending publish
 conta (não nas configurações de um projeto existente). Publicar a partir de um notebook, em vez do
 CI, é o único caso que ainda exige um token de API; o OIDC funciona apenas no GitHub Actions.
 
+### Backfill do histórico após uma renomeação
+
+O pacote foi publicado como `pure-docs-br` até a 1.17.0 e passou a se chamar `purepii-br` na
+2.0.0. Para que o histórico 1.x exista também no projeto novo, os dois workflows de release
+aceitam `backfill=true` (o campo `version` é ignorado). Rode primeiro no Test PyPI:
+
+```bash
+gh workflow run release-test-pypi.yaml --ref main -f version=0.0.0 -f backfill=true
+```
+
+Espere o run terminar **com sucesso**. Uma versão que já estava no índice passaria na checagem de
+instalação mesmo com o run falho, então o resultado do run é o que vale:
+
+```bash
+gh run watch --exit-status "$(gh run list --workflow release-test-pypi.yaml --limit 1 --json databaseId --jq '.[0].databaseId')"
+```
+
+Com o run verde, confira uma versão antiga instalada do Test PyPI num ambiente limpo:
+
+```bash
+pip install --index-url https://test.pypi.org/simple/ "purepii-br==1.17.0"
+python -c "import pure_docs_br; print(pure_docs_br.__version__)"   # 1.17.0
+```
+
+Só então rode no PyPI e espere o run terminar com sucesso do mesmo jeito:
+
+```bash
+gh workflow run release-pypi.yaml --ref main -f version=0.0.0 -f backfill=true
+```
+
+O backfill pula os jobs normais e reconstrói só as tags estáveis `vX.Y.Z` cujo `pyproject.toml`
+ainda traz `name = "pure-docs-br"` (hoje, da 1.0.0 à 1.17.0). Uma tag 2.x, já publicada como
+`purepii-br`, é ignorada, então rodar o backfill de novo nunca a republica. Cada tag é refeita
+trocando só o nome da distribuição (o `name` do `pyproject.toml` e o nome entre aspas passado a
+`importlib.metadata.version`) e envia com `skip-existing`. Cada versão antiga mantém o código e o
+nome de import originais (`import pure_docs_br`). O nome antigo fica escrito literalmente no
+workflow (`old="pure-docs-br"`) porque as tags históricas ainda o carregam. Cada tag é
+construída numa pasta própria e só entra em `dist/` se o build inteiro der certo, então uma tag que
+falha não deixa um sdist órfão para ser publicado.
+
+**Tudo ou nada:** se alguma tag não compilar, o job de build falha, lista as tags no erro e nada é
+publicado. Corrija a causa e rode o backfill de novo: ele reconstrói todas as tags e, com
+`skip-existing`, envia só as versões que faltam.
+
 ### Publicando a documentação — primeiro release
 
 A primeira execução de `release-pypi.yaml` cria a branch `gh-pages` com `mike deploy`.
