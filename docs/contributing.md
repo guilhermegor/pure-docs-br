@@ -155,14 +155,21 @@ aceitam `backfill=true` (o campo `version` é ignorado). Rode primeiro no Test P
 gh workflow run release-test-pypi.yaml --ref main -f version=0.0.0 -f backfill=true
 ```
 
-Quando o run terminar, confira uma versão antiga instalada do Test PyPI num ambiente limpo:
+Espere o run terminar **com sucesso**. Uma versão que já estava no índice passaria na checagem de
+instalação mesmo com o run falho, então o resultado do run é o que vale:
+
+```bash
+gh run watch --exit-status "$(gh run list --workflow release-test-pypi.yaml --limit 1 --json databaseId --jq '.[0].databaseId')"
+```
+
+Com o run verde, confira uma versão antiga instalada do Test PyPI num ambiente limpo:
 
 ```bash
 pip install --index-url https://test.pypi.org/simple/ "purepii-br==1.17.0"
 python -c "import pure_docs_br; print(pure_docs_br.__version__)"   # 1.17.0
 ```
 
-Só então rode no PyPI:
+Só então rode no PyPI e espere o run terminar com sucesso do mesmo jeito:
 
 ```bash
 gh workflow run release-pypi.yaml --ref main -f version=0.0.0 -f backfill=true
@@ -175,6 +182,10 @@ nome de import originais (`import pure_docs_br`). O nome antigo fica escrito lit
 workflow (`old="pure-docs-br"`) porque as tags históricas ainda o carregam. Cada tag é
 construída numa pasta própria e só entra em `dist/` se o build inteiro der certo, então uma tag que
 falha não deixa um sdist órfão para ser publicado.
+
+**Tudo ou nada:** se alguma tag não compilar, o job de build falha, lista as tags no erro e nada é
+publicado. Corrija a causa e rode o backfill de novo: ele reconstrói todas as tags e, com
+`skip-existing`, envia só as versões que faltam.
 
 ### Publicando a documentação — primeiro release
 
