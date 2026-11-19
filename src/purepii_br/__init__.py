@@ -33,6 +33,7 @@ from .cnh import is_valid_cnh, mask_cnh, unmask_cnh
 from .cnpj import is_valid_cnpj, mask_cnpj, unmask_cnpj
 from .cns import is_valid_cns, mask_cns, unmask_cns
 from .cpf import is_valid_cpf, mask_cpf, unmask_cpf
+from .documents import DICT_DOCUMENTS, DocumentStrategy
 from .inscricao_estadual import (
     is_valid_inscricao_estadual,
     mask_inscricao_estadual,
@@ -58,6 +59,8 @@ except PackageNotFoundError:  # pragma: no cover - source tree without an instal
 
 __all__ = [
     "__version__",
+    "DICT_DOCUMENTS",
+    "DocumentStrategy",
     "is_valid_boleto_arrecadacao",
     "is_valid_boleto_cobranca",
     "is_valid_caepf",
