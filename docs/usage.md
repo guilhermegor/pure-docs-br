@@ -159,6 +159,35 @@ começam com `0`, `3`, `4`, `5` ou `6` são inválidos. `mask_cns` devolve o val
 tamanho não fecha em 15 dígitos. A rotina vem de fontes públicas que citam o DATASUS, não do texto
 oficial.
 
+### Por que um CNS iniciado em 5 é rejeitado
+
+A biblioteca aceita só cinco prefixos: `1` e `2` (definitivos, com a regra baseada no PIS) e `7`, `8`
+e `9` (provisórios, soma ponderada divisível por 11). Um número que começa com `5` é rejeitado mesmo
+quando a soma ponderada fecha: `is_valid_cns("500000000000002")` devolve `False`, embora a soma seja
+77 (7 × 11). A rejeição é uma decisão, não um descuido, porque as fontes discordam:
+
+- **Só os cinco prefixos:** as rotinas de validação do DATASUS, publicadas no antigo site do Cartão
+  Nacional de Saúde
+  ([cópia no Wayback Machine](https://web.archive.org/web/20190106003442/http://cartaonet.datasus.gov.br/Rotina_JavaScript.doc)),
+  e a [página de validação do CNS da ANVISA](https://rni-docs.anvisa.gov.br/docs/regras_gerais/validacoes/validacaoCNS/),
+  que traz uma rotina para cartões iniciados em `1` ou `2` e outra para `7`, `8` ou `9`.
+- **Também o `5`:** só a página
+  [Validar CNS do e-SUS APS](https://integracao.esusab.ufsc.br/ledi/documentacao/regras/algoritmo_CNS.html),
+  que aplica a rotina provisória a "números que iniciam com 5, 7, 8 ou 9". Nenhum documento normativo
+  sustenta esse prefixo.
+
+**Motivo.** A biblioteca segue a única regra publicada pelo DATASUS e pela ANVISA. É também a escolha do
+[brazilian-utils](https://brazilian-utils.com.br/pt-br/utils/cns), e mantém o comportamento de quem
+usa a 1.4.0 ou posterior.
+
+**Custo conhecido.** Se o e-SUS de fato emitir cartões iniciados em `5`, a biblioteca dá falso
+negativo para eles. Quem usa `is_valid_cns` para recusar um cadastro deve levar isso em conta.
+
+**O que reabre a decisão.** Um CNS real iniciado em `5` que o sistema do SUS aceite, ou um documento
+oficial normativo que descreva o prefixo. Abra uma issue com a evidência, mas **nunca publique um CNS
+real**: ele identifica uma pessoa no SUS. Informe onde o cartão foi emitido, qual sistema o aceitou e
+só o prefixo, com o restante mascarado (`5XX XXXX XXXX XXXX`).
+
 ## CNH
 
 O número de registro da CNH (Carteira Nacional de Habilitação) tem 11 dígitos: 9 da base e 2 dígitos
