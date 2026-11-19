@@ -13,10 +13,7 @@ from pure_docs_br import br_identifiers
 
 
 STR_IMPORT_PROGRAM: str = (
-    "import warnings; "
-    "warnings.filterwarnings("
-    "'error', message='pure_docs_br.br_identifiers is deprecated', category=DeprecationWarning); "
-    "import pure_docs_br"
+    "import sys, pure_docs_br; sys.exit('pure_docs_br.br_identifiers' in sys.modules)"
 )
 LIST_SHIM_PROGRAMS: list[str] = [
     "import pure_docs_br; pure_docs_br.br_identifiers",
@@ -33,6 +30,7 @@ def _run_child(str_program: str) -> subprocess.CompletedProcess[str]:
     )
     dict_env = {**os.environ, "PYTHONPATH": str_pythonpath}
     dict_env.pop("PYTHONWARNINGS", None)
+    dict_env.pop("PYTHONDEVMODE", None)
     return subprocess.run(  # noqa: S603 - constant argv, no untrusted input
         [sys.executable, "-c", str_program],
         check=False,
@@ -72,6 +70,8 @@ def test_package_import_never_touches_the_deprecated_shim() -> None:
 
 @pytest.mark.parametrize("str_program", LIST_SHIM_PROGRAMS)
 def test_shim_warning_is_shown_under_default_filters(str_program: str) -> None:
-    """Every route to the shim shows its warning without ``-W``: it is attributed to the caller."""
+    """A ``__main__`` importer sees the warning without ``-W``: it is attributed to the caller."""
     cls_result = _run_child(str_program)
-    assert "<string>:1: DeprecationWarning: pure_docs_br.br_identifiers" in cls_result.stderr
+    assert "<string>:1: DeprecationWarning: pure_docs_br.br_identifiers" in cls_result.stderr, (
+        f"exit {cls_result.returncode}: {cls_result.stderr}"
+    )
