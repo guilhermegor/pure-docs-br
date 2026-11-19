@@ -1,7 +1,7 @@
 """Brazilian CNJ unified case number (número único de processo) helpers.
 
 Pure, stateless functions with the same bad-input contract as
-:mod:`pure_docs_br`: a non-``str`` raises ``TypeError`` from the runtime
+:mod:`purepii_br`: a non-``str`` raises ``TypeError`` from the runtime
 type checker, a ``str`` never raises. The number has 20 ASCII digits, written
 ``NNNNNNN-DD.AAAA.J.TR.OOOO`` (CNJ Resolution 65/2008, art. 1): sequence, check digits,
 filing year, justice segment, court, origin unit. The check digits follow ISO 7064 mod
@@ -17,8 +17,8 @@ from __future__ import annotations
 
 import re
 
-from pure_docs_br._internal.utils.float_artifact import _strip_float_artifact
-from pure_docs_br._internal.utils.typing import type_checker
+from purepii_br._internal.utils.float_artifact import _strip_float_artifact
+from purepii_br._internal.utils.typing import type_checker
 
 
 _LEN_PROCESSO: int = 20

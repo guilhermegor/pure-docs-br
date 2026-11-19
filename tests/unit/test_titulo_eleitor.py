@@ -2,7 +2,7 @@
 
 import pytest
 
-from pure_docs_br import (
+from purepii_br import (
     is_valid_titulo_eleitor,
     mask_titulo_eleitor,
     unmask_titulo_eleitor,

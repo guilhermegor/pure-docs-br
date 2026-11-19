@@ -2,8 +2,8 @@
 
 import pytest
 
-from pure_docs_br import is_valid_caepf, mask_caepf, unmask_caepf
-from pure_docs_br.caepf import _compute_dvs
+from purepii_br import is_valid_caepf, mask_caepf, unmask_caepf
+from purepii_br.caepf import _compute_dvs
 
 
 LIST_VALID: list[str] = [

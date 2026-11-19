@@ -10,7 +10,7 @@ entradas específicas do projeto conforme elas surgirem nas issues.
 ## Como instalo?
 
 ```bash
-pip install pure-docs-br
+pip install purepii-br
 ```
 
 A biblioteca não tem extras nem dependências de execução.

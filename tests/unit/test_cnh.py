@@ -2,7 +2,7 @@
 
 import pytest
 
-from pure_docs_br import is_valid_cnh, mask_cnh, unmask_cnh
+from purepii_br import is_valid_cnh, mask_cnh, unmask_cnh
 
 
 LIST_VALID: list[str] = [

@@ -8,9 +8,7 @@ Interface pública desta biblioteca.
 
 ## Funções de CPF e CNPJ
 
-> **Descontinuado:** `pure_docs_br.br_identifiers` emite `DeprecationWarning` e será removido na 2.0.0. Importe da raiz (`from pure_docs_br import is_valid_cpf`) ou de `pure_docs_br.cpf` / `pure_docs_br.cnpj`.
-
-Funções puras, importadas da raiz do pacote (`from pure_docs_br import ...`). Todas recebem `str`; um valor que
+Funções puras, importadas da raiz do pacote (`from purepii_br import ...`). Todas recebem `str`; um valor que
 não seja `str` (`None`, `float`, `NaN`) lança `TypeError`. Dado um `str`, nenhuma lança exceção por causa do valor; as únicas exceções são a UF de `is_valid_rg`
 (`NotImplementedError` para UF sem regra com fonte, `ValueError` para UF desconhecida) e o `ValueError`
 de `mask_cnh` e `mask_renavam` para um `str_pattern` inválido (sem exatamente 11 `N`).
@@ -29,7 +27,7 @@ como número. Assim `is_valid_cpf("191")` é `True` (`"191"` vira `00000000191`)
 | `is_valid_cnpj(str_value)` | `bool` | Confere os dois dígitos verificadores, numéricos ou alfanuméricos (valor de cada caractere igual ao código ASCII menos 48, módulo 11); rejeita CNPJ numérico de dígitos repetidos. |
 
 ```python
-from pure_docs_br import is_valid_cnpj, mask_cnpj
+from purepii_br import is_valid_cnpj, mask_cnpj
 
 mask_cnpj("12ABC34501DE35")  # "12.ABC.345/01DE-35"
 is_valid_cnpj("12ABC34501DE35")  # True
@@ -50,7 +48,7 @@ Correios**, então não confirma que o CEP existe. `00000-000` passa na checagem
 | `is_valid_cep(str_value)` | `bool` | `True` quando o valor sem máscara tem 8 dígitos. Entrada de 7 dígitos é válida (zero à esquerda restaurado). |
 
 ```python
-from pure_docs_br import is_valid_cep, mask_cep
+from purepii_br import is_valid_cep, mask_cep
 
 mask_cep("01001010")  # "01001-010"
 is_valid_cep("123456789")  # False, 9 dígitos
@@ -71,7 +69,7 @@ não confirma que o título foi emitido.
 | `is_valid_titulo_eleitor(str_value)` | `bool` | `True` quando há 12 dígitos, UF de `01` a `28` e os dois dígitos verificadores batem. 13 dígitos é `False`. |
 
 ```python
-from pure_docs_br import is_valid_titulo_eleitor, mask_titulo_eleitor
+from purepii_br import is_valid_titulo_eleitor, mask_titulo_eleitor
 
 mask_titulo_eleitor("004356870906")  # "0043 5687 0906"
 is_valid_titulo_eleitor("123456782996")  # False, UF 29 não existe
@@ -92,7 +90,7 @@ Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceç�
 | `is_valid_pis_pasep(str_value)` | `bool` | `True` quando há 11 dígitos, não é um único dígito repetido e o dígito verificador bate. |
 
 ```python
-from pure_docs_br import is_valid_pis_pasep, mask_pis_pasep
+from purepii_br import is_valid_pis_pasep, mask_pis_pasep
 
 mask_pis_pasep("12345678900")  # "123.45678.90-0"
 is_valid_pis_pasep("11111111111")  # False, dígito repetido
@@ -117,7 +115,7 @@ confirma que o cartão foi emitido.
 | `is_valid_cns(str_value)` | `bool` | `True` quando há 15 dígitos e a regra do tipo fecha: dígito verificador e sufixo (definitivo) ou soma ponderada divisível por 11 (provisório). |
 
 ```python
-from pure_docs_br import is_valid_cns, mask_cns
+from purepii_br import is_valid_cns, mask_cns
 
 mask_cns("100000000010002")  # "100 0000 0001 0002"
 is_valid_cns("300000000000000")  # False, começa com 3
@@ -141,7 +139,7 @@ pertence a quem a apresenta (use o serviço "Validar CNH" do SENATRAN).
 | `is_valid_cnh(str_value)` | `bool` | `True` quando há 11 dígitos não todos iguais e os dois dígitos verificadores fecham na variante `dsc`. |
 
 ```python
-from pure_docs_br import is_valid_cnh, mask_cnh, unmask_cnh
+from purepii_br import is_valid_cnh, mask_cnh, unmask_cnh
 
 unmask_cnh("119")  # "00000000119"
 mask_cnh("02650306461", str_pattern="NNN NNNN NNNN")  # "026 5030 6461"
@@ -168,7 +166,7 @@ quem o informa nem que a placa corresponde (use o serviço do SENATRAN/DETRAN).
 | `is_valid_renavam(str_value)` | `bool` | `True` quando há 9 ou 11 dígitos, a forma de 11 não é toda igual e o dígito verificador fecha. |
 
 ```python
-from pure_docs_br import is_valid_renavam, mask_renavam, unmask_renavam
+from purepii_br import is_valid_renavam, mask_renavam, unmask_renavam
 
 unmask_renavam("1234567897.0")  # "01234567897"
 mask_renavam("22500062413", str_pattern="NNNNNNNNNN-N")  # "2250006241-3"
@@ -201,7 +199,7 @@ a estratégia de máscara fica para a issue #53.
 | `is_valid_cin(str_value)` | `bool` | O número da CIN é o CPF (Lei 14.534/2023): reusa `is_valid_cpf`, sem relação com o RG. |
 
 ```python
-from pure_docs_br import is_valid_cin, is_valid_rg, unmask_rg
+from purepii_br import is_valid_cin, is_valid_rg, unmask_rg
 
 unmask_rg("10.000.006-x")  # "10000006X"
 is_valid_rg("12.030.001-1", str_uf="SP")  # True
@@ -228,7 +226,7 @@ titular (use o e-CAC).
 | `is_valid_caepf(str_value)` | `bool` | `True` quando, completado com zeros à esquerda até 14, há 14 dígitos, a base de CPF não é toda igual, o sequencial não é `000` e os dígitos verificadores fecham. |
 
 ```python
-from pure_docs_br import is_valid_caepf, mask_caepf, unmask_caepf
+from purepii_br import is_valid_caepf, mask_caepf, unmask_caepf
 
 mask_caepf("11144477700154")  # "111.444.777/001-54"
 unmask_caepf("11144477700154.0")  # "11144477700154"
@@ -253,7 +251,7 @@ certidão ou o cartório existem; se o CNJ mudar a regra, a lib não percebe.
 | `is_valid_certidao_matricula(str_value)` | `bool` | `True` com 32 posições, dígitos não todos iguais, CNS aprovado em Luhn, acervo `01`-`99`, serviço `55`, ano de `1800` ao ano corrente, tipo do livro `1`-`9` e dígitos verificadores corretos (ou `xx`). |
 
 ```python
-from pure_docs_br import (
+from purepii_br import (
     is_valid_certidao_matricula,
     mask_certidao_matricula,
     unmask_certidao_matricula,
@@ -285,7 +283,7 @@ cobertas. `is_valid_placa` não confirma que a placa foi emitida.
 | `is_valid_placa(str_value)` | `bool` | `True` quando o valor sem máscara é `LLLNNNN` ou `LLLNLNN`. |
 
 ```python
-from pure_docs_br import is_valid_placa, mask_placa
+from purepii_br import is_valid_placa, mask_placa
 
 mask_placa("abc1234")  # "ABC-1234"
 is_valid_placa("ABC12D4")  # False, o 5º caractere deve ser letra no Mercosul
@@ -308,7 +306,7 @@ não confirma que o processo existe.
 | `is_valid_processo_cnj(str_value)` | `bool` | `True` quando há 20 dígitos, `DD` entre 02 e 98 e o resto módulo 97 é 1. |
 
 ```python
-from pure_docs_br import is_valid_processo_cnj, mask_processo_cnj
+from purepii_br import is_valid_processo_cnj, mask_processo_cnj
 
 mask_processo_cnj("00000018420208260001")  # "0000001-84.2020.8.26.0001"
 is_valid_processo_cnj("0000001-85.2020.8.26.0001")  # False, o DD correto é 84
@@ -331,7 +329,7 @@ validar o CNPJ embutido, a `cUF` e o `mod`.
 | `is_valid_chave_acesso(str_value)` | `bool` | `True` quando o formato fecha e o último caractere é o DV dos 43 primeiros. |
 
 ```python
-from pure_docs_br import is_valid_chave_acesso
+from purepii_br import is_valid_chave_acesso
 
 is_valid_chave_acesso("NFe35231111222333000181550010000000011123456789")  # True
 is_valid_chave_acesso("35231111222333000181550010000000011123456780")  # False, o DV correto é 9
@@ -355,7 +353,7 @@ fator de vencimento, valor, existência do banco e conversão de linha em códig
 | `is_valid_boleto_cobranca(str_value)` | `bool` | `True` quando há 44 dígitos com DV geral correto, ou 47 com os três DV de campo e o DV geral corretos. |
 
 ```python
-from pure_docs_br import is_valid_boleto_cobranca, mask_boleto_cobranca
+from purepii_br import is_valid_boleto_cobranca, mask_boleto_cobranca
 
 mask_boleto_cobranca(
     "00190000090000000000000000000018199990000012345"
@@ -383,7 +381,7 @@ módulo 10, `8` ou `9` módulo 11; qualquer outro valor é inválido. No módulo
 | `is_valid_boleto_arrecadacao(str_value)` | `bool` | `True` quando há 44 dígitos começando em 8 com DV geral correto, ou 48 com os quatro DV de bloco corretos e o código de barras reconstruído válido. |
 
 ```python
-from pure_docs_br import is_valid_boleto_arrecadacao, mask_boleto_arrecadacao
+from purepii_br import is_valid_boleto_arrecadacao, mask_boleto_arrecadacao
 
 mask_boleto_arrecadacao(
     "816800000019234500000000000000000000000000000000"
@@ -442,7 +440,7 @@ UFs suportadas (`#` é um dígito):
 | TO | 11 | `##.##.######-#` |
 
 ```python
-from pure_docs_br import is_valid_inscricao_estadual, mask_inscricao_estadual
+from purepii_br import is_valid_inscricao_estadual, mask_inscricao_estadual
 
 mask_inscricao_estadual("109876547", str_uf="GO")  # "10.987.654-7"
 is_valid_inscricao_estadual("110042490114", str_uf="XX")  # False, UF desconhecida
@@ -452,7 +450,7 @@ is_valid_inscricao_estadual("110042490114", str_uf="XX")  # False, UF desconheci
 
 ## Adicionando novos módulos
 
-Coloque os novos módulos em `src/pure_docs_br/`. Exporte os símbolos públicos em `src/pure_docs_br/__init__.py` e liste-os em `__all__`, para que quem usa a biblioteca importe direto da raiz do pacote, como `from pure_docs_br import mask_cpf`.
+Coloque os novos módulos em `src/purepii_br/`. Exporte os símbolos públicos em `src/purepii_br/__init__.py` e liste-os em `__all__`, para que quem usa a biblioteca importe direto da raiz do pacote, como `from purepii_br import mask_cpf`.
 
 Siga a convenção de uma classe por arquivo: funções utilitárias sem estado compartilhado ficam no nível do módulo, e não dentro de uma classe.
 

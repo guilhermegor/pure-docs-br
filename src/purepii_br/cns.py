@@ -1,7 +1,7 @@
 """Brazilian CNS (Cartão Nacional de Saúde) helpers — mask, unmask and validate.
 
 Pure, stateless functions with the same bad-input contract as
-:mod:`pure_docs_br`: a non-``str`` raises ``TypeError`` from the runtime
+:mod:`purepii_br`: a non-``str`` raises ``TypeError`` from the runtime
 type checker, a ``str`` never raises. The CNS has 15 ASCII digits and the first one sets
 the kind. ``1``/``2`` are definitive: the number is ``PIS(11) + suffix(3) + dv(1)``, with
 ``dv = 11 - (sum(d[i] * (15 - i), i=0..10) % 11)`` (11 becomes 0); a ``dv`` of 10 adds 2 to
@@ -24,8 +24,8 @@ from __future__ import annotations
 from collections.abc import Callable
 import re
 
-from pure_docs_br._internal.utils.float_artifact import _strip_float_artifact
-from pure_docs_br._internal.utils.typing import type_checker
+from purepii_br._internal.utils.float_artifact import _strip_float_artifact
+from purepii_br._internal.utils.typing import type_checker
 
 
 _LEN_CNS: int = 15

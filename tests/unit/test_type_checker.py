@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from pure_docs_br import mask_cpf, unmask_cnpj
-from pure_docs_br._internal.utils.typing import type_checker
+from purepii_br import mask_cpf, unmask_cnpj
+from purepii_br._internal.utils.typing import type_checker
 
 
 if TYPE_CHECKING:
@@ -124,7 +124,7 @@ def _probe_plain(int_value: int) -> int:
 
 def test_type_checker_resolves_hints_once_per_function(monkeypatch: pytest.MonkeyPatch) -> None:
     """Hints are resolved on the first call only, then reused from the cache."""
-    cls_module = importlib.import_module("pure_docs_br._internal.utils.typing.type_checker")
+    cls_module = importlib.import_module("purepii_br._internal.utils.typing.type_checker")
     fn_real = cls_module._resolve_hints
     list_calls: list[object] = []
     monkeypatch.setattr(

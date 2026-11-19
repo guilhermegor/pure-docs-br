@@ -1,7 +1,7 @@
 """Brazilian state registration (Inscricao Estadual, IE) helpers for all 27 UFs.
 
 Pure, stateless functions with the same bad-input contract as
-:mod:`pure_docs_br`: a non-``str`` raises ``TypeError`` from the runtime
+:mod:`purepii_br`: a non-``str`` raises ``TypeError`` from the runtime
 type checker, a ``str`` never raises. The IE does not carry its UF, so every validating
 or masking call takes ``str_uf`` as a keyword-only argument. Each UF has its own length,
 weights and check-digit rule; the dispatch table below is the single declaration of the
@@ -50,8 +50,8 @@ from functools import partial
 import re
 from typing import NamedTuple
 
-from pure_docs_br._internal.utils.float_artifact import _strip_float_artifact
-from pure_docs_br._internal.utils.typing import type_checker
+from purepii_br._internal.utils.float_artifact import _strip_float_artifact
+from purepii_br._internal.utils.typing import type_checker
 
 
 _INT_MOD_11: int = 11

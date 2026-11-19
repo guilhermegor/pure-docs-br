@@ -2,7 +2,7 @@
 
 import pytest
 
-from pure_docs_br import is_valid_placa, mask_placa, unmask_placa
+from purepii_br import is_valid_placa, mask_placa, unmask_placa
 
 
 @pytest.mark.parametrize("str_value", ["ABC1234", "abc-1234", "ABC1D23", "BRA2E19"])

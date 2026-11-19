@@ -1,7 +1,7 @@
 """Brazilian electronic fiscal document access key (chave de acesso) helpers.
 
 Pure, stateless functions with the same bad-input contract as
-:mod:`pure_docs_br`: a non-``str`` raises ``TypeError`` from the runtime
+:mod:`purepii_br`: a non-``str`` raises ``TypeError`` from the runtime
 type checker, a ``str`` never raises. The key has 44 characters shared by NF-e, NFC-e, CT-e
 and MDF-e: ``cUF`` (2) + ``AAMM`` (4) + issuer CNPJ (14) + ``mod`` (2) + series (3) +
 number (9) + ``tpEmis`` (1) + ``cNF`` (8) + ``cDV`` (1) (MOC 7.0, item 2.2.6.2).
@@ -19,8 +19,8 @@ from __future__ import annotations
 
 import re
 
-from pure_docs_br._internal.utils.float_artifact import _strip_float_artifact
-from pure_docs_br._internal.utils.typing import type_checker
+from purepii_br._internal.utils.float_artifact import _strip_float_artifact
+from purepii_br._internal.utils.typing import type_checker
 
 
 _LEN_CHAVE: int = 44

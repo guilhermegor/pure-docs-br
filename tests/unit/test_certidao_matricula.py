@@ -2,13 +2,13 @@
 
 import pytest
 
-from pure_docs_br import (
+from purepii_br import (
     certidao_matricula,
     is_valid_certidao_matricula,
     mask_certidao_matricula,
     unmask_certidao_matricula,
 )
-from pure_docs_br.certidao_matricula import (
+from purepii_br.certidao_matricula import (
     _TUPLE_WEIGHTS_DV1 as _W1,
     _TUPLE_WEIGHTS_DV2 as _W2,
     _compute_dvs,

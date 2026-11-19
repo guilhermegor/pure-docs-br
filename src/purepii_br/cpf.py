@@ -1,6 +1,6 @@
 """CPF helpers — mask, unmask and validate.
 
-Pure, stateless functions with the bad-input contract documented in :mod:`pure_docs_br`.
+Pure, stateless functions with the bad-input contract documented in :mod:`purepii_br`.
 ``unmask_cpf`` strips punctuation and the spurious ``".0"`` left by a float→str coercion.
 Short numeric values are zero-padded before validation, on purpose, to recover identifiers
 stored as numbers that lost leading zeros: ``is_valid_cpf("191")`` is ``True`` (it becomes
@@ -11,8 +11,8 @@ from __future__ import annotations
 
 import re
 
-from pure_docs_br._internal.utils.float_artifact import _strip_float_artifact
-from pure_docs_br._internal.utils.typing import type_checker
+from purepii_br._internal.utils.float_artifact import _strip_float_artifact
+from purepii_br._internal.utils.typing import type_checker
 
 
 _INT_MODULUS = 11

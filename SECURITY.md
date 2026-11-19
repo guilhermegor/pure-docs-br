@@ -23,7 +23,7 @@ problem to everyone, including people who would exploit it, before a fix exists.
 
 Instead, report it privately through GitHub:
 
-1. Go to the **Security** tab of [pure-docs-br](https://github.com/guilhermegor/pure-docs-br).
+1. Go to the **Security** tab of [purepii-br](https://github.com/guilhermegor/purepii-br).
 2. Choose **Report a vulnerability** (GitHub private vulnerability reporting).
 3. Describe the issue, the affected version(s), and — if you can — a minimal reproduction.
 
@@ -51,7 +51,8 @@ Consumers pinned to an older line should upgrade to pick up a fix.
 
 | Version | Supported |
 |---------|-----------|
-| 1.x     | ✅        |
+| 2.x     | ✅        |
+| 1.x     | ❌ (published as `pure-docs-br`; upgrade to `purepii-br` 2.x) |
 | < 1.0   | ❌        |
 
 ## Scope

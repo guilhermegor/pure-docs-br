@@ -1,24 +1,24 @@
 <!-- readme-archetype: library -->
-# pure-docs-br
+# purepii-br
 
-<p align="center"><img src="https://raw.githubusercontent.com/guilhermegor/pure-docs-br/main/assets/logo.png" width="200" alt="pure-docs-br logo"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/guilhermegor/purepii-br/main/assets/logo.png" width="200" alt="purepii-br logo"></p>
 
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 ![Python Version](https://img.shields.io/badge/python-3.11%2B-blue.svg)
-[![PyPI](https://img.shields.io/pypi/v/pure-docs-br.svg)](https://pypi.org/project/pure-docs-br/)
-[![Downloads](https://img.shields.io/pepy/dt/pure-docs-br)](https://pepy.tech/projects/pure-docs-br)
-[![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://guilhermegor.github.io/pure-docs-br/)
+[![PyPI](https://img.shields.io/pypi/v/purepii-br.svg)](https://pypi.org/project/purepii-br/)
+[![Downloads](https://img.shields.io/pepy/dt/purepii-br)](https://pepy.tech/projects/purepii-br)
+[![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://guilhermegor.github.io/purepii-br/)
 [![Linting](https://img.shields.io/badge/linting-ruff_%7C_codespell-blue)](https://github.com/astral-sh/ruff)
 [![Mypy](https://img.shields.io/badge/type--checked-mypy-blue)](https://mypy-lang.org)
-![Test Coverage](https://raw.githubusercontent.com/guilhermegor/pure-docs-br/badges/coverage.svg)
+![Test Coverage](https://raw.githubusercontent.com/guilhermegor/purepii-br/badges/coverage.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
-![Open Issues](https://img.shields.io/github/issues/guilhermegor/pure-docs-br)
+![Open Issues](https://img.shields.io/github/issues/guilhermegor/purepii-br)
 ![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-darkgreen.svg)
 
 <!-- slug: overview -->
 ## Visão geral
 
-Valida, aplica e remove a máscara dos documentos do Brasil
+Valida e formata identificadores brasileiros (CPF, CNPJ, CEP, CNH, placa, chave de acesso da NF-e e outros). "Máscara" aqui é formatação (`123.456.789-09`), não anonimização: o pacote não oculta nem redige dados pessoais (LGPD).
 
 <!-- optional section: delete it when the project has no feature list -->
 <!-- slug: features -->
@@ -40,7 +40,7 @@ Valida, aplica e remove a máscara dos documentos do Brasil
 <!-- slug: documentation -->
 ## Documentação
 
-O site de documentação fica em https://guilhermegor.github.io/pure-docs-br/. Para servi-lo localmente, rode `poetry run poe docs_serve`.
+O site de documentação fica em https://guilhermegor.github.io/purepii-br/. Para servi-lo localmente, rode `poetry run poe docs_serve`.
 
 <!-- slug: getting-started -->
 ## Primeiros passos
@@ -51,8 +51,8 @@ O Python 3.11+ é o único pré-requisito; o `bin/venv.sh` instala o [Poetry](ht
 ### Instalação
 
 ```bash
-git clone https://github.com/guilhermegor/pure-docs-br.git
-cd pure-docs-br
+git clone https://github.com/guilhermegor/purepii-br.git
+cd purepii-br
 bash bin/venv.sh
 poetry run poe init
 ```
@@ -66,13 +66,13 @@ encontra o `poe` do venv sozinho.
 ### Uso
 
 ```bash
-pip install pure-docs-br
+pip install purepii-br
 ```
 
 Toda função recebe e devolve `str` (ou `bool`) e aceita o documento com ou sem máscara.
 
 ```python
-from pure_docs_br import (
+from purepii_br import (
     is_valid_boleto_arrecadacao,
     is_valid_boleto_cobranca,
     is_valid_caepf,
@@ -240,12 +240,12 @@ O dígito verificador do CNPJ segue o cálculo de módulo 11 do
 ## Estrutura do projeto
 
 ```text
-pure-docs-br/
+purepii-br/
 ├── .github/        workflows, CODEOWNERS e template de PR
 ├── .specs/         specs de funcionalidades e trackers de backlog
 ├── bin/            scripts de gate e utilitários
 ├── docs/           documentação publicada
-├── src/            o pacote `pure_docs_br`
+├── src/            o pacote `purepii_br`
 ├── tests/
 │   ├── unit/
 │   └── integration/
@@ -295,7 +295,7 @@ A superfície pública é o que o `__init__.py` do pacote lista em `__all__`:
 A partir da 1.0.0 vale o semver completo. Dentro da 1.x, esses nomes continuam importáveis da raiz
 do pacote com a mesma assinatura e o mesmo comportamento documentado: remover ou alterar um deles
 exige uma 2.0. Uma versão MINOR só acrescenta, e uma PATCH só corrige defeitos. Tudo sob
-`pure_docs_br._internal` é privado e fica fora da garantia.
+`purepii_br._internal` é privado e fica fora da garantia.
 
 <!-- slug: publishing -->
 ## Publicação
@@ -323,9 +323,9 @@ Este projeto é licenciado sob MIT; veja [LICENSE](LICENSE).
 <!-- slug: useful-links -->
 ## Links úteis
 
-- [Repositório no GitHub](https://github.com/guilhermegor/pure-docs-br)
-- [Issue Tracker](https://github.com/guilhermegor/pure-docs-br/issues)
-- [Documentação](https://guilhermegor.github.io/pure-docs-br/)
+- [Repositório no GitHub](https://github.com/guilhermegor/purepii-br)
+- [Issue Tracker](https://github.com/guilhermegor/purepii-br/issues)
+- [Documentação](https://guilhermegor.github.io/purepii-br/)
 
 ---
 

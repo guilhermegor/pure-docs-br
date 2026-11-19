@@ -2,12 +2,12 @@
 
 import pytest
 
-from pure_docs_br import (
+from purepii_br import (
     is_valid_inscricao_estadual,
     mask_inscricao_estadual,
     unmask_inscricao_estadual,
 )
-from pure_docs_br.inscricao_estadual import _DICT_MASKS, _DICT_VALIDATORS
+from purepii_br.inscricao_estadual import _DICT_MASKS, _DICT_VALIDATORS
 
 
 _DICT_VALID: dict[str, tuple[str, ...]] = {

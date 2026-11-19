@@ -2,7 +2,7 @@
 
 import pytest
 
-from pure_docs_br import is_valid_chave_acesso, mask_chave_acesso, unmask_chave_acesso
+from purepii_br import is_valid_chave_acesso, mask_chave_acesso, unmask_chave_acesso
 
 
 _NFE = "35231111222333000181550010000000011123456789"

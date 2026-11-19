@@ -1,6 +1,6 @@
 """CNPJ helpers — mask, unmask and validate, legacy numeric and 2026 alphanumeric.
 
-Pure, stateless functions with the bad-input contract documented in :mod:`pure_docs_br`.
+Pure, stateless functions with the bad-input contract documented in :mod:`purepii_br`.
 ``unmask_cnpj`` strips punctuation and the spurious ``".0"`` left by a float→str coercion,
 keeps ``A-Z``/``0-9`` and only zero-pads when the value is purely numeric. ``is_valid_cnpj``
 returns ``bool`` on any ``str``. Short numeric values are zero-padded before validation, on
@@ -14,8 +14,8 @@ from __future__ import annotations
 
 import re
 
-from pure_docs_br._internal.utils.float_artifact import _strip_float_artifact
-from pure_docs_br._internal.utils.typing import type_checker
+from purepii_br._internal.utils.float_artifact import _strip_float_artifact
+from purepii_br._internal.utils.typing import type_checker
 
 
 _INT_MODULUS = 11

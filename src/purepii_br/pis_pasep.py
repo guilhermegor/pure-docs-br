@@ -1,7 +1,7 @@
 """Brazilian PIS/PASEP/NIT/NIS helpers — mask, unmask and validate the 11-digit number.
 
 Pure, stateless functions with the same bad-input contract as
-:mod:`pure_docs_br`: a non-``str`` raises ``TypeError`` from the runtime
+:mod:`purepii_br`: a non-``str`` raises ``TypeError`` from the runtime
 type checker, a ``str`` never raises. PIS, PASEP, NIT and NIS are one number under
 different names (CAIXA, Banco do Brasil, INSS): 10 base digits plus one check digit,
 modulo 11 with weights 3,2,9,8,7,6,5,4,3,2. The modulo 11 is official (DATASUS, CAIXA);
@@ -14,8 +14,8 @@ from __future__ import annotations
 
 import re
 
-from pure_docs_br._internal.utils.float_artifact import _strip_float_artifact
-from pure_docs_br._internal.utils.typing import type_checker
+from purepii_br._internal.utils.float_artifact import _strip_float_artifact
+from purepii_br._internal.utils.typing import type_checker
 
 
 _LEN_PIS: int = 11

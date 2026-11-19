@@ -1,15 +1,15 @@
 [tool.poetry]
-name = "pure-docs-br"
+name = "purepii-br"
 version = "0.0.0"  # set from the git tag, see docs/contributing.md#releasing
 description = "Valida, aplica e remove a máscara dos documentos do Brasil"
 authors = ["guilhermegor"]
 readme = "README.md"
 license = "MIT"
-homepage = "https://guilhermegor.github.io/pure-docs-br/"
-documentation = "https://guilhermegor.github.io/pure-docs-br/"
-repository = "https://github.com/guilhermegor/pure-docs-br"
-keywords = ["pure-docs-br", "python", "library"]
-packages = [{ include = "pure_docs_br", from = "src" }]
+homepage = "https://guilhermegor.github.io/purepii-br/"
+documentation = "https://guilhermegor.github.io/purepii-br/"
+repository = "https://github.com/guilhermegor/purepii-br"
+keywords = ["purepii-br", "cpf", "cnpj", "brazil", "validation"]
+packages = [{ include = "purepii_br", from = "src" }]
 exclude = ["src/**/CLAUDE.md"]
 package-mode = true
 classifiers = [
@@ -26,9 +26,9 @@ classifiers = [
 ]
 
 [tool.poetry.urls]
-"Bug Reports" = "https://github.com/guilhermegor/pure-docs-br/issues"
-"Source" = "https://github.com/guilhermegor/pure-docs-br"
-"Documentation" = "https://guilhermegor.github.io/pure-docs-br/"
+"Bug Reports" = "https://github.com/guilhermegor/purepii-br/issues"
+"Source" = "https://github.com/guilhermegor/purepii-br"
+"Documentation" = "https://guilhermegor.github.io/purepii-br/"
 
 [tool.poetry.dependencies]
 python = ">=3.11,<4.0"

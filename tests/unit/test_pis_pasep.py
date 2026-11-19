@@ -2,7 +2,7 @@
 
 import pytest
 
-from pure_docs_br import is_valid_pis_pasep, mask_pis_pasep, unmask_pis_pasep
+from purepii_br import is_valid_pis_pasep, mask_pis_pasep, unmask_pis_pasep
 
 
 LIST_VALID: list[str] = ["12345678900", "20000000013", "12034567899", "11111111124"]

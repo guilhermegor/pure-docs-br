@@ -1,7 +1,7 @@
 """Brazilian utility-bill / tax slip (boleto de arrecadacao) helpers.
 
 Pure, stateless functions with the same bad-input contract as
-:mod:`pure_docs_br`: a non-``str`` raises ``TypeError`` from the runtime
+:mod:`purepii_br`: a non-``str`` raises ``TypeError`` from the runtime
 type checker, a ``str`` never raises. Two shapes are accepted: the 44-digit barcode
 (product 1, always ``8`` + segment 1 + value id 1 + general DV 1 + 40 more digits) and the
 48-digit typeable line (four blocks of 11 digits, each followed by its own DV).
@@ -19,9 +19,9 @@ from __future__ import annotations
 from collections.abc import Callable
 import re
 
-from pure_docs_br._internal.utils.float_artifact import _strip_float_artifact
-from pure_docs_br._internal.utils.typing import type_checker
-from pure_docs_br.boleto_cobranca import _compute_mod10
+from purepii_br._internal.utils.float_artifact import _strip_float_artifact
+from purepii_br._internal.utils.typing import type_checker
+from purepii_br.boleto_cobranca import _compute_mod10
 
 
 _LEN_BARCODE: int = 44

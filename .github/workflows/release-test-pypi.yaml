@@ -9,7 +9,7 @@ on:
         type: string
 
 env:
-  PACKAGE_NAME: "pure-docs-br"
+  PACKAGE_NAME: "purepii-br"
   OWNER: "guilhermegor"
 
 jobs:

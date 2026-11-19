@@ -1,7 +1,7 @@
 """Brazilian CAEPF (Cadastro de Atividade Econômica da Pessoa Física) — validate, mask, unmask.
 
 Pure, stateless functions with the same bad-input contract as
-:mod:`pure_docs_br`: a non-``str`` raises ``TypeError`` from the runtime
+:mod:`purepii_br`: a non-``str`` raises ``TypeError`` from the runtime
 type checker, a ``str`` never raises. The structure is official (IN RFB nº 1.828/2018): 14
 digits, the first 9 of the holder's CPF, a 3-digit sequential and 2 check digits, masked
 ``NNN.NNN.NNN/NNN-NN``.
@@ -21,8 +21,8 @@ from __future__ import annotations
 
 import re
 
-from pure_docs_br._internal.utils.float_artifact import _strip_float_artifact
-from pure_docs_br._internal.utils.typing import type_checker
+from purepii_br._internal.utils.float_artifact import _strip_float_artifact
+from purepii_br._internal.utils.typing import type_checker
 
 
 _LEN_CAEPF: int = 14

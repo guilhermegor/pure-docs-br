@@ -1,4 +1,4 @@
-"""pure-docs-br package.
+"""purepii-br package.
 
 Every ``is_valid_*``, ``mask_*`` and ``unmask_*`` function shares one bad-input contract: a
 non-``str`` (``None``, ``float``/``NaN``) raises ``TypeError`` from the runtime type checker,
@@ -9,9 +9,7 @@ while a ``str`` document value never raises because of its value. The only other
 drop nulls first.
 """
 
-from importlib import import_module
 from importlib.metadata import PackageNotFoundError, version
-from typing import TYPE_CHECKING
 
 from .boleto_arrecadacao import (
     is_valid_boleto_arrecadacao,
@@ -53,34 +51,9 @@ from .titulo_eleitor import (
 
 
 try:
-    __version__ = version("pure-docs-br")
+    __version__ = version("purepii-br")
 except PackageNotFoundError:  # pragma: no cover - source tree without an installed dist
     __version__ = "0.0.0"
-
-
-if not TYPE_CHECKING:
-
-    def __getattr__(str_name: str) -> object:
-        """Lazily import the deprecated ``br_identifiers`` shim so attribute access still works.
-
-        Parameters
-        ----------
-        str_name : str
-            The attribute being looked up on the package.
-
-        Returns
-        -------
-        object
-            The ``pure_docs_br.br_identifiers`` module (which emits its ``DeprecationWarning``).
-
-        Raises
-        ------
-        AttributeError
-            For any name other than ``"br_identifiers"``.
-        """
-        if str_name == "br_identifiers":
-            return import_module("pure_docs_br.br_identifiers")
-        raise AttributeError(f"module {__name__!r} has no attribute {str_name!r}")
 
 
 __all__ = [

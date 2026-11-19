@@ -2,7 +2,7 @@
 
 import pytest
 
-from pure_docs_br import is_valid_cns, mask_cns, unmask_cns
+from purepii_br import is_valid_cns, mask_cns, unmask_cns
 
 
 LIST_VALID: list[str] = [

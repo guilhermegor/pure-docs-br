@@ -1,4 +1,4 @@
-# **pure-docs-br** <img src="assets/logo.png" align="right" width="200" style="border-radius: 15px;" alt="pure-docs-br">
+# **purepii-br** <img src="assets/logo.png" align="right" width="200" style="border-radius: 15px;" alt="purepii-br">
 
 Valida, aplica e remove a máscara de CPF e CNPJ, inclusive o CNPJ alfanumérico de 2026. Sem dependências de execução.
 

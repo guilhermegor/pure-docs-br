@@ -2,7 +2,7 @@
 
 import pytest
 
-from pure_docs_br import is_valid_processo_cnj, mask_processo_cnj, unmask_processo_cnj
+from purepii_br import is_valid_processo_cnj, mask_processo_cnj, unmask_processo_cnj
 
 
 _INT_MODULUS = 97

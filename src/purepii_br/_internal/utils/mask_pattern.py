@@ -7,7 +7,7 @@ format and the library never presents a made-up one as official.
 
 from __future__ import annotations
 
-from pure_docs_br._internal.utils.typing import type_checker
+from purepii_br._internal.utils.typing import type_checker
 
 
 _STR_SLOT: str = "N"

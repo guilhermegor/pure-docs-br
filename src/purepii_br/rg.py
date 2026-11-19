@@ -1,11 +1,11 @@
 """Brazilian RG (Registro Geral) and CIN (Carteira de Identidade Nacional) — validate, unmask.
 
 Pure, stateless functions with the same bad-input contract as
-:mod:`pure_docs_br`: a non-``str`` raises ``TypeError`` from the runtime
+:mod:`purepii_br`: a non-``str`` raises ``TypeError`` from the runtime
 type checker, a ``str`` value never raises for the value itself.
 
 There is no national RG norm: each state numbers and validates its own. The routing follows
-:mod:`pure_docs_br.inscricao_estadual`: ``str_uf`` selects a per-UF function from a dict
+:mod:`purepii_br.inscricao_estadual`: ``str_uf`` selects a per-UF function from a dict
 covering all 27 UFs, matched exactly (uppercase two-letter acronym, no normalisation, so
 ``"sp"`` is an unknown UF). Differently from the IE, an unknown UF raises ``ValueError``,
 and a real UF whose rule is not sourced raises ``NotImplementedError`` — never a silent
@@ -22,9 +22,9 @@ from collections.abc import Callable
 from functools import partial
 import re
 
-from pure_docs_br._internal.utils.float_artifact import _strip_float_artifact
-from pure_docs_br._internal.utils.typing import type_checker
-from pure_docs_br.cpf import is_valid_cpf
+from purepii_br._internal.utils.float_artifact import _strip_float_artifact
+from purepii_br._internal.utils.typing import type_checker
+from purepii_br.cpf import is_valid_cpf
 
 
 _INT_BASE_LEN: int = 8
@@ -196,7 +196,7 @@ def is_valid_cin(str_value: str) -> bool:
     Parameters
     ----------
     str_value : str
-        A CPF in any shape; the rule is exactly :func:`pure_docs_br.is_valid_cpf`.
+        A CPF in any shape; the rule is exactly :func:`purepii_br.is_valid_cpf`.
 
     Returns
     -------

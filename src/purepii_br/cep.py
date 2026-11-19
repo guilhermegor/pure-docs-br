@@ -1,7 +1,7 @@
 """Brazilian CEP helpers — mask, unmask and validate the postal code.
 
 Pure, stateless functions with the same bad-input contract as
-:mod:`pure_docs_br`: a non-``str`` raises ``TypeError`` from the runtime
+:mod:`purepii_br`: a non-``str`` raises ``TypeError`` from the runtime
 type checker, a ``str`` never raises. A CEP has **no check digit**, so validation is
 format only (8 digits); it does not confirm that the CEP exists, which would need the
 Correios database. Short numeric values are zero-padded to 8, on purpose, to recover
@@ -13,8 +13,8 @@ from __future__ import annotations
 
 import re
 
-from pure_docs_br._internal.utils.float_artifact import _strip_float_artifact
-from pure_docs_br._internal.utils.typing import type_checker
+from purepii_br._internal.utils.float_artifact import _strip_float_artifact
+from purepii_br._internal.utils.typing import type_checker
 
 
 _LEN_CEP: int = 8
