@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       backfill:
-        description: 'Rebuild every vX.Y.Z tag under PACKAGE_NAME and upload the missing ones (version is ignored)'
+        description: 'Rebuild every vX.Y.Z tag published under the old name as PACKAGE_NAME and upload the missing ones (version is ignored)'
         required: false
         type: boolean
         default: false
@@ -232,6 +232,9 @@ jobs:
           for tag in $(git tag --list 'v*' --sort=v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$'); do
             src=$(mktemp -d)
             git archive "$tag" | tar -x -C "$src"
+            if ! grep -qE "^name = \"${old}\"" "$src/pyproject.toml"; then
+              echo "skip $tag: not published as $old"; continue
+            fi
             sed -i -E '0,/^name = ".*"/s//name = "'"$PACKAGE_NAME"'"/' "$src/pyproject.toml"
             { grep -rlE "[\"']${old}[\"']" "$src/src" || true; } | xargs -r sed -i -E "s/([\"'])${old}([\"'])/\1$PACKAGE_NAME\2/g"
             if POETRY_DYNAMIC_VERSIONING_BYPASS="${tag#v}" python -m build --outdir "$src.dist" "$src" > "$src.log" 2>&1; then

@@ -175,8 +175,10 @@ Só então rode no PyPI e espere o run terminar com sucesso do mesmo jeito:
 gh workflow run release-pypi.yaml --ref main -f version=0.0.0 -f backfill=true
 ```
 
-O backfill pula os jobs normais, reconstrói cada tag estável `vX.Y.Z` trocando só o nome da
-distribuição (o `name` do `pyproject.toml` e o nome entre aspas passado a
+O backfill pula os jobs normais e reconstrói só as tags estáveis `vX.Y.Z` cujo `pyproject.toml`
+ainda traz `name = "pure-docs-br"` (hoje, da 1.0.0 à 1.17.0). Uma tag 2.x, já publicada como
+`purepii-br`, é ignorada, então rodar o backfill de novo nunca a republica. Cada tag é refeita
+trocando só o nome da distribuição (o `name` do `pyproject.toml` e o nome entre aspas passado a
 `importlib.metadata.version`) e envia com `skip-existing`. Cada versão antiga mantém o código e o
 nome de import originais (`import pure_docs_br`). O nome antigo fica escrito literalmente no
 workflow (`old="pure-docs-br"`) porque as tags históricas ainda o carregam. Cada tag é
