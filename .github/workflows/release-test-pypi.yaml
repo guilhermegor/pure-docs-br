@@ -234,7 +234,8 @@ jobs:
             git archive "$tag" | tar -x -C "$src"
             sed -i -E '0,/^name = ".*"/s//name = "'"$PACKAGE_NAME"'"/' "$src/pyproject.toml"
             { grep -rlE "[\"']${old}[\"']" "$src/src" || true; } | xargs -r sed -i -E "s/([\"'])${old}([\"'])/\1$PACKAGE_NAME\2/g"
-            if POETRY_DYNAMIC_VERSIONING_BYPASS="${tag#v}" python -m build --outdir dist "$src" > "$src.log" 2>&1; then
+            if POETRY_DYNAMIC_VERSIONING_BYPASS="${tag#v}" python -m build --outdir "$src.dist" "$src" > "$src.log" 2>&1; then
+              mv "$src.dist"/* dist/
               echo "built $tag"
             else
               echo "::warning::$tag did not build; skipped"; tail -20 "$src.log"; failed+=("$tag")

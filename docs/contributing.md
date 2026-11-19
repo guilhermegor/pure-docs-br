@@ -149,10 +149,22 @@ CI, é o único caso que ainda exige um token de API; o OIDC funciona apenas no 
 
 O pacote foi publicado como `pure-docs-br` até a 1.17.0 e passou a se chamar `purepii-br` na
 2.0.0. Para que o histórico 1.x exista também no projeto novo, os dois workflows de release
-aceitam `backfill=true` (o campo `version` é ignorado):
+aceitam `backfill=true` (o campo `version` é ignorado). Rode primeiro no Test PyPI:
 
 ```bash
 gh workflow run release-test-pypi.yaml --ref main -f version=0.0.0 -f backfill=true
+```
+
+Quando o run terminar, confira uma versão antiga instalada do Test PyPI num ambiente limpo:
+
+```bash
+pip install --index-url https://test.pypi.org/simple/ "purepii-br==1.17.0"
+python -c "import pure_docs_br; print(pure_docs_br.__version__)"   # 1.17.0
+```
+
+Só então rode no PyPI:
+
+```bash
 gh workflow run release-pypi.yaml --ref main -f version=0.0.0 -f backfill=true
 ```
 
@@ -160,8 +172,9 @@ O backfill pula os jobs normais, reconstrói cada tag estável `vX.Y.Z` trocando
 distribuição (o `name` do `pyproject.toml` e o nome entre aspas passado a
 `importlib.metadata.version`) e envia com `skip-existing`. Cada versão antiga mantém o código e o
 nome de import originais (`import pure_docs_br`). O nome antigo fica escrito literalmente no
-workflow (`old="pure-docs-br"`) porque as tags históricas ainda o carregam. Rode primeiro no Test
-PyPI e confira a instalação antes de rodar no PyPI.
+workflow (`old="pure-docs-br"`) porque as tags históricas ainda o carregam. Cada tag é
+construída numa pasta própria e só entra em `dist/` se o build inteiro der certo, então uma tag que
+falha não deixa um sdist órfão para ser publicado.
 
 ### Publicando a documentação — primeiro release
 
