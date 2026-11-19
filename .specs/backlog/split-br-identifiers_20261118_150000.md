@@ -9,4 +9,4 @@
 - [x] refactor/54-split-br-identifiers Ladder fixes: the shim warning is attributed to the importer (a `__main__` importer sees it under default filters on every route), `__getattr__` hidden from type checkers, import guard filters on the message
 - [x] Append the deprecation note to the GitHub release body that ships #54 (`gh release edit`), then read it back: done on v1.17.0 (2026-11-19)
 - [x] refactor/54-split-br-identifiers Review fixes: docstring lists the rg UF errors, lazy `__getattr__` keeps `pure_docs_br.br_identifiers` attribute access (with its warning) and `import pure_docs_br` is proven warning-free by a subprocess test
-- [ ] Remove `br_identifiers.py` and its shim test in 2.0.0
+- [x] Remove `br_identifiers.py` and its shim test in 2.0.0 (done in chore/rename-purepii-br, #63)

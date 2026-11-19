@@ -8,8 +8,6 @@ Interface pública desta biblioteca.
 
 ## Funções de CPF e CNPJ
 
-> **Descontinuado:** `purepii_br.br_identifiers` emite `DeprecationWarning` e será removido na 2.0.0. Importe da raiz (`from purepii_br import is_valid_cpf`) ou de `purepii_br.cpf` / `purepii_br.cnpj`.
-
 Funções puras, importadas da raiz do pacote (`from purepii_br import ...`). Todas recebem `str`; um valor que
 não seja `str` (`None`, `float`, `NaN`) lança `TypeError`. Dado um `str`, nenhuma lança exceção por causa do valor; as únicas exceções são a UF de `is_valid_rg`
 (`NotImplementedError` para UF sem regra com fonte, `ValueError` para UF desconhecida) e o `ValueError`
