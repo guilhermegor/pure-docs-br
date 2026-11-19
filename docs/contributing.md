@@ -145,6 +145,24 @@ No primeiro upload o projeto ainda não existe — registre um **pending publish
 conta (não nas configurações de um projeto existente). Publicar a partir de um notebook, em vez do
 CI, é o único caso que ainda exige um token de API; o OIDC funciona apenas no GitHub Actions.
 
+### Backfill do histórico após uma renomeação
+
+O pacote foi publicado como `pure-docs-br` até a 1.17.0 e passou a se chamar `purepii-br` na
+2.0.0. Para que o histórico 1.x exista também no projeto novo, os dois workflows de release
+aceitam `backfill=true` (o campo `version` é ignorado):
+
+```bash
+gh workflow run release-test-pypi.yaml --ref main -f version=0.0.0 -f backfill=true
+gh workflow run release-pypi.yaml --ref main -f version=0.0.0 -f backfill=true
+```
+
+O backfill pula os jobs normais, reconstrói cada tag estável `vX.Y.Z` trocando só o nome da
+distribuição (o `name` do `pyproject.toml` e o nome entre aspas passado a
+`importlib.metadata.version`) e envia com `skip-existing`. Cada versão antiga mantém o código e o
+nome de import originais (`import pure_docs_br`). O nome antigo fica escrito literalmente no
+workflow (`old="pure-docs-br"`) porque as tags históricas ainda o carregam. Rode primeiro no Test
+PyPI e confira a instalação antes de rodar no PyPI.
+
 ### Publicando a documentação — primeiro release
 
 A primeira execução de `release-pypi.yaml` cria a branch `gh-pages` com `mike deploy`.
