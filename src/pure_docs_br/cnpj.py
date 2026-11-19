@@ -1,0 +1,146 @@
+"""CNPJ helpers — mask, unmask and validate, legacy numeric and 2026 alphanumeric.
+
+Pure, stateless functions with the bad-input contract documented in :mod:`pure_docs_br`.
+``unmask_cnpj`` strips punctuation and the spurious ``".0"`` left by a float→str coercion,
+keeps ``A-Z``/``0-9`` and only zero-pads when the value is purely numeric. ``is_valid_cnpj``
+returns ``bool`` on any ``str``. Short numeric values are zero-padded before validation, on
+purpose, to recover identifiers stored as numbers that lost leading zeros.
+
+The check digits use ASCII-48 weighting, which makes a single mod-11 routine validate both
+legacy-numeric and new-alphanumeric CNPJs (a digit's value equals itself).
+"""
+
+from __future__ import annotations
+
+import re
+
+from pure_docs_br._internal.utils.float_artifact import _strip_float_artifact
+from pure_docs_br._internal.utils.typing import type_checker
+
+
+_INT_MODULUS = 11
+_INT_MIN_REMAINDER = 2
+
+_LEN_CNPJ: int = 14
+_ASCII_ZERO: int = ord("0")
+
+_CNPJ_WEIGHTS_DV1: tuple[int, ...] = (5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2)
+_CNPJ_WEIGHTS_DV2: tuple[int, ...] = (6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2)
+
+_RE_NON_ALNUM: re.Pattern[str] = re.compile(r"[^0-9A-Za-z]")
+
+
+@type_checker
+def unmask_cnpj(str_value: str) -> str:
+    """Normalise a CNPJ to its bare 14-character form (alphanumeric-aware).
+
+    Parameters
+    ----------
+    str_value : str
+        A CNPJ in any shape — masked, zero-stripped, or carrying a float ``.0`` tail.
+
+    Returns
+    -------
+    str
+        Uppercased value containing only ``A-Z``/``0-9``, with a ``.0`` tail dropped
+        (scientific notation such as ``1e+13`` is not handled). Purely numeric values are
+        left-zero-padded to 14; alphanumeric values are returned as-is (already 14).
+        An empty input yields an empty string.
+    """
+    str_clean = _strip_float_artifact(str_value)
+    str_clean = _RE_NON_ALNUM.sub("", str_clean).upper()
+    if str_clean.isascii() and str_clean.isdigit():
+        str_clean = str_clean.zfill(_LEN_CNPJ)
+    return str_clean
+
+
+@type_checker
+def mask_cnpj(str_value: str) -> str:
+    """Format a CNPJ as ``XX.XXX.XXX/XXXX-XX``.
+
+    Parameters
+    ----------
+    str_value : str
+        A CNPJ in any shape (it is unmasked first).
+
+    Returns
+    -------
+    str
+        The punctuated CNPJ when it normalises to 14 characters; otherwise the bare
+        unmasked value (so malformed input is surfaced, not silently reformatted). That
+        covers empty input, short alphanumeric values and values over 14 characters; a
+        purely numeric value is never short, since it is zero-padded to 14.
+    """
+    str_clean = unmask_cnpj(str_value)
+    if len(str_clean) != _LEN_CNPJ:
+        return str_clean
+    return f"{str_clean[:2]}.{str_clean[2:5]}.{str_clean[5:8]}/{str_clean[8:12]}-{str_clean[12:]}"
+
+
+@type_checker
+def _cnpj_check_digit(str_base: str, *, tuple_weights: tuple[int, ...]) -> int:
+    """Compute one CNPJ check digit via ASCII-48 mod-11 weighting.
+
+    Parameters
+    ----------
+    str_base : str
+        The base characters the weights apply to (12 for DV1, 13 for DV2).
+    tuple_weights : tuple of int
+        Mod-11 weights, paired left-to-right with ``str_base``.
+
+    Returns
+    -------
+    int
+        The check digit (0 when the remainder is below 2, else ``11 - remainder``).
+    """
+    int_sum = sum(
+        (ord(str_char) - _ASCII_ZERO) * int_weight
+        for str_char, int_weight in zip(str_base, tuple_weights, strict=True)
+    )
+    int_rest = int_sum % 11
+    return 0 if int_rest < _INT_MIN_REMAINDER else _INT_MODULUS - int_rest
+
+
+@type_checker
+def is_valid_cnpj(str_value: str) -> bool:
+    """Validate a CNPJ's two check digits (legacy numeric or 2026 alphanumeric).
+
+    Parameters
+    ----------
+    str_value : str
+        A CNPJ in any shape (it is unmasked first).
+
+    Returns
+    -------
+    bool
+        ``True`` when the value normalises to 14 characters whose last two are the
+        correct numeric check digits. Repeated-character numeric values (e.g. all
+        zeros) are rejected.
+    """
+    str_clean = unmask_cnpj(str_value)
+    return (
+        len(str_clean) == _LEN_CNPJ
+        and str_clean[12:].isascii()
+        and str_clean[12:].isdigit()
+        and not (str_clean.isascii() and str_clean.isdigit() and len(set(str_clean)) == 1)
+        and str_clean[12:] == _cnpj_check_digits(str_clean[:12])
+    )
+
+
+@type_checker
+def _cnpj_check_digits(str_base: str) -> str:
+    """Return the two check digits for a 12-character CNPJ base.
+
+    Parameters
+    ----------
+    str_base : str
+        The first 12 characters of an unmasked CNPJ.
+
+    Returns
+    -------
+    str
+        The two check digits, concatenated.
+    """
+    int_dv1 = _cnpj_check_digit(str_base, tuple_weights=_CNPJ_WEIGHTS_DV1)
+    int_dv2 = _cnpj_check_digit(f"{str_base}{int_dv1}", tuple_weights=_CNPJ_WEIGHTS_DV2)
+    return f"{int_dv1}{int_dv2}"

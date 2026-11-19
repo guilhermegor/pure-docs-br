@@ -1,7 +1,7 @@
 """Brazilian CNH (Carteira Nacional de Habilitação) registration number — validate, unmask, mask.
 
 Pure, stateless functions with the same bad-input contract as
-:mod:`pure_docs_br.br_identifiers`: a non-``str`` raises ``TypeError`` from the runtime
+:mod:`pure_docs_br`: a non-``str`` raises ``TypeError`` from the runtime
 type checker, a ``str`` document value never raises (only an invalid ``str_pattern`` in
 ``mask_*`` raises ``ValueError``). Only the format is official: Resolução CONTRAN
 886/2021, art. 4º, I, gives the registration number 9 characters plus 2 check digits
@@ -18,9 +18,9 @@ from __future__ import annotations
 
 import re
 
+from pure_docs_br._internal.utils.float_artifact import _strip_float_artifact
 from pure_docs_br._internal.utils.mask_pattern import apply_mask_pattern
 from pure_docs_br._internal.utils.typing import type_checker
-from pure_docs_br.br_identifiers import _strip_float_artifact
 
 
 _LEN_CNH: int = 11

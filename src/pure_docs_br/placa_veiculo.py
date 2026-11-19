@@ -1,7 +1,7 @@
 """Brazilian vehicle plate (placa) helpers — mask, unmask and validate.
 
 Pure, stateless functions with the same bad-input contract as
-:mod:`pure_docs_br.br_identifiers`: a non-``str`` raises ``TypeError`` from the runtime
+:mod:`pure_docs_br`: a non-``str`` raises ``TypeError`` from the runtime
 type checker, a ``str`` never raises. A plate has **no check digit**, so validation is
 format only. Two formats are covered: the old ``LLLNNNN`` (CONTRAN 231/2007), written
 ``ABC-1234``, and the Mercosul ``LLLNLNN`` (CONTRAN 780/2019), written ``ABC1D23``.

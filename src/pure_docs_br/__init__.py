@@ -1,6 +1,17 @@
-"""pure-docs-br package."""
+"""pure-docs-br package.
 
+Every ``is_valid_*``, ``mask_*`` and ``unmask_*`` function shares one bad-input contract: a
+non-``str`` (``None``, ``float``/``NaN``) raises ``TypeError`` from the runtime type checker,
+while a ``str`` document value never raises because of its value. The only other exceptions are
+``is_valid_rg``'s UF errors (``NotImplementedError`` for a UF with no sourced rule,
+``ValueError`` for an unknown UF) and the ``ValueError`` from ``mask_cnh`` and
+``mask_renavam`` for an invalid ``str_pattern`` (one without exactly 11 ``N``). Stringify or
+drop nulls first.
+"""
+
+from importlib import import_module
 from importlib.metadata import PackageNotFoundError, version
+from typing import TYPE_CHECKING
 
 from .boleto_arrecadacao import (
     is_valid_boleto_arrecadacao,
@@ -12,14 +23,6 @@ from .boleto_cobranca import (
     mask_boleto_cobranca,
     unmask_boleto_cobranca,
 )
-from .br_identifiers import (
-    is_valid_cnpj,
-    is_valid_cpf,
-    mask_cnpj,
-    mask_cpf,
-    unmask_cnpj,
-    unmask_cpf,
-)
 from .caepf import is_valid_caepf, mask_caepf, unmask_caepf
 from .cep import is_valid_cep, mask_cep, unmask_cep
 from .certidao_matricula import (
@@ -29,7 +32,9 @@ from .certidao_matricula import (
 )
 from .chave_acesso import is_valid_chave_acesso, mask_chave_acesso, unmask_chave_acesso
 from .cnh import is_valid_cnh, mask_cnh, unmask_cnh
+from .cnpj import is_valid_cnpj, mask_cnpj, unmask_cnpj
 from .cns import is_valid_cns, mask_cns, unmask_cns
+from .cpf import is_valid_cpf, mask_cpf, unmask_cpf
 from .inscricao_estadual import (
     is_valid_inscricao_estadual,
     mask_inscricao_estadual,
@@ -51,6 +56,31 @@ try:
     __version__ = version("pure-docs-br")
 except PackageNotFoundError:  # pragma: no cover - source tree without an installed dist
     __version__ = "0.0.0"
+
+
+if not TYPE_CHECKING:
+
+    def __getattr__(str_name: str) -> object:
+        """Lazily import the deprecated ``br_identifiers`` shim so attribute access still works.
+
+        Parameters
+        ----------
+        str_name : str
+            The attribute being looked up on the package.
+
+        Returns
+        -------
+        object
+            The ``pure_docs_br.br_identifiers`` module (which emits its ``DeprecationWarning``).
+
+        Raises
+        ------
+        AttributeError
+            For any name other than ``"br_identifiers"``.
+        """
+        if str_name == "br_identifiers":
+            return import_module("pure_docs_br.br_identifiers")
+        raise AttributeError(f"module {__name__!r} has no attribute {str_name!r}")
 
 
 __all__ = [

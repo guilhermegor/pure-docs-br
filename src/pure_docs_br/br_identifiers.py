@@ -1,285 +1,111 @@
-"""Brazilian identifier helpers — mask, unmask and validate CNPJ and CPF.
+"""Deprecated alias of :mod:`pure_docs_br.cpf` and :mod:`pure_docs_br.cnpj`.
 
-These are pure, stateless functions (no class — there is no state or lifecycle to
-own). They are deliberately tolerant on input so they can be mapped over a whole
-``pandas`` column: ``unmask_*`` strips punctuation, the spurious ``".0"`` left by a
-float→str coercion, and (for CNPJ) handles the **2026 alphanumeric format** by keeping
-``A-Z``/``0-9`` and only zero-padding when the value is purely numeric. ``is_valid_*``
-return ``bool`` rather than raising on any ``str``, so a bad row never aborts a bulk
-transformation. A non-``str`` (``None``, ``float``/``NaN``) raises ``TypeError`` from the
-runtime type checker: stringify or drop nulls first. Short numeric values are zero-padded
-before validation, on purpose, to recover identifiers stored as numbers that lost leading
-zeros: ``is_valid_cpf("191")`` is ``True`` (it becomes ``00000000191``), while ``"0"`` is
-rejected as a repeated-digit value.
-
-The CNPJ check digits use ASCII-48 weighting, which makes a single mod-11 routine
-validate both legacy-numeric and new-alphanumeric CNPJs (a digit's value equals itself).
+Importing this module emits a ``DeprecationWarning``; it will be removed in 2.0.0. Import
+from the package root (``from pure_docs_br import is_valid_cpf``) or from ``pure_docs_br.cpf``
+/ ``pure_docs_br.cnpj`` instead.
 """
 
 from __future__ import annotations
 
-import re
+import os
+import sys
+from traceback import walk_stack
+from types import FrameType
+import warnings
 
 from pure_docs_br._internal.utils.typing import type_checker
+from pure_docs_br.cnpj import is_valid_cnpj, mask_cnpj, unmask_cnpj
+from pure_docs_br.cpf import is_valid_cpf, mask_cpf, unmask_cpf
 
 
-_INT_MODULUS = 11
-_INT_MIN_REMAINDER = 2
-
-_LEN_CNPJ: int = 14
-_LEN_CPF: int = 11
-_ASCII_ZERO: int = ord("0")
-
-_CNPJ_WEIGHTS_DV1: tuple[int, ...] = (5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2)
-_CNPJ_WEIGHTS_DV2: tuple[int, ...] = (6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2)
-
-_RE_FLOAT_ARTIFACT: re.Pattern[str] = re.compile(r"^\s*(\d+)\.0+\s*$")
-_RE_NON_ALNUM: re.Pattern[str] = re.compile(r"[^0-9A-Za-z]")
-_RE_NON_DIGIT: re.Pattern[str] = re.compile(r"\D", re.ASCII)
+_STR_IMPORTLIB_INIT: str = os.path.join("importlib", "__init__.py")
 
 
 @type_checker
-def _strip_float_artifact(str_value: str) -> str:
-    """Drop a trailing ``.0`` left by a float→str coercion; otherwise trim whitespace.
+def _is_skipped_by_warn(str_file: str) -> bool:
+    """Tell whether :func:`warnings.warn` itself skips a frame from ``str_file``.
+
+    Mirrors CPython's ``_is_internal_filename``: both ``importlib`` and ``_bootstrap`` must
+    appear, so an importer such as ``app_bootstrap.py`` is still counted.
 
     Parameters
     ----------
-    str_value : str
-        Raw identifier as read from a source (CSV cell, DataFrame value, API field).
-
-    Returns
-    -------
-    str
-        ``str_value`` with a ``".0…"`` tail removed when it is an integer-with-float-tail,
-        else the whitespace-trimmed input.
-    """
-    cls_match = _RE_FLOAT_ARTIFACT.match(str_value)
-    if cls_match is not None:
-        return cls_match.group(1)
-    return str_value.strip()
-
-
-@type_checker
-def unmask_cnpj(str_value: str) -> str:
-    """Normalise a CNPJ to its bare 14-character form (alphanumeric-aware).
-
-    Parameters
-    ----------
-    str_value : str
-        A CNPJ in any shape — masked, zero-stripped, or carrying a float ``.0`` tail.
-
-    Returns
-    -------
-    str
-        Uppercased value containing only ``A-Z``/``0-9``, with a ``.0`` tail dropped
-        (scientific notation such as ``1e+13`` is not handled). Purely numeric values are
-        left-zero-padded to 14; alphanumeric values are returned as-is (already 14).
-        An empty input yields an empty string.
-    """
-    str_clean = _strip_float_artifact(str_value)
-    str_clean = _RE_NON_ALNUM.sub("", str_clean).upper()
-    if str_clean.isascii() and str_clean.isdigit():
-        str_clean = str_clean.zfill(_LEN_CNPJ)
-    return str_clean
-
-
-@type_checker
-def mask_cnpj(str_value: str) -> str:
-    """Format a CNPJ as ``XX.XXX.XXX/XXXX-XX``.
-
-    Parameters
-    ----------
-    str_value : str
-        A CNPJ in any shape (it is unmasked first).
-
-    Returns
-    -------
-    str
-        The punctuated CNPJ when it normalises to 14 characters; otherwise the bare
-        unmasked value (so malformed input is surfaced, not silently reformatted). That
-        covers empty input, short alphanumeric values and values over 14 characters; a
-        purely numeric value is never short, since it is zero-padded to 14.
-    """
-    str_clean = unmask_cnpj(str_value)
-    if len(str_clean) != _LEN_CNPJ:
-        return str_clean
-    return f"{str_clean[:2]}.{str_clean[2:5]}.{str_clean[5:8]}/{str_clean[8:12]}-{str_clean[12:]}"
-
-
-@type_checker
-def _cnpj_check_digit(str_base: str, *, tuple_weights: tuple[int, ...]) -> int:
-    """Compute one CNPJ check digit via ASCII-48 mod-11 weighting.
-
-    Parameters
-    ----------
-    str_base : str
-        The base characters the weights apply to (12 for DV1, 13 for DV2).
-    tuple_weights : tuple of int
-        Mod-11 weights, paired left-to-right with ``str_base``.
-
-    Returns
-    -------
-    int
-        The check digit (0 when the remainder is below 2, else ``11 - remainder``).
-    """
-    int_sum = sum(
-        (ord(str_char) - _ASCII_ZERO) * int_weight
-        for str_char, int_weight in zip(str_base, tuple_weights, strict=True)
-    )
-    int_rest = int_sum % 11
-    return 0 if int_rest < _INT_MIN_REMAINDER else _INT_MODULUS - int_rest
-
-
-@type_checker
-def is_valid_cnpj(str_value: str) -> bool:
-    """Validate a CNPJ's two check digits (legacy numeric or 2026 alphanumeric).
-
-    Parameters
-    ----------
-    str_value : str
-        A CNPJ in any shape (it is unmasked first).
+    str_file : str
+        A frame's ``co_filename``.
 
     Returns
     -------
     bool
-        ``True`` when the value normalises to 14 characters whose last two are the
-        correct numeric check digits. Repeated-character numeric values (e.g. all
-        zeros) are rejected.
+        ``True`` when ``warnings.warn`` leaves this frame out of the ``stacklevel`` count.
     """
-    str_clean = unmask_cnpj(str_value)
-    return (
-        len(str_clean) == _LEN_CNPJ
-        and str_clean[12:].isascii()
-        and str_clean[12:].isdigit()
-        and not (str_clean.isascii() and str_clean.isdigit() and len(set(str_clean)) == 1)
-        and str_clean[12:] == _cnpj_check_digits(str_clean[:12])
-    )
+    return "importlib" in str_file and "_bootstrap" in str_file
 
 
 @type_checker
-def _cnpj_check_digits(str_base: str) -> str:
-    """Return the two check digits for a 12-character CNPJ base.
+def _is_internal_frame(cls_frame: FrameType) -> bool:
+    """Tell whether ``cls_frame`` belongs to importlib or to this package.
 
     Parameters
     ----------
-    str_base : str
-        The first 12 characters of an unmasked CNPJ.
-
-    Returns
-    -------
-    str
-        The two check digits, concatenated.
-    """
-    int_dv1 = _cnpj_check_digit(str_base, tuple_weights=_CNPJ_WEIGHTS_DV1)
-    int_dv2 = _cnpj_check_digit(f"{str_base}{int_dv1}", tuple_weights=_CNPJ_WEIGHTS_DV2)
-    return f"{int_dv1}{int_dv2}"
-
-
-@type_checker
-def unmask_cpf(str_value: str) -> str:
-    """Normalise a CPF to its bare 11-digit form.
-
-    Parameters
-    ----------
-    str_value : str
-        A CPF in any shape — masked, zero-stripped, or carrying a float ``.0`` tail.
-
-    Returns
-    -------
-    str
-        Digits only, left-zero-padded to 11 when non-empty; empty input yields ``""``.
-    """
-    str_clean = _strip_float_artifact(str_value)
-    str_clean = _RE_NON_DIGIT.sub("", str_clean)
-    if str_clean:
-        str_clean = str_clean.zfill(_LEN_CPF)
-    return str_clean
-
-
-@type_checker
-def mask_cpf(str_value: str) -> str:
-    """Format a CPF as ``XXX.XXX.XXX-XX``.
-
-    Parameters
-    ----------
-    str_value : str
-        A CPF in any shape (it is unmasked first).
-
-    Returns
-    -------
-    str
-        The punctuated CPF when it normalises to 11 digits; otherwise the bare
-        unmasked value. That covers empty input and values over 11 digits; a shorter
-        non-empty value is never returned, since it is zero-padded to 11.
-    """
-    str_clean = unmask_cpf(str_value)
-    if len(str_clean) != _LEN_CPF:
-        return str_clean
-    return f"{str_clean[:3]}.{str_clean[3:6]}.{str_clean[6:9]}-{str_clean[9:]}"
-
-
-@type_checker
-def _cpf_check_digit(str_base: str, *, int_start_weight: int) -> int:
-    """Compute one CPF check digit via descending mod-11 weighting.
-
-    Parameters
-    ----------
-    str_base : str
-        The base digits the weights apply to (9 for DV1, 10 for DV2).
-    int_start_weight : int
-        The first (largest) weight; subsequent weights descend by one.
-
-    Returns
-    -------
-    int
-        The check digit (0 when the remainder is below 2, else ``11 - remainder``).
-    """
-    int_sum = sum(
-        int(str_char) * (int_start_weight - int_idx) for int_idx, str_char in enumerate(str_base)
-    )
-    int_rest = int_sum % 11
-    return 0 if int_rest < _INT_MIN_REMAINDER else _INT_MODULUS - int_rest
-
-
-@type_checker
-def is_valid_cpf(str_value: str) -> bool:
-    """Validate a CPF's two check digits.
-
-    Parameters
-    ----------
-    str_value : str
-        A CPF in any shape (it is unmasked first).
+    cls_frame : FrameType
+        A frame on the import stack.
 
     Returns
     -------
     bool
-        ``True`` when the value normalises to 11 digits whose last two are the correct
-        check digits. Repeated-digit values (e.g. all ones) are rejected.
+        ``True`` for an importlib or ``pure_docs_br`` frame, ``False`` for the importer.
     """
-    str_clean = unmask_cpf(str_value)
+    str_file = cls_frame.f_code.co_filename
+    str_module = str(cls_frame.f_globals.get("__name__", ""))
     return (
-        len(str_clean) == _LEN_CPF
-        and str_clean.isascii()
-        and str_clean.isdigit()
-        and len(set(str_clean)) > 1
-        and str_clean[9:] == _cpf_check_digits(str_clean)
+        str_file.startswith("<frozen importlib")
+        or str_file.endswith(_STR_IMPORTLIB_INIT)
+        or str_module.split(".", maxsplit=1)[0] == "pure_docs_br"
     )
 
 
 @type_checker
-def _cpf_check_digits(str_clean: str) -> str:
-    """Return the two check digits for an 11-digit CPF.
+def _external_stacklevel(cls_frame: FrameType) -> int:
+    """Return the ``stacklevel`` that attributes a warning to the module importing the shim.
+
+    A fixed ``stacklevel=2`` lands on an importlib frame, so Python's default filters (which
+    show a ``DeprecationWarning`` only when attributed to ``__main__``) hide it. Frames from
+    ``importlib._bootstrap`` are left out of the count, because :func:`warnings.warn` skips
+    them itself.
 
     Parameters
     ----------
-    str_clean : str
-        An unmasked, 11-digit CPF.
+    cls_frame : FrameType
+        The shim's own module frame, which counts as ``stacklevel=1``.
 
     Returns
     -------
-    str
-        The two check digits, concatenated.
+    int
+        The ``stacklevel`` to pass to :func:`warnings.warn` from this module's top level.
     """
-    int_dv1 = _cpf_check_digit(str_clean[:9], int_start_weight=10)
-    int_dv2 = _cpf_check_digit(str_clean[:10], int_start_weight=11)
-    return f"{int_dv1}{int_dv2}"
+    list_counted = [
+        cls_f
+        for cls_f, _ in walk_stack(cls_frame)
+        if not _is_skipped_by_warn(cls_f.f_code.co_filename)
+    ]
+    return next(
+        (int_i + 1 for int_i, cls_f in enumerate(list_counted) if not _is_internal_frame(cls_f)),
+        len(list_counted),
+    )
+
+
+warnings.warn(
+    "pure_docs_br.br_identifiers is deprecated and will be removed in 2.0.0; "
+    "import from pure_docs_br (or pure_docs_br.cpf / pure_docs_br.cnpj) instead.",
+    DeprecationWarning,
+    stacklevel=_external_stacklevel(sys._getframe()),  # noqa: SLF001
+)
+
+__all__ = [
+    "is_valid_cnpj",
+    "is_valid_cpf",
+    "mask_cnpj",
+    "mask_cpf",
+    "unmask_cnpj",
+    "unmask_cpf",
+]

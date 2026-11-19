@@ -1,7 +1,7 @@
 """Brazilian RG (Registro Geral) and CIN (Carteira de Identidade Nacional) — validate, unmask.
 
 Pure, stateless functions with the same bad-input contract as
-:mod:`pure_docs_br.br_identifiers`: a non-``str`` raises ``TypeError`` from the runtime
+:mod:`pure_docs_br`: a non-``str`` raises ``TypeError`` from the runtime
 type checker, a ``str`` value never raises for the value itself.
 
 There is no national RG norm: each state numbers and validates its own. The routing follows
@@ -22,8 +22,9 @@ from collections.abc import Callable
 from functools import partial
 import re
 
+from pure_docs_br._internal.utils.float_artifact import _strip_float_artifact
 from pure_docs_br._internal.utils.typing import type_checker
-from pure_docs_br.br_identifiers import _strip_float_artifact, is_valid_cpf
+from pure_docs_br.cpf import is_valid_cpf
 
 
 _INT_BASE_LEN: int = 8
