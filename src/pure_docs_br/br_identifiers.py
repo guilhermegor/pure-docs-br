@@ -7,8 +7,7 @@ from the package root (``from pure_docs_br import is_valid_cpf``) or from ``pure
 
 from __future__ import annotations
 
-import importlib
-from pathlib import Path
+import os
 import sys
 from traceback import walk_stack
 from types import FrameType
@@ -19,7 +18,7 @@ from pure_docs_br.cnpj import is_valid_cnpj, mask_cnpj, unmask_cnpj
 from pure_docs_br.cpf import is_valid_cpf, mask_cpf, unmask_cpf
 
 
-_PATH_IMPORTLIB: Path = Path(importlib.__file__).parent
+_STR_IMPORTLIB_INIT: str = os.path.join("importlib", "__init__.py")
 
 
 @type_checker
@@ -60,7 +59,7 @@ def _is_internal_frame(cls_frame: FrameType) -> bool:
     str_module = str(cls_frame.f_globals.get("__name__", ""))
     return (
         str_file.startswith("<frozen importlib")
-        or Path(str_file).parent == _PATH_IMPORTLIB
+        or str_file.endswith(_STR_IMPORTLIB_INIT)
         or str_module.split(".", maxsplit=1)[0] == "pure_docs_br"
     )
 
