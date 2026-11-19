@@ -12,9 +12,11 @@ routines ``validaCns`` and ``validaCnsProv`` as published by the Ministry of Hea
 e-SUS APS integration layout, "Validar CNS"
 (https://integracao.esusab.ufsc.br/ledi/documentacao/regras/algoritmo_CNS.html); both
 branches above follow them line for line. That page also accepts a provisional number
-starting with ``5``; this module rejects it, as issue #16 specifies, pending the owner's
-decision. The mask ``XXX XXXX XXXX XXXX`` is a proposal (the CNS has no official mask), pending the
-owner's decision. No CNS starts with 0, so ``unmask_cns`` never pads zeros.
+starting with ``5``; this module rejects it by the owner's decision (#55), because the
+DATASUS routines and the ANVISA page document only 1, 2, 7, 8 and 9. The usage docs
+("Por que um CNS iniciado em 5 é rejeitado") give the sources, the cost and what would
+reopen it. The mask ``XXX XXXX XXXX XXXX`` is a proposal (the CNS has no official mask),
+pending the owner's decision. No CNS starts with 0, so ``unmask_cns`` never pads zeros.
 """
 
 from __future__ import annotations
@@ -121,6 +123,8 @@ def is_valid_cns(str_value: str) -> bool:
         ``True`` when the value has 15 digits and satisfies the rule of its kind: the
         definitive (first digit 1 or 2) check digit and suffix, or the provisional
         (7, 8 or 9) sum divisible by 11. It does not check that the card was ever issued.
+        A number starting with 5 is ``False`` on purpose, even when its sum divides by 11;
+        see "Por que um CNS iniciado em 5 é rejeitado" in the usage docs.
     """
     str_clean = unmask_cns(str_value)
     fn_rule = _DICT_VALIDATORS.get(str_clean[:1])

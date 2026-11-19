@@ -51,6 +51,11 @@ def test_is_valid_cns_invalid_first_digit_returns_false(str_first: str) -> None:
     assert is_valid_cns(str_first + "00000000010002") is False
 
 
+def test_is_valid_cns_prefix_5_with_sum_divisible_by_11_returns_false() -> None:
+    """A 5-prefixed number is rejected even when the provisional sum closes (77 = 7 * 11)."""
+    assert is_valid_cns("500000000000002") is False
+
+
 def test_is_valid_cns_empty_returns_false() -> None:
     """An empty string is not a CNS."""
     assert is_valid_cns("") is False

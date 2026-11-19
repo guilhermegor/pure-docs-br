@@ -104,7 +104,9 @@ is_valid_pis_pasep("11111111111")  # False, dígito repetido
 
 Mesmo contrato das funções acima (`TypeError` para não `str`, nenhuma exceção para `str`). O CNS
 (Cartão Nacional de Saúde) tem 15 dígitos ASCII e o primeiro define o tipo: `1` e `2` são
-definitivos, `7`, `8` e `9` provisórios; `0`, `3`, `4`, `5` e `6` são inválidos. O módulo 11 vem da
+definitivos, `7`, `8` e `9` provisórios; `0`, `3`, `4`, `5` e `6` são inválidos. O `5` é rejeitado
+de propósito, mesmo quando a soma ponderada fecha; o motivo e as fontes estão em
+[Uso](../usage.md#por-que-um-cns-iniciado-em-5-e-rejeitado). O módulo 11 vem da
 rotina do DATASUS, conhecida por fontes públicas e não pelo texto oficial. `is_valid_cns` não
 confirma que o cartão foi emitido.
 
