@@ -51,7 +51,8 @@ Consumers pinned to an older line should upgrade to pick up a fix.
 
 | Version | Supported |
 |---------|-----------|
-| 1.x     | ✅        |
+| 2.x     | ✅        |
+| 1.x     | ❌ (published as `pure-docs-br`; upgrade to `purepii-br` 2.x) |
 | < 1.0   | ❌        |
 
 ## Scope
