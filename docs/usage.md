@@ -571,11 +571,15 @@ list_values = ["529.982.247-25", "111.444.777-35"]
 cls_strategy = DICT_DOCUMENTS["cpf"]
 [cls_strategy.is_valid(str_value) for str_value in list_values]  # [True, True]
 DICT_DOCUMENTS["cnh"].mask("0265.030.6461")  # "02650306461"
+DICT_DOCUMENTS["inscricao_estadual_sp"].is_valid("110.042.490.114")  # True
 ```
 
 Casos extremos:
 
-- CNH e RENAVAM não têm máscara oficial: `mask` devolve os dígitos sem máscara e nunca levanta
-  exceção, então um laço sobre todos os documentos não quebra.
+- CNH, RENAVAM, RG e CIN não têm máscara oficial: `mask` devolve os dígitos sem máscara e nunca
+  levanta exceção, então um laço sobre todos os documentos não quebra.
+- `rg` valida com a regra genérica, sem UF; para a regra de uma UF chame `is_valid_rg(str_value, str_uf=...)`.
+- `cin` valida pela regra do CPF e usa `unmask_rg` para normalizar.
+- A Inscrição Estadual entra uma vez por UF, com a sigla em minúsculas: `"inscricao_estadual_sp"`,
+  `"inscricao_estadual_rj"` etc. A UF já vem embutida em `is_valid` e `mask`.
 - Um nome fora do registro levanta `KeyError`.
-- Inscrição Estadual e RG não estão no registro: as funções exigem `str_uf`.
