@@ -24,6 +24,7 @@ LIST_NAMES: list[str] = [
     "titulo_eleitor",
 ]
 LIST_MASKLESS: list[str] = ["cnh", "renavam"]
+LIST_MASKED: list[str] = [str_n for str_n in LIST_NAMES if str_n not in LIST_MASKLESS]
 
 
 def test_registry_keys_are_the_document_names() -> None:
@@ -43,7 +44,7 @@ def test_strategy_unmask_is_the_public_function(str_name: str) -> None:
     assert DICT_DOCUMENTS[str_name].unmask is getattr(purepii_br, f"unmask_{str_name}")
 
 
-@pytest.mark.parametrize("str_name", [s for s in LIST_NAMES if s not in LIST_MASKLESS])
+@pytest.mark.parametrize("str_name", LIST_MASKED)
 def test_strategy_mask_is_the_public_mask(str_name: str) -> None:
     """Documents with an official mask expose the real ``mask_*``."""
     assert DICT_DOCUMENTS[str_name].mask is getattr(purepii_br, f"mask_{str_name}")
@@ -52,8 +53,8 @@ def test_strategy_mask_is_the_public_mask(str_name: str) -> None:
 @pytest.mark.parametrize("str_name", LIST_MASKLESS)
 def test_maskless_document_returns_unmasked_digits(str_name: str) -> None:
     """A document with no official mask returns the unmasked digits and never raises."""
-    strategy = DICT_DOCUMENTS[str_name]
-    assert strategy.mask("0265.030.6461") == strategy.unmask("0265.030.6461")
+    cls_strategy = DICT_DOCUMENTS[str_name]
+    assert cls_strategy.mask("0265.030.6461") == cls_strategy.unmask("0265.030.6461")
 
 
 def test_cpf_strategy_mask_formats() -> None:

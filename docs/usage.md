@@ -568,8 +568,8 @@ Quando a coluna guarda documentos de um tipo só conhecido em tempo de execuçã
 from purepii_br import DICT_DOCUMENTS
 
 list_values = ["529.982.247-25", "111.444.777-35"]
-strategy = DICT_DOCUMENTS["cpf"]
-[strategy.is_valid(str_value) for str_value in list_values]  # [True, True]
+cls_strategy = DICT_DOCUMENTS["cpf"]
+[cls_strategy.is_valid(str_value) for str_value in list_values]  # [True, True]
 DICT_DOCUMENTS["cnh"].mask("0265.030.6461")  # "02650306461"
 ```
 

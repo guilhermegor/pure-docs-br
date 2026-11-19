@@ -1,4 +1,4 @@
-"""Uniform per-document strategy and a runtime registry keyed by document name.
+"""Runtime registry mapping a document name to its uniform strategy.
 
 Every strategy wraps the public module-level functions of its document and never
 reimplements a rule. Documents whose functions need an extra argument (the UF of
@@ -6,9 +6,6 @@ reimplements a rule. Documents whose functions need an extra argument (the UF of
 """
 
 from __future__ import annotations
-
-from collections.abc import Callable
-from typing import NamedTuple
 
 from purepii_br import (
     boleto_arrecadacao,
@@ -27,24 +24,7 @@ from purepii_br import (
     renavam,
     titulo_eleitor,
 )
-
-
-class DocumentStrategy(NamedTuple):
-    """The three operations every registered document offers.
-
-    Attributes
-    ----------
-    is_valid : Callable[[str], bool]
-        Validates a document value.
-    mask : Callable[[str], str]
-        Formats a value; for a document with no official mask it returns the unmasked digits.
-    unmask : Callable[[str], str]
-        Normalises a value to its bare form.
-    """
-
-    is_valid: Callable[[str], bool]
-    mask: Callable[[str], str]
-    unmask: Callable[[str], str]
+from purepii_br.document_strategy import DocumentStrategy
 
 
 DICT_DOCUMENTS: dict[str, DocumentStrategy] = {

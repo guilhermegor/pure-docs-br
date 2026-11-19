@@ -33,7 +33,8 @@ from .cnh import is_valid_cnh, mask_cnh, unmask_cnh
 from .cnpj import is_valid_cnpj, mask_cnpj, unmask_cnpj
 from .cns import is_valid_cns, mask_cns, unmask_cns
 from .cpf import is_valid_cpf, mask_cpf, unmask_cpf
-from .documents import DICT_DOCUMENTS, DocumentStrategy
+from .document_strategy import DocumentStrategy
+from .documents import DICT_DOCUMENTS
 from .inscricao_estadual import (
     is_valid_inscricao_estadual,
     mask_inscricao_estadual,
