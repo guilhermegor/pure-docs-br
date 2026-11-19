@@ -184,7 +184,9 @@ usa a 1.4.0 ou posterior.
 negativo para eles. Quem usa `is_valid_cns` para recusar um cadastro deve levar isso em conta.
 
 **O que reabre a decisão.** Um CNS real iniciado em `5` que o sistema do SUS aceite, ou um documento
-oficial normativo que descreva o prefixo. Abra uma issue com esse caso como evidência.
+oficial normativo que descreva o prefixo. Abra uma issue com a evidência, mas **nunca publique um CNS
+real**: ele identifica uma pessoa no SUS. Informe onde o cartão foi emitido, qual sistema o aceitou e
+só o prefixo, com o restante mascarado (`5XX XXXX XXXX XXXX`).
 
 ## CNH
 
