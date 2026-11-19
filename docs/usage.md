@@ -576,8 +576,9 @@ DICT_DOCUMENTS["inscricao_estadual_sp"].is_valid("110.042.490.114")  # True
 
 Casos extremos:
 
-- CNH, RENAVAM, RG e CIN não têm máscara oficial: `mask` devolve os dígitos sem máscara e nunca
-  levanta exceção, então um laço sobre todos os documentos não quebra.
+- CNH, RENAVAM, RG e CIN não têm máscara oficial: `mask` devolve o valor sem máscara e nunca
+  levanta exceção, então um laço sobre todos os documentos não quebra. As letras do RG são mantidas,
+  em maiúsculas (`"10.000.006-x"` vira `"10000006X"`).
 - `rg` valida com a regra genérica, sem UF; para a regra de uma UF chame `is_valid_rg(str_value, str_uf=...)`.
 - `cin` valida pela regra do CPF e usa `unmask_rg` para normalizar.
 - A Inscrição Estadual entra uma vez por UF, com a sigla em minúsculas: `"inscricao_estadual_sp"`,
