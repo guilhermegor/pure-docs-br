@@ -7,6 +7,7 @@ from the package root (``from pure_docs_br import is_valid_cpf``) or from ``pure
 
 from __future__ import annotations
 
+import importlib
 from pathlib import Path
 import sys
 from traceback import walk_stack
@@ -16,6 +17,29 @@ import warnings
 from pure_docs_br._internal.utils.typing import type_checker
 from pure_docs_br.cnpj import is_valid_cnpj, mask_cnpj, unmask_cnpj
 from pure_docs_br.cpf import is_valid_cpf, mask_cpf, unmask_cpf
+
+
+_PATH_IMPORTLIB: Path = Path(importlib.__file__).parent
+
+
+@type_checker
+def _is_skipped_by_warn(str_file: str) -> bool:
+    """Tell whether :func:`warnings.warn` itself skips a frame from ``str_file``.
+
+    Mirrors CPython's ``_is_internal_filename``: both ``importlib`` and ``_bootstrap`` must
+    appear, so an importer such as ``app_bootstrap.py`` is still counted.
+
+    Parameters
+    ----------
+    str_file : str
+        A frame's ``co_filename``.
+
+    Returns
+    -------
+    bool
+        ``True`` when ``warnings.warn`` leaves this frame out of the ``stacklevel`` count.
+    """
+    return "importlib" in str_file and "_bootstrap" in str_file
 
 
 @type_checker
@@ -36,7 +60,7 @@ def _is_internal_frame(cls_frame: FrameType) -> bool:
     str_module = str(cls_frame.f_globals.get("__name__", ""))
     return (
         str_file.startswith("<frozen importlib")
-        or Path(str_file).parent.name == "importlib"
+        or Path(str_file).parent == _PATH_IMPORTLIB
         or str_module.split(".", maxsplit=1)[0] == "pure_docs_br"
     )
 
@@ -61,7 +85,9 @@ def _external_stacklevel(cls_frame: FrameType) -> int:
         The ``stacklevel`` to pass to :func:`warnings.warn` from this module's top level.
     """
     list_counted = [
-        cls_f for cls_f, _ in walk_stack(cls_frame) if "_bootstrap" not in cls_f.f_code.co_filename
+        cls_f
+        for cls_f, _ in walk_stack(cls_frame)
+        if not _is_skipped_by_warn(cls_f.f_code.co_filename)
     ]
     return next(
         (int_i + 1 for int_i, cls_f in enumerate(list_counted) if not _is_internal_frame(cls_f)),

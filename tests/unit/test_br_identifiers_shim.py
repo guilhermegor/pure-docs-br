@@ -22,8 +22,8 @@ LIST_SHIM_PROGRAMS: list[str] = [
 ]
 
 
-def _run_child(str_program: str) -> subprocess.CompletedProcess[str]:
-    """Run ``str_program`` in a fresh interpreter that imports this same copy of the package."""
+def _run_child(*tuple_args: str) -> subprocess.CompletedProcess[str]:
+    """Run ``python *tuple_args`` in a fresh interpreter importing this copy of the package."""
     path_pkg_root = Path(pure_docs_br.__file__).parents[1]
     str_pythonpath = os.pathsep.join(
         filter(None, [str(path_pkg_root), os.environ.get("PYTHONPATH")])
@@ -32,7 +32,7 @@ def _run_child(str_program: str) -> subprocess.CompletedProcess[str]:
     dict_env.pop("PYTHONWARNINGS", None)
     dict_env.pop("PYTHONDEVMODE", None)
     return subprocess.run(  # noqa: S603 - constant argv, no untrusted input
-        [sys.executable, "-c", str_program],
+        [sys.executable, *tuple_args],
         check=False,
         capture_output=True,
         text=True,
@@ -64,14 +64,22 @@ def test_package_attribute_access_lazily_imports_shim_and_warns(
 
 def test_package_import_never_touches_the_deprecated_shim() -> None:
     """``import pure_docs_br`` never imports the shim, from any submodule or by any route."""
-    cls_result = _run_child(STR_IMPORT_PROGRAM)
+    cls_result = _run_child("-c", STR_IMPORT_PROGRAM)
     assert cls_result.returncode == 0, cls_result.stderr
 
 
 @pytest.mark.parametrize("str_program", LIST_SHIM_PROGRAMS)
 def test_shim_warning_is_shown_under_default_filters(str_program: str) -> None:
     """A ``__main__`` importer sees the warning without ``-W``: it is attributed to the caller."""
-    cls_result = _run_child(str_program)
+    cls_result = _run_child("-c", str_program)
     assert "<string>:1: DeprecationWarning: pure_docs_br.br_identifiers" in cls_result.stderr, (
         f"exit {cls_result.returncode}: {cls_result.stderr}"
     )
+
+
+def test_shim_warning_counts_an_importer_whose_name_contains_bootstrap(tmp_path: Path) -> None:
+    """An importer named ``app_bootstrap.py`` still gets the warning attributed to its own line."""
+    path_script = tmp_path / "app_bootstrap.py"
+    path_script.write_text("import pure_docs_br.br_identifiers\n", encoding="utf-8")
+    cls_result = _run_child(str(path_script))
+    assert "app_bootstrap.py:1: DeprecationWarning" in cls_result.stderr, cls_result.stderr
