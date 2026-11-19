@@ -1,6 +1,6 @@
-site_name: pure-docs-br
+site_name: purepii-br
 site_description: "Valida, aplica e remove a máscara dos documentos do Brasil"
-repo_url: https://github.com/guilhermegor/pure-docs-br
+repo_url: https://github.com/guilhermegor/purepii-br
 nav:
   - Início: index.md
   - Guia:

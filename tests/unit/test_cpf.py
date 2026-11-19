@@ -4,7 +4,7 @@ from decimal import Decimal
 
 import pytest
 
-from pure_docs_br import is_valid_cpf, mask_cpf, unmask_cpf
+from purepii_br import is_valid_cpf, mask_cpf, unmask_cpf
 
 
 def test_unmask_cpf_masked_value_returns_bare_digits() -> None:

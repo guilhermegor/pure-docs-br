@@ -2,8 +2,8 @@
 
 import pytest
 
-from pure_docs_br import is_valid_cin, is_valid_rg, unmask_rg
-from pure_docs_br.rg import _DICT_VALIDATORS, _compute_rj_dv, _compute_sp_dv
+from purepii_br import is_valid_cin, is_valid_rg, unmask_rg
+from purepii_br.rg import _DICT_VALIDATORS, _compute_rj_dv, _compute_sp_dv
 
 
 LIST_SP_VALID: list[str] = [

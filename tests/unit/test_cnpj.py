@@ -4,7 +4,7 @@ from decimal import Decimal
 
 import pytest
 
-from pure_docs_br import is_valid_cnpj, mask_cnpj, unmask_cnpj
+from purepii_br import is_valid_cnpj, mask_cnpj, unmask_cnpj
 
 
 def test_unmask_cnpj_masked_value_returns_bare_digits() -> None:

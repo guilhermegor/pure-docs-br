@@ -2,8 +2,8 @@
 
 import pytest
 
-from pure_docs_br import is_valid_renavam, mask_renavam, unmask_renavam
-from pure_docs_br.renavam import _compute_dv
+from purepii_br import is_valid_renavam, mask_renavam, unmask_renavam
+from purepii_br.renavam import _compute_dv
 
 
 LIST_VALID: list[str] = [

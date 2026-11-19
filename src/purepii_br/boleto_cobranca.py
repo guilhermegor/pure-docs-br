@@ -1,7 +1,7 @@
 """Brazilian bank collection slip (boleto de cobranca) helpers.
 
 Pure, stateless functions with the same bad-input contract as
-:mod:`pure_docs_br`: a non-``str`` raises ``TypeError`` from the runtime
+:mod:`purepii_br`: a non-``str`` raises ``TypeError`` from the runtime
 type checker, a ``str`` never raises. Two shapes are accepted: the 44-digit barcode
 (bank 3 + currency 1 + general DV 1 + due-date factor 4 + amount 10 + free field 25) and
 the 47-digit typeable line (``AAABC.CCCCX DDDDD.DDDDDY EEEEE.EEEEEZ K UUUUVVVVVVVVVV``).
@@ -20,8 +20,8 @@ from __future__ import annotations
 from collections.abc import Callable
 import re
 
-from pure_docs_br._internal.utils.float_artifact import _strip_float_artifact
-from pure_docs_br._internal.utils.typing import type_checker
+from purepii_br._internal.utils.float_artifact import _strip_float_artifact
+from purepii_br._internal.utils.typing import type_checker
 
 
 _LEN_BARCODE: int = 44

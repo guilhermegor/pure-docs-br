@@ -1,7 +1,7 @@
 """Brazilian civil certificate matrícula (birth, marriage, death) — validate, mask, unmask.
 
 Pure, stateless functions with the same bad-input contract as
-:mod:`pure_docs_br`: a non-``str`` raises ``TypeError`` from the runtime
+:mod:`purepii_br`: a non-``str`` raises ``TypeError`` from the runtime
 type checker, a ``str`` never raises. One function family covers the three certificate
 types, since they share the same 32-digit matrícula.
 
@@ -33,7 +33,7 @@ from __future__ import annotations
 import datetime as dt
 import re
 
-from pure_docs_br._internal.utils.typing import type_checker
+from purepii_br._internal.utils.typing import type_checker
 
 
 _LEN_MATRICULA: int = 32

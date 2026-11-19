@@ -1,8 +1,8 @@
-"""Deprecated alias of :mod:`pure_docs_br.cpf` and :mod:`pure_docs_br.cnpj`.
+"""Deprecated alias of :mod:`purepii_br.cpf` and :mod:`purepii_br.cnpj`.
 
 Importing this module emits a ``DeprecationWarning``; it will be removed in 2.0.0. Import
-from the package root (``from pure_docs_br import is_valid_cpf``) or from ``pure_docs_br.cpf``
-/ ``pure_docs_br.cnpj`` instead.
+from the package root (``from purepii_br import is_valid_cpf``) or from ``purepii_br.cpf``
+/ ``purepii_br.cnpj`` instead.
 """
 
 from __future__ import annotations
@@ -13,9 +13,9 @@ from traceback import walk_stack
 from types import FrameType
 import warnings
 
-from pure_docs_br._internal.utils.typing import type_checker
-from pure_docs_br.cnpj import is_valid_cnpj, mask_cnpj, unmask_cnpj
-from pure_docs_br.cpf import is_valid_cpf, mask_cpf, unmask_cpf
+from purepii_br._internal.utils.typing import type_checker
+from purepii_br.cnpj import is_valid_cnpj, mask_cnpj, unmask_cnpj
+from purepii_br.cpf import is_valid_cpf, mask_cpf, unmask_cpf
 
 
 _STR_IMPORTLIB_INIT: str = os.path.join("importlib", "__init__.py")
@@ -53,14 +53,14 @@ def _is_internal_frame(cls_frame: FrameType) -> bool:
     Returns
     -------
     bool
-        ``True`` for an importlib or ``pure_docs_br`` frame, ``False`` for the importer.
+        ``True`` for an importlib or ``purepii_br`` frame, ``False`` for the importer.
     """
     str_file = cls_frame.f_code.co_filename
     str_module = str(cls_frame.f_globals.get("__name__", ""))
     return (
         str_file.startswith("<frozen importlib")
         or str_file.endswith(_STR_IMPORTLIB_INIT)
-        or str_module.split(".", maxsplit=1)[0] == "pure_docs_br"
+        or str_module.split(".", maxsplit=1)[0] == "purepii_br"
     )
 
 
@@ -95,8 +95,8 @@ def _external_stacklevel(cls_frame: FrameType) -> int:
 
 
 warnings.warn(
-    "pure_docs_br.br_identifiers is deprecated and will be removed in 2.0.0; "
-    "import from pure_docs_br (or pure_docs_br.cpf / pure_docs_br.cnpj) instead.",
+    "purepii_br.br_identifiers is deprecated and will be removed in 2.0.0; "
+    "import from purepii_br (or purepii_br.cpf / purepii_br.cnpj) instead.",
     DeprecationWarning,
     stacklevel=_external_stacklevel(sys._getframe()),  # noqa: SLF001
 )

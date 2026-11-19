@@ -1,4 +1,4 @@
-"""pure-docs-br package.
+"""purepii-br package.
 
 Every ``is_valid_*``, ``mask_*`` and ``unmask_*`` function shares one bad-input contract: a
 non-``str`` (``None``, ``float``/``NaN``) raises ``TypeError`` from the runtime type checker,
@@ -53,7 +53,7 @@ from .titulo_eleitor import (
 
 
 try:
-    __version__ = version("pure-docs-br")
+    __version__ = version("purepii-br")
 except PackageNotFoundError:  # pragma: no cover - source tree without an installed dist
     __version__ = "0.0.0"
 
@@ -71,7 +71,7 @@ if not TYPE_CHECKING:
         Returns
         -------
         object
-            The ``pure_docs_br.br_identifiers`` module (which emits its ``DeprecationWarning``).
+            The ``purepii_br.br_identifiers`` module (which emits its ``DeprecationWarning``).
 
         Raises
         ------
@@ -79,7 +79,7 @@ if not TYPE_CHECKING:
             For any name other than ``"br_identifiers"``.
         """
         if str_name == "br_identifiers":
-            return import_module("pure_docs_br.br_identifiers")
+            return import_module("purepii_br.br_identifiers")
         raise AttributeError(f"module {__name__!r} has no attribute {str_name!r}")
 
 

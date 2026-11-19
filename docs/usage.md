@@ -9,13 +9,13 @@ Exemplos de instalação e de uso desta biblioteca.
 ## Instalação
 
 ```bash
-pip install pure-docs-br
+pip install purepii-br
 ```
 
 Ou com Poetry:
 
 ```bash
-poetry add pure-docs-br
+poetry add purepii-br
 ```
 
 A biblioteca não tem dependências de execução.
@@ -31,7 +31,7 @@ float (`52998224725.0`, comum em colunas do pandas lidas como número). Sempre u
 `float` ou `None` levanta `TypeError`.
 
 ```python
-from pure_docs_br import is_valid_cpf, mask_cpf, unmask_cpf
+from purepii_br import is_valid_cpf, mask_cpf, unmask_cpf
 
 is_valid_cpf("529.982.247-25")  # True
 is_valid_cpf("52998224725.0")  # True
@@ -52,7 +52,7 @@ Formatos aceitos: com máscara (`11.222.333/0001-81`), sem máscara (`1122233300
 artefato de float (`11222333000181.0`). Sempre uma `str`.
 
 ```python
-from pure_docs_br import is_valid_cnpj, mask_cnpj, unmask_cnpj
+from purepii_br import is_valid_cnpj, mask_cnpj, unmask_cnpj
 
 is_valid_cnpj("11.222.333/0001-81")  # True
 is_valid_cnpj("11222333000181.0")  # True
@@ -64,7 +64,7 @@ Caso extremo, o CNPJ alfanumérico de 2026: letras e dígitos são aceitos nas m
 `unmask_cnpj` devolve a forma em maiúsculas.
 
 ```python
-from pure_docs_br import is_valid_cnpj, mask_cnpj, unmask_cnpj
+from purepii_br import is_valid_cnpj, mask_cnpj, unmask_cnpj
 
 is_valid_cnpj("12.ABC.345/01DE-35")  # True
 mask_cnpj("12ABC34501DE35")  # "12.ABC.345/01DE-35"
@@ -81,7 +81,7 @@ Formatos aceitos: com máscara (`01310-100`), sem máscara (`01310100`), com o z
 (`1310100`) e o artefato de float (`1310100.0`). Sempre uma `str`.
 
 ```python
-from pure_docs_br import is_valid_cep, mask_cep, unmask_cep
+from purepii_br import is_valid_cep, mask_cep, unmask_cep
 
 is_valid_cep("01310-100")  # True
 is_valid_cep("1310100.0")  # True
@@ -101,7 +101,7 @@ Formatos aceitos: com máscara (`123.45678.90-0`), sem máscara (`12345678900`),
 perdidos (`1234567890`) e o artefato de float (`12345678900.0`). Sempre uma `str`.
 
 ```python
-from pure_docs_br import is_valid_pis_pasep, mask_pis_pasep, unmask_pis_pasep
+from purepii_br import is_valid_pis_pasep, mask_pis_pasep, unmask_pis_pasep
 
 is_valid_pis_pasep("123.45678.90-0")  # True
 is_valid_pis_pasep("12345678901")  # False, dígito verificador errado
@@ -122,7 +122,7 @@ Formatos aceitos: com espaços (`0043 5687 09 06`), sem máscara (`004356870906`
 perdidos (`4356870906`) e o artefato de float (`4356870906.0`). Sempre uma `str`.
 
 ```python
-from pure_docs_br import is_valid_titulo_eleitor, mask_titulo_eleitor, unmask_titulo_eleitor
+from purepii_br import is_valid_titulo_eleitor, mask_titulo_eleitor, unmask_titulo_eleitor
 
 is_valid_titulo_eleitor("0043 5687 09 06")  # True
 is_valid_titulo_eleitor("123456780397")  # False, segundo dígito verificador errado
@@ -145,7 +145,7 @@ Formatos aceitos: com espaços (`100 0000 0001 0002`), sem máscara (`1000000000
 de float (`100000000010002.0`). Sempre uma `str`.
 
 ```python
-from pure_docs_br import is_valid_cns, mask_cns, unmask_cns
+from purepii_br import is_valid_cns, mask_cns, unmask_cns
 
 is_valid_cns("100 0000 0001 0002")  # True
 is_valid_cns("100000000010003")  # False, dígito verificador errado
@@ -199,7 +199,7 @@ Formatos aceitos: sem máscara (`12345678900`), com espaços ou pontuação e o 
 (`12345678900.0`). Sempre uma `str`.
 
 ```python
-from pure_docs_br import is_valid_cnh, mask_cnh, unmask_cnh
+from purepii_br import is_valid_cnh, mask_cnh, unmask_cnh
 
 is_valid_cnh("12345678900")  # True
 is_valid_cnh("12345678901")  # False, dígito verificador errado
@@ -227,7 +227,7 @@ Formatos aceitos: sem máscara (`22500062413`), com espaços ou pontuação, o a
 (`1234567897.0`) e o número antigo de 9 dígitos (`000123455`). Sempre uma `str`.
 
 ```python
-from pure_docs_br import is_valid_renavam, mask_renavam, unmask_renavam
+from purepii_br import is_valid_renavam, mask_renavam, unmask_renavam
 
 is_valid_renavam("22500062413")  # True
 is_valid_renavam("22500062414")  # False, dígito verificador errado
@@ -260,7 +260,7 @@ Formatos aceitos: com pontuação (`12.030.001-1`), sem máscara (`120300011`), 
 cauda de float (`123456789.0`). Sempre uma `str`.
 
 ```python
-from pure_docs_br import is_valid_cin, is_valid_rg, unmask_rg
+from purepii_br import is_valid_cin, is_valid_rg, unmask_rg
 
 is_valid_rg("12.030.001-1", str_uf="SP")  # True
 is_valid_rg("123456783", str_uf="SP")  # False, dígito verificador errado
@@ -291,7 +291,7 @@ float (`11144477700154.0`) e com zeros à esquerda perdidos: validação, másca
 14 dígitos (`is_valid_caepf("2500171")` é `True`). Sempre uma `str`.
 
 ```python
-from pure_docs_br import is_valid_caepf, mask_caepf, unmask_caepf
+from purepii_br import is_valid_caepf, mask_caepf, unmask_caepf
 
 is_valid_caepf("00000002500171")  # True, exemplo oficial do SERPRO
 is_valid_caepf("11144477700155")  # False, dígito verificador errado
@@ -331,7 +331,7 @@ zeros recupera os dígitos perdidos. A cauda `.0` só é removida de um texto qu
 dígitos originais. Um `X` fora de um `xx` final rejeita o valor.
 
 ```python
-from pure_docs_br import (
+from purepii_br import (
     is_valid_certidao_matricula,
     mask_certidao_matricula,
     unmask_certidao_matricula,
@@ -373,7 +373,7 @@ o Mercosul `LLLNLNN` (`ABC1D23`).
 Formatos aceitos: maiúsculas ou minúsculas, com hífen (`abc-1234`) ou sem. Sempre uma `str`.
 
 ```python
-from pure_docs_br import is_valid_placa, mask_placa, unmask_placa
+from purepii_br import is_valid_placa, mask_placa, unmask_placa
 
 is_valid_placa("abc-1234")  # True
 is_valid_placa("ABC12D4")  # False, o 5º caractere deve ser letra no Mercosul
@@ -398,7 +398,7 @@ Formatos aceitos: com máscara (`0000001-84.2020.8.26.0001`) ou só dígitos, in
 de conversão float. Sempre uma `str`.
 
 ```python
-from pure_docs_br import is_valid_processo_cnj, mask_processo_cnj, unmask_processo_cnj
+from purepii_br import is_valid_processo_cnj, mask_processo_cnj, unmask_processo_cnj
 
 is_valid_processo_cnj("0000001-84.2020.8.26.0001")  # True
 is_valid_processo_cnj("0000001-85.2020.8.26.0001")  # False, o DD correto é 84
@@ -423,7 +423,7 @@ atributo `Id` do XML (`NFe`, `CTe`, `MDFe`) ou com cauda `.0` de conversão floa
 as demais posições são dígitos.
 
 ```python
-from pure_docs_br import is_valid_chave_acesso, mask_chave_acesso, unmask_chave_acesso
+from purepii_br import is_valid_chave_acesso, mask_chave_acesso, unmask_chave_acesso
 
 is_valid_chave_acesso("35231111222333000181550010000000011123456789")  # True
 is_valid_chave_acesso("35231111222333000181550010000000011123456780")  # False, o DV correto é 9
@@ -453,7 +453,7 @@ A cauda `.0` de conversão float só é removida de um valor só com dígitos, a
 float→str produz; um valor com pontos ou espaços nunca foi float. Sempre uma `str`.
 
 ```python
-from pure_docs_br import is_valid_boleto_cobranca, mask_boleto_cobranca, unmask_boleto_cobranca
+from purepii_br import is_valid_boleto_cobranca, mask_boleto_cobranca, unmask_boleto_cobranca
 
 is_valid_boleto_cobranca("00191999900000123450000000000000000000000001")  # True, código de barras
 is_valid_boleto_cobranca(
@@ -490,7 +490,7 @@ A cauda `.0` de conversão float só é removida de um valor só com dígitos, a
 float→str produz; um valor com hifens ou espaços nunca foi float. Sempre uma `str`.
 
 ```python
-from pure_docs_br import (
+from purepii_br import (
     is_valid_boleto_arrecadacao,
     mask_boleto_arrecadacao,
     unmask_boleto_arrecadacao,
@@ -530,7 +530,7 @@ argumento obrigatório e nomeado, `str_uf`, com a sigla em maiúsculas. As 27 UF
 Formatos aceitos: com ou sem pontuação e o artefato de float (`110042490114.0`). Sempre uma `str`.
 
 ```python
-from pure_docs_br import (
+from purepii_br import (
     is_valid_inscricao_estadual,
     mask_inscricao_estadual,
     unmask_inscricao_estadual,

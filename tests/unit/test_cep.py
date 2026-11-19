@@ -2,7 +2,7 @@
 
 import pytest
 
-from pure_docs_br import is_valid_cep, mask_cep, unmask_cep
+from purepii_br import is_valid_cep, mask_cep, unmask_cep
 
 
 @pytest.mark.parametrize("str_value", ["01001-000", "01001010", "11099999", "1001000"])

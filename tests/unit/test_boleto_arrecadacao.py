@@ -2,7 +2,7 @@
 
 import pytest
 
-from pure_docs_br import (
+from purepii_br import (
     is_valid_boleto_arrecadacao,
     mask_boleto_arrecadacao,
     unmask_boleto_arrecadacao,

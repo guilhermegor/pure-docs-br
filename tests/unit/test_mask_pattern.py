@@ -2,7 +2,7 @@
 
 import pytest
 
-from pure_docs_br._internal.utils.mask_pattern import apply_mask_pattern
+from purepii_br._internal.utils.mask_pattern import apply_mask_pattern
 
 
 def test_apply_mask_pattern_fills_slots_in_order() -> None:

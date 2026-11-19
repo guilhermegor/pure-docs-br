@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-from pure_docs_br._internal.utils.typing import type_checker
+from purepii_br._internal.utils.typing import type_checker
 
 
 _RE_FLOAT_ARTIFACT: re.Pattern[str] = re.compile(r"^\s*(\d+)\.0+\s*$")
