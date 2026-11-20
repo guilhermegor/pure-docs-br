@@ -6,7 +6,7 @@ import purepii_br
 from purepii_br import DICT_DOCUMENTS, DocumentStrategy
 
 
-LIST_NAMES: list[str] = [
+LIST_PLAIN: list[str] = [
     "boleto_arrecadacao",
     "boleto_cobranca",
     "caepf",
@@ -21,10 +21,17 @@ LIST_NAMES: list[str] = [
     "placa",
     "processo_cnj",
     "renavam",
+    "rg",
     "titulo_eleitor",
 ]
-LIST_MASKLESS: list[str] = ["cnh", "renavam"]
-LIST_MASKED: list[str] = [str_n for str_n in LIST_NAMES if str_n not in LIST_MASKLESS]
+LIST_UFS: list[str] = [
+    "ac", "al", "ap", "am", "ba", "ce", "df", "es", "go", "ma", "mt", "ms", "mg", "pa",
+    "pb", "pr", "pe", "pi", "rj", "rn", "rs", "ro", "rr", "sc", "sp", "se", "to",
+]  # fmt: skip
+LIST_IE: list[str] = [f"inscricao_estadual_{str_uf}" for str_uf in LIST_UFS]
+LIST_NAMES: list[str] = sorted([*LIST_PLAIN, "cin", *LIST_IE])
+LIST_MASKLESS: list[str] = ["cin", "cnh", "renavam", "rg"]
+LIST_MASKED: list[str] = [str_n for str_n in LIST_PLAIN if str_n not in LIST_MASKLESS]
 
 
 def test_registry_keys_are_the_document_names() -> None:
@@ -32,13 +39,13 @@ def test_registry_keys_are_the_document_names() -> None:
     assert sorted(DICT_DOCUMENTS) == LIST_NAMES
 
 
-@pytest.mark.parametrize("str_name", LIST_NAMES)
+@pytest.mark.parametrize("str_name", LIST_PLAIN)
 def test_strategy_is_valid_is_the_public_function(str_name: str) -> None:
     """Each strategy wraps the module-level validator, never a copy."""
     assert DICT_DOCUMENTS[str_name].is_valid is getattr(purepii_br, f"is_valid_{str_name}")
 
 
-@pytest.mark.parametrize("str_name", LIST_NAMES)
+@pytest.mark.parametrize("str_name", LIST_PLAIN)
 def test_strategy_unmask_is_the_public_function(str_name: str) -> None:
     """Each strategy wraps the module-level unmasker, never a copy."""
     assert DICT_DOCUMENTS[str_name].unmask is getattr(purepii_br, f"unmask_{str_name}")
@@ -55,6 +62,68 @@ def test_maskless_document_returns_unmasked_digits(str_name: str) -> None:
     """A document with no official mask returns the unmasked digits and never raises."""
     cls_strategy = DICT_DOCUMENTS[str_name]
     assert cls_strategy.mask("0265.030.6461") == cls_strategy.unmask("0265.030.6461")
+
+
+def test_cin_strategy_is_valid_is_the_public_function() -> None:
+    """The CIN strategy wraps the public CIN validator."""
+    assert DICT_DOCUMENTS["cin"].is_valid is purepii_br.is_valid_cin
+
+
+def test_cin_strategy_unmask_is_the_rg_unmasker() -> None:
+    """The CIN number is a CPF, so the RG unmasker is its normaliser."""
+    assert DICT_DOCUMENTS["cin"].unmask is purepii_br.unmask_rg
+
+
+def test_cin_strategy_accepts_a_valid_cpf_number() -> None:
+    """A CIN validates through the CPF rule."""
+    assert DICT_DOCUMENTS["cin"].is_valid("529.982.247-25") is True
+
+
+def test_rg_strategy_uses_the_generic_rule_without_uf() -> None:
+    """The RG strategy validates with the UF-less rule."""
+    assert DICT_DOCUMENTS["rg"].is_valid("12.345.678-9") is True
+
+
+@pytest.mark.parametrize("str_name", LIST_IE)
+def test_ie_strategy_is_valid_binds_the_uf(str_name: str) -> None:
+    """Each per-UF IE validator is a partial of the public one with its own UF."""
+    cls_valid = DICT_DOCUMENTS[str_name].is_valid
+    assert (
+        (cls_valid.func, cls_valid.keywords)
+        == (  # type: ignore[attr-defined]
+            purepii_br.is_valid_inscricao_estadual,
+            {"str_uf": str_name[-2:].upper()},
+        )
+    )
+
+
+@pytest.mark.parametrize("str_name", LIST_IE)
+def test_ie_strategy_mask_binds_the_uf(str_name: str) -> None:
+    """Each per-UF IE mask is a partial of the public one with its own UF."""
+    cls_mask = DICT_DOCUMENTS[str_name].mask
+    assert (
+        (cls_mask.func, cls_mask.keywords)
+        == (  # type: ignore[attr-defined]
+            purepii_br.mask_inscricao_estadual,
+            {"str_uf": str_name[-2:].upper()},
+        )
+    )
+
+
+@pytest.mark.parametrize("str_name", LIST_IE)
+def test_ie_strategy_unmask_is_the_public_function(str_name: str) -> None:
+    """The IE unmasker needs no UF, so it is the plain public function."""
+    assert DICT_DOCUMENTS[str_name].unmask is purepii_br.unmask_inscricao_estadual
+
+
+def test_ie_sp_strategy_is_valid_accepts_official_example() -> None:
+    """The SP entry validates the official SP example."""
+    assert DICT_DOCUMENTS["inscricao_estadual_sp"].is_valid("110.042.490.114") is True
+
+
+def test_ie_sp_strategy_mask_formats() -> None:
+    """The SP entry masks with the SP mask."""
+    assert DICT_DOCUMENTS["inscricao_estadual_sp"].mask("110042490114") == "110.042.490.114"
 
 
 def test_cpf_strategy_mask_formats() -> None:

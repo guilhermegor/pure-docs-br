@@ -455,10 +455,10 @@ Interface única por documento, para escolher o documento em tempo de execução
 | Atributo | Tipo | Comportamento |
 |----------|------|---------------|
 | `is_valid(str_value)` | `bool` | A função `is_valid_*` do documento. |
-| `mask(str_value)` | `str` | A função `mask_*` do documento. CNH e RENAVAM não têm máscara oficial: devolve os dígitos sem máscara e nunca levanta exceção. |
+| `mask(str_value)` | `str` | A função `mask_*` do documento. CNH, RENAVAM, RG e CIN não têm máscara oficial: devolve o valor sem máscara e nunca levanta exceção. Letras do RG são mantidas em maiúsculas (`"10.000.006-x"` vira `"10000006X"`). |
 | `unmask(str_value)` | `str` | A função `unmask_*` do documento. |
 
-Nomes registrados: `boleto_arrecadacao`, `boleto_cobranca`, `caepf`, `cep`, `certidao_matricula`, `chave_acesso`, `cnh`, `cnpj`, `cns`, `cpf`, `pis_pasep`, `placa`, `processo_cnj`, `renavam` e `titulo_eleitor`. Inscrição Estadual e RG ficam de fora: exigem o argumento `str_uf`, que a interface única não carrega. Um nome fora do registro levanta `KeyError`.
+Nomes registrados: `boleto_arrecadacao`, `boleto_cobranca`, `caepf`, `cep`, `certidao_matricula`, `chave_acesso`, `cnh`, `cnpj`, `cin`, `cns`, `cpf`, `pis_pasep`, `placa`, `processo_cnj`, `renavam`, `rg` e `titulo_eleitor`, mais `inscricao_estadual_<uf>` para cada uma das 27 UFs (sigla em minúsculas, como `inscricao_estadual_sp`), com a UF embutida por `functools.partial`. `rg` valida com a regra genérica, sem UF, e `cin` valida pela regra do CPF; ambos usam `unmask_rg` como `unmask`. Um nome fora do registro levanta `KeyError`.
 
 ```python
 from purepii_br import DICT_DOCUMENTS
